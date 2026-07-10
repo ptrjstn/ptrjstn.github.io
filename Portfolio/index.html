@@ -92,8 +92,8 @@
           <section class="work-block">
             <h2>Film / Treatment / Serviceplan 2024-2025</h2>
             <div class="video-grid">
-              <video class="project-video" controls preload="auto" playsinline data-thumbnail-time="29" data-hls="assets/videos/bmw-film-1/playlist.m3u8"></video>
-              <video class="project-video" controls preload="auto" playsinline data-thumbnail-time="11" data-hls="assets/videos/bmw-film-2/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-thumbnail-time="29" data-hls="assets/videos/bmw-film-1/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-thumbnail-time="11" data-hls="assets/videos/bmw-film-2/playlist.m3u8"></video>
             </div>
           </section>
         </div>
@@ -108,12 +108,12 @@
           <section class="work-block">
             <h2>TVC / Treatment / Serviceplan 2024</h2>
             <div class="video-grid">
-              <video class="project-video" controls preload="auto" playsinline data-hls="assets/videos/rossmann-film-1/playlist.m3u8"></video>
-              <video class="project-video" controls preload="auto" playsinline data-hls="assets/videos/rossmann-film-2/playlist.m3u8"></video>
-              <video class="project-video" controls preload="auto" playsinline data-hls="assets/videos/rossmann-film-3/playlist.m3u8"></video>
-              <video class="project-video" controls preload="auto" playsinline data-hls="assets/videos/rossmann-film-4/playlist.m3u8"></video>
-              <video class="project-video" controls preload="auto" playsinline data-hls="assets/videos/rossmann-film-5/playlist.m3u8"></video>
-              <video class="project-video" controls preload="auto" playsinline data-hls="assets/videos/rossmann-film-6/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-1/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-2/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-3/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-4/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-5/playlist.m3u8"></video>
+              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-6/playlist.m3u8"></video>
             </div>
           </section>
         </div>
@@ -223,7 +223,6 @@
     </footer>
   </main>
 
-  <script src="assets/hls.min.js"></script>
   <div class="asset-lightbox" aria-hidden="true">
     <button class="lightbox-close" type="button" aria-label="Große Ansicht schließen">×</button>
     <img class="lightbox-image" alt="" />
@@ -259,9 +258,27 @@
       }
     }
 
-    document.querySelectorAll("video[data-hls]").forEach((video) => {
+    let hlsScriptPromise = null;
+
+    function loadHlsScript() {
+      if (window.Hls) return Promise.resolve(window.Hls);
+      if (!hlsScriptPromise) {
+        hlsScriptPromise = new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "assets/hls.min.js";
+          script.onload = () => resolve(window.Hls);
+          script.onerror = reject;
+          document.head.append(script);
+        });
+      }
+      return hlsScriptPromise;
+    }
+
+    function initVideo(video) {
+      if (video.dataset.hlsInitialized === "true") return;
       const source = video.dataset.hls;
       if (!source) return;
+      video.dataset.hlsInitialized = "true";
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = source;
         primeVideoThumbnail(video);
@@ -272,8 +289,34 @@
         hls.loadSource(source);
         hls.attachMedia(video);
         hls.on(window.Hls.Events.MANIFEST_PARSED, () => primeVideoThumbnail(video));
+        return;
       }
-    });
+      loadHlsScript().then(() => {
+        if (!(window.Hls && window.Hls.isSupported())) return;
+        const hls = new window.Hls();
+        hls.loadSource(source);
+        hls.attachMedia(video);
+        hls.on(window.Hls.Events.MANIFEST_PARSED, () => primeVideoThumbnail(video));
+      }).catch(() => {});
+    }
+
+    const videos = Array.from(document.querySelectorAll("video[data-hls]"));
+
+    if ("IntersectionObserver" in window) {
+      const videoObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          initVideo(entry.target);
+          observer.unobserve(entry.target);
+        });
+      }, {
+        rootMargin: "300px 0px",
+      });
+
+      videos.forEach((video) => videoObserver.observe(video));
+    } else {
+      videos.forEach(initVideo);
+    }
 
     const lightbox = document.querySelector(".asset-lightbox");
     const lightboxImage = document.querySelector(".lightbox-image");

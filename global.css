@@ -60,8 +60,7 @@ a:hover {
   max-width: 1180px;
 }
 
-.site-title,
-.brand {
+.site-title {
   display: inline-flex;
   align-items: center;
   text-align: left;
@@ -69,8 +68,7 @@ a:hover {
   color: inherit;
 }
 
-.site-title img,
-.brand img {
+.site-title img {
   display: block;
   width: auto;
   height: 42px;
@@ -82,9 +80,7 @@ a:hover {
 
 
 
-.portfolio-hero,
-.playground-top,
-.site-header {
+.portfolio-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 28px;
@@ -93,8 +89,7 @@ a:hover {
   padding: 14px 0 10px;
 }
 
-.portfolio-nav,
-.site-nav {
+.portfolio-nav {
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
@@ -104,21 +99,17 @@ a:hover {
 }
 
 .portfolio-nav a,
-.portfolio-nav span,
-.site-nav a,
-.site-nav span {
+.portfolio-nav span {
   padding-bottom: 3px;
   border-bottom: 1px solid transparent;
 }
 
-.portfolio-nav a:hover,
-.site-nav a:hover {
+.portfolio-nav a:hover {
   color: var(--ink);
   border-bottom-color: currentColor;
 }
 
-.portfolio-nav span,
-.site-nav span {
+.portfolio-nav span {
   color: var(--muted);
 }
 
