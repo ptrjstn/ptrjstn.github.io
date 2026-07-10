@@ -36,19 +36,19 @@
 </head>
 
 <body>
-  <main class="wrap portfolio-wrap">
+  <main id="arbeit" class="wrap portfolio-wrap">
     <header class="portfolio-hero">
       <div class="site-title">
         <img src="logo.png" width="226" height="98" alt="ptrjstn" decoding="async" fetchpriority="high" />
       </div>
       <nav class="portfolio-nav" aria-label="Website">
-        <a href="#arbeit">Arbeit</a>
-        <a href="#kontakt">Kontakt</a>
+        <a href="./">Arbeit</a>
+        <a href="index.html#kontakt">Kontakt</a>
         <a href="lebenslauf.html">CV</a>
       </nav>
     </header>
 
-    <section id="arbeit" class="portfolio-list" aria-label="Arbeiten">
+    <section class="portfolio-list" aria-label="Arbeiten">
       <article class="portfolio-project" id="deutsche-bahn">
         <div class="project-copy">
           <p class="project-count">01</p>
@@ -92,8 +92,8 @@
           <section class="work-block">
             <h2>Film / Treatment / Serviceplan 2024-2025</h2>
             <div class="video-grid">
-              <video class="project-video" controls preload="none" playsinline data-thumbnail-time="29" data-hls="assets/videos/bmw-film-1/playlist.m3u8"></video>
-              <video class="project-video" controls preload="none" playsinline data-thumbnail-time="11" data-hls="assets/videos/bmw-film-2/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-thumbnail-time="29" data-hls="assets/videos/bmw-film-1/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-thumbnail-time="11" data-hls="assets/videos/bmw-film-2/playlist.m3u8"></video>
             </div>
           </section>
         </div>
@@ -108,12 +108,12 @@
           <section class="work-block">
             <h2>TVC / Treatment / Serviceplan 2024</h2>
             <div class="video-grid">
-              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-1/playlist.m3u8"></video>
-              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-2/playlist.m3u8"></video>
-              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-3/playlist.m3u8"></video>
-              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-4/playlist.m3u8"></video>
-              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-5/playlist.m3u8"></video>
-              <video class="project-video" controls preload="none" playsinline data-hls="assets/videos/rossmann-film-6/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-hls="assets/videos/rossmann-film-1/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-hls="assets/videos/rossmann-film-2/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-hls="assets/videos/rossmann-film-3/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-hls="assets/videos/rossmann-film-4/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-hls="assets/videos/rossmann-film-5/playlist.m3u8"></video>
+              <video class="project-video" controls preload="metadata" playsinline data-hls="assets/videos/rossmann-film-6/playlist.m3u8"></video>
             </div>
           </section>
         </div>
@@ -276,21 +276,21 @@
 
     function initVideo(video) {
       if (video.dataset.hlsInitialized === "true") return;
-      const source = video.dataset.hls;
-      if (!source) return;
-      video.dataset.hlsInitialized = "true";
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = source;
-        primeVideoThumbnail(video);
-        return;
-      }
-      if (window.Hls && window.Hls.isSupported()) {
-        const hls = new window.Hls();
-        hls.loadSource(source);
-        hls.attachMedia(video);
-        hls.on(window.Hls.Events.MANIFEST_PARSED, () => primeVideoThumbnail(video));
-        return;
-      }
+      document.querySelectorAll("video[data-hls]").forEach((video) => {
+        const source = video.dataset.hls;
+        if (!source) return;
+        if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = source;
+          primeVideoThumbnail(video);
+          return;
+        }
+        if (window.Hls && window.Hls.isSupported()) {
+          const hls = new window.Hls();
+          hls.loadSource(source);
+          hls.attachMedia(video);
+          hls.on(window.Hls.Events.MANIFEST_PARSED, () => primeVideoThumbnail(video));
+        }
+      });
       loadHlsScript().then(() => {
         if (!(window.Hls && window.Hls.isSupported())) return;
         const hls = new window.Hls();
@@ -310,7 +310,7 @@
           observer.unobserve(entry.target);
         });
       }, {
-        rootMargin: "300px 0px",
+        rootMargin: "1800px 0px",
       });
 
       videos.forEach((video) => videoObserver.observe(video));
@@ -337,6 +337,8 @@
       lightboxImage.alt = "";
     }
 
+
+
     document.querySelectorAll(".project-gallery img").forEach((image) => {
       image.tabIndex = 0;
       image.setAttribute("role", "button");
@@ -350,6 +352,8 @@
         openLightbox(image);
         return;
       }
+
+
 
       if (event.target === lightbox || event.target === lightboxClose) {
         closeLightbox();
