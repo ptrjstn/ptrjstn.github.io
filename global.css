@@ -54,14 +54,14 @@ a:hover {
   min-height: calc(100dvh - 36px);
   display: flex;
   flex-direction: column;
-  padding: 24px 22px 44px;
+  padding: 24px 44px 44px;
   margin: 0 auto;
   background: var(--surface);
   box-shadow: 0 0 0 1px rgba(23, 23, 23, 0.04);
 }
 
 .portfolio-wrap {
-  max-width: 1060px;
+  max-width: 1120px;
 }
 
 .site-title {
