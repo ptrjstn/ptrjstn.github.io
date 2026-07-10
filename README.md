@@ -5,6 +5,7 @@ Dieses Repo bündelt jetzt alles unter einem Dach:
 - `/` → gemeinsame Landingpage
 - `/Playground/` → Playground
 - `/Portfolio/` → Portfolio
+- `/Storybooks/` → Storybooks
 
 ## Lokal
 
