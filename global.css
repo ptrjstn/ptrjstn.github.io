@@ -1,11 +1,11 @@
 :root {
   color-scheme: light;
-  --bg: #f3f1ea;
+  --bg: #f5efe4;
   --ink: #171717;
   --muted: #6e6e68;
   --line: #d8d8d1;
   --link: #171717;
-  --surface: #ffffff;
+  --surface: rgba(255, 255, 255, 0.82);
   --sans: inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "segoe ui", sans-serif;
 }
 
@@ -23,7 +23,8 @@ body {
   min-height: 100vh;
   display: flex;
   padding: 18px;
-  background: var(--bg);
+  background-color: var(--bg);
+
   color: var(--ink);
   font-family: var(--sans);
   font-size: 16px;
@@ -50,6 +51,7 @@ a:hover {
 }
 
 .wrap {
+  position: relative;
   width: 100%;
   min-height: calc(100dvh - 36px);
   display: flex;
@@ -57,11 +59,30 @@ a:hover {
   padding: 24px 44px 44px;
   margin: 0 auto;
   background: var(--surface);
-  box-shadow: 0 0 0 1px rgba(23, 23, 23, 0.04);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  overflow: hidden;
+}
+
+.wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("bg_texture.webp");
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 520px auto;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.wrap > * {
+  position: relative;
+  z-index: 1;
 }
 
 .portfolio-wrap {
-  max-width: 1120px;
+  max-width: 980px;
 }
 
 .site-title {
@@ -70,6 +91,8 @@ a:hover {
   text-align: left;
   margin: 0;
   color: inherit;
+  position: relative;
+  z-index: 4;
 }
 
 .site-title img {
@@ -89,6 +112,8 @@ a:hover {
   align-items: center;
   margin-bottom: 14px;
   padding: 14px 0 10px;
+  position: relative;
+  z-index: 3;
 }
 
 .site-menu {
