@@ -67,7 +67,7 @@ a:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("bg_texture.webp");
+  background-image: url("assets/shared/bg_texture.webp");
   background-repeat: repeat;
   background-position: center;
   background-size: 520px auto;

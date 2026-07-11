@@ -24,7 +24,7 @@ function setLetterVariant(button, variant) {
   const number = String(variant).padStart(2, "0");
 
   button.dataset.variant = String(variant);
-  image.src = `letters/${letter}/${letter}_${number}.webp`;
+  image.src = `assets/letters/${letter}/${letter}_${number}.webp`;
 }
 
 function randomizeLetterPosition(button) {
