@@ -258,9 +258,7 @@
   outline-offset: 3px;
 }
 
-.book-card[data-book="buch-02"] { --cover-gradient: linear-gradient(135deg, #2f5d62, #5fa4a8 50%, #d5e1b9); }
-.book-card[data-book="buch-03"] { --cover-gradient: linear-gradient(135deg, #6b2d5c, #b45f93 50%, #f2c9d4); }
-.book-card[data-book="buch-04"] { --cover-gradient: linear-gradient(135deg, #4c3b6f, #7a6db5 50%, #d6d1ef); }
+
 
 @media (max-width: 760px) {
   .book-library {
