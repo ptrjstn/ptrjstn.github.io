@@ -41,11 +41,18 @@
       <div class="site-title">
         <img src="logo.png" width="226" height="98" alt="ptrjstn" decoding="async" fetchpriority="high" />
       </div>
-      <nav class="portfolio-nav" aria-label="Website">
-        <a href="./">Arbeit</a>
-        <a href="index.html#kontakt">Kontakt</a>
-        <a href="lebenslauf.html">CV</a>
-      </nav>
+      <details class="site-menu">
+        <summary class="site-menu__button" aria-label="Menü öffnen">
+          <span></span>
+          <span></span>
+          <span></span>
+        </summary>
+        <nav class="portfolio-nav" aria-label="Website">
+          <a href="./">Arbeit</a>
+          <a href="index.html#kontakt">Kontakt</a>
+          <a href="lebenslauf.html">CV</a>
+        </nav>
+      </details>
     </header>
 
     <section class="portfolio-list" aria-label="Arbeiten">
@@ -231,13 +238,13 @@
     function primeVideoThumbnail(video) {
       const showFrame = () => {
         if (video.dataset.thumbnailPrimed === "true") return;
-        video.dataset.thumbnailPrimed = "true";
         try {
           const preferredTime = Number(video.dataset.thumbnailTime || 0.1);
           const duration = Number.isFinite(video.duration) ? video.duration : preferredTime + 0.1;
           const thumbnailTime = Math.min(preferredTime, Math.max(0, duration - 0.1));
           video.pause();
           video.currentTime = thumbnailTime;
+          video.dataset.thumbnailPrimed = "true";
         } catch (error) {
           video.dataset.thumbnailPrimed = "false";
         }
@@ -251,10 +258,12 @@
         }
       }, { once: true });
 
-      if (video.readyState >= 1) {
+      if (video.readyState >= 2) {
         showFrame();
       } else {
         video.addEventListener("loadedmetadata", showFrame, { once: true });
+        video.addEventListener("loadeddata", showFrame, { once: true });
+        video.addEventListener("canplay", showFrame, { once: true });
       }
     }
 
@@ -276,21 +285,24 @@
 
     function initVideo(video) {
       if (video.dataset.hlsInitialized === "true") return;
-      document.querySelectorAll("video[data-hls]").forEach((video) => {
-        const source = video.dataset.hls;
-        if (!source) return;
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = source;
-          primeVideoThumbnail(video);
-          return;
-        }
-        if (window.Hls && window.Hls.isSupported()) {
-          const hls = new window.Hls();
-          hls.loadSource(source);
-          hls.attachMedia(video);
-          hls.on(window.Hls.Events.MANIFEST_PARSED, () => primeVideoThumbnail(video));
-        }
-      });
+      const source = video.dataset.hls;
+      if (!source) return;
+      video.dataset.hlsInitialized = "true";
+
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = source;
+        primeVideoThumbnail(video);
+        return;
+      }
+
+      if (window.Hls && window.Hls.isSupported()) {
+        const hls = new window.Hls();
+        hls.loadSource(source);
+        hls.attachMedia(video);
+        hls.on(window.Hls.Events.MANIFEST_PARSED, () => primeVideoThumbnail(video));
+        return;
+      }
+
       loadHlsScript().then(() => {
         if (!(window.Hls && window.Hls.isSupported())) return;
         const hls = new window.Hls();
@@ -301,8 +313,11 @@
     }
 
     const videos = Array.from(document.querySelectorAll("video[data-hls]"));
+    const shouldInitImmediately = window.matchMedia("(max-width: 760px)").matches;
 
-    if ("IntersectionObserver" in window) {
+    if (shouldInitImmediately || !("IntersectionObserver" in window)) {
+      videos.forEach(initVideo);
+    } else {
       const videoObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
@@ -314,8 +329,6 @@
       });
 
       videos.forEach((video) => videoObserver.observe(video));
-    } else {
-      videos.forEach(initVideo);
     }
 
     const lightbox = document.querySelector(".asset-lightbox");

@@ -82,7 +82,6 @@ a:hover {
   object-position: left center;
 }
 
-
 .portfolio-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -90,6 +89,51 @@ a:hover {
   align-items: center;
   margin-bottom: 14px;
   padding: 14px 0 10px;
+}
+
+.site-menu {
+  justify-self: end;
+  position: relative;
+}
+
+.site-menu > summary {
+  list-style: none;
+}
+
+.site-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-menu__button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.site-menu__button:focus-visible {
+  outline: 2px dotted currentColor;
+  outline-offset: 3px;
+}
+
+.site-menu__button span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.site-menu__button span + span {
+  margin-top: 4px;
 }
 
 .portfolio-nav {
@@ -137,8 +181,6 @@ a:hover {
   color: var(--muted);
 }
 
-
-
 .landing-copy,
 .inline-link,
 .text,
@@ -168,5 +210,25 @@ a:hover {
   .wrap {
     min-height: calc(100dvh - 24px);
     padding: 20px 16px 36px;
+  }
+
+  .portfolio-hero {
+    gap: 14px;
+    padding: 10px 0 8px;
+    margin-bottom: 10px;
+  }
+
+  .site-title img {
+    height: 38px;
+  }
+
+  .portfolio-nav {
+    gap: 10px 12px;
+    font-size: 12px;
+  }
+
+  .portfolio-nav a,
+  .portfolio-nav span {
+    padding-bottom: 2px;
   }
 }

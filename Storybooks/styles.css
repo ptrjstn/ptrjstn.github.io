@@ -282,27 +282,10 @@
     border-left-width: 16px;
   }
 
-  .book-modal__zone::before {
-    width: 52px;
-    height: 52px;
-  }
-
-  .book-modal__zone--prev::before,
-  .book-modal__zone--prev::after {
-    left: 12px;
-  }
-
-  .book-modal__zone--prev::after {
-    left: 35px;
-  }
-
-  .book-modal__zone--next::before,
-  .book-modal__zone--next::after {
-    right: 12px;
-  }
-
-  .book-modal__zone--next::after {
-    right: 35px;
+  .book-modal__zone::before,
+  .book-modal__zone::after {
+    content: none;
+    display: none;
   }
 
   .book-modal__close {
