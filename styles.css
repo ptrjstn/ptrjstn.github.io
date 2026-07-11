@@ -66,8 +66,13 @@
 }
 
 @media (max-width: 760px) {
+  .landing-wrap {
+    height: calc(100dvh - 24px);
+    min-height: calc(100dvh - 24px);
+  }
+
   .landing {
-    padding: 32px 0 48px;
+    padding: 0;
   }
 
   .lettermark {
@@ -75,7 +80,7 @@
   }
 
   .lettermark__letter {
-    height: clamp(52px, 14vw, 76px);
+    height: clamp(46px, 12vw, 66px);
   }
 
   .lettermark__letter:hover {
