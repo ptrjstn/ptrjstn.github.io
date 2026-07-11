@@ -83,10 +83,6 @@ a:hover {
 }
 
 
-.subpage-empty {
-  flex: 1;
-}
-
 .portfolio-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
