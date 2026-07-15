@@ -120,7 +120,7 @@
   background: var(--surface-strong);
   color: var(--ink);
   box-shadow: var(--toggle-shadow);
-  font-family: "American Typewriter", "Courier New", Courier, ui-monospace, monospace;
+  font-family: "Courier New", Courier, ui-monospace, monospace;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -148,7 +148,7 @@
   width: min(100%, 560px);
   margin: clamp(20px, 3vw, 28px) 0 0;
   color: var(--ink);
-  font-family: "American Typewriter", "Courier New", Courier, ui-monospace, monospace;
+  font-family: "Courier New", Courier, ui-monospace, monospace;
   font-size: clamp(13px, 2vw, 15px);
   line-height: 1.4;
 }
