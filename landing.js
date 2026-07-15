@@ -136,6 +136,22 @@ function renderLetterWord(word) {
     return button;
   });
 
+  const infoButton = document.createElement("button");
+  const infoTooltip = document.createElement("span");
+
+  infoButton.className = "neologism-info";
+  infoButton.type = "button";
+  infoButton.setAttribute("aria-label", "Über den Neologismus");
+  infoButton.setAttribute("aria-describedby", "neologism-info-text");
+  infoButton.textContent = "i";
+
+  infoTooltip.id = "neologism-info-text";
+  infoTooltip.className = "neologism-info__tooltip";
+  infoTooltip.setAttribute("role", "tooltip");
+  infoTooltip.textContent = "Eine kleine sprachliche Spielerei: Künstliche Intelligenz erfindet bei jedem Besuch ein neues Wort – samt Lautschrift und eigener Definition.";
+  infoButton.appendChild(infoTooltip);
+  fragment.appendChild(infoButton);
+
   neologismWord.replaceChildren(fragment);
   neologismWord.style.gridTemplateColumns = `repeat(${letters.length}, minmax(0, 1fr))`;
   neologismWord.style.setProperty("--word-max-width", `${letters.length * 54}px`);

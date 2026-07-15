@@ -18,6 +18,7 @@
 }
 
 .neologism-word {
+  position: relative;
   display: grid;
   align-items: center;
   width: min(75%, var(--word-max-width, 375px));
@@ -76,12 +77,76 @@
   height: 82%;
 }
 
+.neologism-info {
+  position: absolute;
+  top: -10px;
+  right: -18px;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 50%;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1;
+  cursor: help;
+  opacity: 0.62;
+  transition: opacity 160ms ease;
+}
+
+.neologism-info:hover,
+.neologism-info:focus-visible {
+  opacity: 1;
+}
+
+.neologism-info:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: 3px;
+}
+
+.neologism-info__tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(280px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  color: var(--ink);
+  box-shadow: var(--toggle-shadow);
+  font-family: "Courier New", Courier, ui-monospace, monospace;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-align: left;
+  cursor: default;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  pointer-events: none;
+}
+
+.neologism-info:hover .neologism-info__tooltip,
+.neologism-info:focus .neologism-info__tooltip,
+.neologism-info:focus-visible .neologism-info__tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 .neologism-details {
   width: min(100%, 560px);
   margin: clamp(30px, 5vw, 48px) 0 0;
-  padding: 14px 0 16px;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--line);
   color: var(--ink);
   font-family: "Courier New", Courier, ui-monospace, monospace;
   font-size: clamp(13px, 2vw, 15px);
@@ -98,17 +163,8 @@
 }
 
 .neologism-details__definition {
-  display: grid;
-  grid-template-columns: 2em minmax(0, 1fr);
-  gap: 0.4em;
   margin: 12px 0 0;
   text-align: left;
-}
-
-.neologism-details__definition::before {
-  content: "1.";
-  color: var(--muted);
-  text-align: right;
 }
 
 .neologism-word[data-state="loading"] {
@@ -138,7 +194,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .neologism-word__letter {
+  .neologism-word__letter,
+  .neologism-info,
+  .neologism-info__tooltip {
     transition: none;
   }
 }

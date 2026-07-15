@@ -78,7 +78,7 @@ export default async function handler(request, response) {
             {
               role: "user",
               content: `
-Erfinde ein möglichst kurzes neues deutsches Hauptwort, idealerweise mit höchstens acht Buchstaben.
+Erfinde ein möglichst kurzes neues deutsches Hauptwort, idealerweise mit höchstens zehn Buchstaben.
 Schreibe eine präzise Definition mit höchstens zwölf Wörtern.
 
 Gib ausschließlich dieses JSON-Format zurück:
