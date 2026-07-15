@@ -10,6 +10,13 @@
   height: 42px;
 }
 
+.neologism-entry {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
 .neologism-word {
   display: grid;
   align-items: center;
@@ -62,6 +69,16 @@
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.neologism-details {
+  width: min(100%, 620px);
+  margin: clamp(26px, 5vw, 44px) 0 0;
+  color: var(--ink);
+  font-family: "Courier New", Courier, ui-monospace, monospace;
+  font-size: clamp(13px, 2vw, 16px);
+  line-height: 1.6;
+  text-align: left;
 }
 
 .neologism-word[data-state="loading"] {

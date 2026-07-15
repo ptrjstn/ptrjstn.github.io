@@ -57,9 +57,10 @@ export default async function handler(request, response) {
                   word: { type: "string" },
                   wordType: { type: "string" },
                   article: { type: "string" },
+                  pronunciation: { type: "string" },
                   definition: { type: "string" },
                 },
-                required: ["word", "wordType", "article", "definition"],
+                required: ["word", "wordType", "article", "pronunciation", "definition"],
                 additionalProperties: false,
               },
             },
@@ -81,6 +82,7 @@ Gib ausschließlich dieses JSON-Format zurück:
   "word": "Das erfundene Wort",
   "wordType": "Substantiv, Verb oder Adjektiv",
   "article": "der, die, das oder leer",
+  "pronunciation": "Eine leicht lesbare deutsche Lautschrift ohne eckige Klammern",
   "definition": "Die Definition in einem oder zwei Sätzen."
 }
               `.trim(),

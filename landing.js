@@ -28,6 +28,7 @@ const letterVariantCounts = {
 };
 
 const neologismWord = document.querySelector("[data-neologism-word]");
+const neologismDetails = document.querySelector("[data-neologism-details]");
 
 function normalizeWord(word) {
   return word
@@ -60,10 +61,10 @@ function setLetterVariant(button, variant) {
 }
 
 function randomizeLetterPosition(button) {
-  const x = Math.round((Math.random() - 0.5) * 10);
-  const y = Math.round((Math.random() - 0.5) * 12);
-  const tilt = (Math.random() - 0.5) * 2.4;
-  const scale = 0.96 + Math.random() * 0.06;
+  const x = Math.round((Math.random() - 0.5) * 18);
+  const y = Math.round((Math.random() - 0.5) * 20);
+  const tilt = (Math.random() - 0.5) * 5;
+  const scale = 0.92 + Math.random() * 0.14;
 
   button.style.setProperty("--letter-x", `${x}px`);
   button.style.setProperty("--letter-y", `${y}px`);
@@ -87,6 +88,16 @@ function randomizeStacking(buttons) {
 function bringLetterToFront(button, buttons) {
   const currentMaxZ = Math.max(...buttons.map((item) => Number(item.style.getPropertyValue("--letter-z") || 0)));
   button.style.setProperty("--letter-z", String(currentMaxZ + 1));
+}
+
+function renderDetails(data) {
+  const article = data.article ? `${data.article.trim()} ` : "";
+  const pronunciation = data.pronunciation
+    ? data.pronunciation.trim().replace(/^\[|\]$/g, "")
+    : data.word;
+
+  neologismDetails.textContent = `, ${article}[${pronunciation}] ${data.definition}`;
+  neologismDetails.hidden = false;
 }
 
 function renderLetterWord(word) {
@@ -146,6 +157,7 @@ async function loadNeologism() {
     }
 
     renderLetterWord(data.word);
+    renderDetails(data);
   } catch (error) {
     neologismWord.textContent = error.message || "Der Neologismus konnte nicht geladen werden.";
     neologismWord.dataset.state = "error";
