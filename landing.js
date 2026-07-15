@@ -39,8 +39,54 @@ function normalizeWord(word) {
     .replace(/[^A-Z]/g, "");
 }
 
-function randomVariant(letter) {
-  return Math.floor(Math.random() * letterVariantCounts[letter]) + 1;
+function randomVariant(letter, currentVariant = 0) {
+  const count = letterVariantCounts[letter];
+  let nextVariant = currentVariant;
+
+  while (nextVariant === currentVariant) {
+    nextVariant = Math.floor(Math.random() * count) + 1;
+  }
+
+  return nextVariant;
+}
+
+function setLetterVariant(button, variant) {
+  const letter = button.dataset.letter;
+  const image = button.querySelector("img");
+  const number = String(variant).padStart(2, "0");
+
+  button.dataset.variant = String(variant);
+  image.src = `assets/letters/${letter}/${letter}_${number}.webp`;
+}
+
+function randomizeLetterPosition(button) {
+  const x = Math.round((Math.random() - 0.5) * 10);
+  const y = Math.round((Math.random() - 0.5) * 12);
+  const tilt = (Math.random() - 0.5) * 2.4;
+  const scale = 0.96 + Math.random() * 0.06;
+
+  button.style.setProperty("--letter-x", `${x}px`);
+  button.style.setProperty("--letter-y", `${y}px`);
+  button.style.setProperty("--letter-tilt", `${tilt}deg`);
+  button.style.setProperty("--letter-scale", scale.toFixed(3));
+}
+
+function randomizeStacking(buttons) {
+  const shuffledButtons = [...buttons];
+
+  for (let index = shuffledButtons.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledButtons[index], shuffledButtons[swapIndex]] = [shuffledButtons[swapIndex], shuffledButtons[index]];
+  }
+
+  shuffledButtons.forEach((button, index) => {
+    button.style.setProperty("--letter-z", String(index + 1));
+  });
+}
+
+function bringLetterToFront(button, buttons) {
+  const currentMaxZ = Math.max(...buttons.map((item) => Number(item.style.getPropertyValue("--letter-z") || 0)));
+  button.style.setProperty("--letter-z", String(currentMaxZ + 1));
 }
 
 function renderLetterWord(word) {
@@ -51,22 +97,37 @@ function renderLetterWord(word) {
   }
 
   const fragment = document.createDocumentFragment();
-
-  Array.from(letters).forEach((letter) => {
+  const buttons = Array.from(letters).map((letter) => {
+    const button = document.createElement("button");
     const image = document.createElement("img");
-    const variant = String(randomVariant(letter)).padStart(2, "0");
 
-    image.className = "neologism-word__letter";
-    image.src = `assets/letters/${letter}/${letter}_${variant}.webp`;
+    button.className = "neologism-word__letter";
+    button.type = "button";
+    button.dataset.letter = letter;
+    button.setAttribute("aria-label", `Buchstabe ${letter} austauschen`);
     image.alt = "";
-    image.setAttribute("aria-hidden", "true");
-    fragment.appendChild(image);
+    button.appendChild(image);
+
+    randomizeLetterPosition(button);
+    setLetterVariant(button, randomVariant(letter));
+
+    button.addEventListener("click", () => {
+      const currentVariant = Number(button.dataset.variant);
+      setLetterVariant(button, randomVariant(letter, currentVariant));
+      randomizeLetterPosition(button);
+      bringLetterToFront(button, buttons);
+    });
+
+    fragment.appendChild(button);
+    return button;
   });
 
   neologismWord.replaceChildren(fragment);
-  neologismWord.style.setProperty("--word-max-width", `${letters.length * 78}px`);
+  neologismWord.style.gridTemplateColumns = `repeat(${letters.length}, minmax(0, 1fr))`;
+  neologismWord.style.setProperty("--word-max-width", `${letters.length * 54}px`);
   neologismWord.setAttribute("aria-label", word);
   neologismWord.dataset.state = "loaded";
+  randomizeStacking(buttons);
 }
 
 async function loadNeologism() {
