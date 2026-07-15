@@ -1,0 +1,111 @@
+const ALLOWED_ORIGIN = "https://ptrjstn.github.io";
+
+export default async function handler(request, response) {
+  const origin = request.headers.origin;
+
+  // Erlaubt Aufrufe von deiner GitHub-Pages-Website.
+  if (origin === ALLOWED_ORIGIN) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  response.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
+
+  // Browser senden teilweise zunächst eine OPTIONS-Anfrage.
+  if (request.method === "OPTIONS") {
+    return response.status(204).end();
+  }
+
+  if (request.method !== "GET") {
+    return response.status(405).json({
+      error: "Nur GET-Anfragen sind erlaubt.",
+    });
+  }
+
+  if (origin && origin !== ALLOWED_ORIGIN) {
+    return response.status(403).json({
+      error: "Diese Website darf die Funktion nicht aufrufen.",
+    });
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return response.status(500).json({
+      error: "Der OpenAI API-Key fehlt.",
+    });
+  }
+
+  try {
+    const openAIResponse = await fetch(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-5-mini",
+          input: [
+            {
+              role: "system",
+              content:
+                "Du erfindest glaubwürdige neue deutsche Wörter. Antworte ausschließlich als gültiges JSON ohne Markdown.",
+            },
+            {
+              role: "user",
+              content: `
+Erfinde ein neues deutsches Wort und eine präzise, poetische Definition.
+
+Gib ausschließlich dieses JSON-Format zurück:
+
+{
+  "word": "Das erfundene Wort",
+  "wordType": "Substantiv, Verb oder Adjektiv",
+  "article": "der, die, das oder leer",
+  "definition": "Die Definition in einem oder zwei Sätzen."
+}
+              `.trim(),
+            },
+          ],
+        }),
+      }
+    );
+
+    if (!openAIResponse.ok) {
+      const errorDetails = await openAIResponse.text();
+      console.error("OpenAI-Fehler:", errorDetails);
+
+      return response.status(502).json({
+        error: "Das neue Wort konnte nicht erzeugt werden.",
+      });
+    }
+
+    const result = await openAIResponse.json();
+    const rawText = result.output_text;
+
+    if (!rawText) {
+      throw new Error("Die OpenAI-Antwort enthält keinen Text.");
+    }
+
+    const cleanedText = rawText
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    const wordData = JSON.parse(cleanedText);
+
+    if (!wordData.word || !wordData.definition) {
+      throw new Error("Die Antwort hat nicht das erwartete Format.");
+    }
+
+    return response.status(200).json(wordData);
+  } catch (error) {
+    console.error(error);
+
+    return response.status(500).json({
+      error: "Beim Erzeugen des Wortes ist ein Fehler aufgetreten.",
+    });
+  }
+}
