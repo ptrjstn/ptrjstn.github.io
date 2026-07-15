@@ -213,6 +213,14 @@
 }
 
 @media (max-width: 760px) {
+  .neologism-word[data-state="loaded"] {
+    margin-bottom: 18px;
+  }
+
+  .neologism-details {
+    margin-top: 24px;
+  }
+
   .neologism-word__letter:hover {
     transform:
       translate(var(--letter-x, 0px), calc(var(--letter-y, 0px) - 4px))
