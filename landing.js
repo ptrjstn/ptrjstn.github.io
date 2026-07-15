@@ -76,3 +76,51 @@ letterButtons.forEach((button) => {
 });
 
 randomizeStacking();
+
+const neologismButton = document.querySelector("[data-neologism-open]");
+const neologismDialog = document.querySelector(".neologism-dialog");
+const neologismCloseButton = document.querySelector("[data-neologism-close]");
+const neologismStatus = document.querySelector("[data-neologism-status]");
+const neologismResult = document.querySelector("[data-neologism-result]");
+const neologismWord = document.querySelector("[data-neologism-word]");
+const neologismType = document.querySelector("[data-neologism-type]");
+const neologismDefinition = document.querySelector("[data-neologism-definition]");
+
+async function loadNeologism() {
+  neologismResult.hidden = true;
+  neologismStatus.hidden = false;
+  neologismStatus.textContent = "Ein neues Wort entsteht …";
+
+  try {
+    const response = await fetch("/api/neologism");
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Das neue Wort konnte nicht geladen werden.");
+    }
+
+    const article = data.article ? data.article.trim() : "";
+    neologismWord.textContent = article ? `${article} ${data.word}` : data.word;
+    neologismType.textContent = data.wordType || "Neologismus";
+    neologismDefinition.textContent = data.definition;
+    neologismStatus.hidden = true;
+    neologismResult.hidden = false;
+  } catch (error) {
+    neologismStatus.textContent = error.message || "Das neue Wort konnte nicht geladen werden.";
+  }
+}
+
+neologismButton.addEventListener("click", () => {
+  neologismDialog.showModal();
+  loadNeologism();
+});
+
+neologismCloseButton.addEventListener("click", () => {
+  neologismDialog.close();
+});
+
+neologismDialog.addEventListener("click", (event) => {
+  if (event.target === neologismDialog) {
+    neologismDialog.close();
+  }
+});
