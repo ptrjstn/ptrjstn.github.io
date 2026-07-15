@@ -32,7 +32,7 @@
       plausible.init()
     </script>
     <link rel="stylesheet" href="global.css" />
-    <link rel="stylesheet" href="landing.css?v=20260715-2" />
+    <link rel="stylesheet" href="landing.css?v=20260715-3" />
     <script defer src="landing.js?v=20260715-1"></script>
     <script defer src="theme.js"></script>
   </head>
@@ -50,7 +50,11 @@
 
       <section class="landing" aria-label="Neologismus">
         <div class="neologism-entry">
-          <h1 class="neologism-word" role="status" aria-live="polite" data-neologism-word>…</h1>
+          <h1 class="neologism-word" role="status" aria-live="polite" aria-label="Neologismus wird geladen" data-neologism-word data-state="loading">
+            <span class="loading-dot" aria-hidden="true">•</span>
+            <span class="loading-dot" aria-hidden="true">•</span>
+            <span class="loading-dot" aria-hidden="true">•</span>
+          </h1>
           <div class="neologism-details" data-neologism-details hidden>
             <p class="neologism-details__meta" data-neologism-meta></p>
             <p class="neologism-details__definition" data-neologism-definition></p>

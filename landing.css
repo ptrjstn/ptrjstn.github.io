@@ -168,11 +168,39 @@
 }
 
 .neologism-word[data-state="loading"] {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   color: var(--muted);
-  font-size: 42px;
+  font-size: 24px;
   font-weight: 400;
   text-align: center;
+}
+
+.loading-dot {
+  display: block;
+  animation: loading-wave 900ms ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes loading-wave {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-8px);
+  }
 }
 
 .neologism-word[data-state="error"] {
@@ -198,5 +226,9 @@
   .neologism-info,
   .neologism-info__tooltip {
     transition: none;
+  }
+
+  .loading-dot {
+    animation: none;
   }
 }
