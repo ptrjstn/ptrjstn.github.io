@@ -30,7 +30,7 @@
   place-items: center;
   min-width: 0;
   width: 116%;
-  height: clamp(35px, 9vw, 104px);
+  height: clamp(32px, 8vw, 84px);
   margin: 0 -8%;
   padding: 0;
   border: 0;
@@ -65,7 +65,7 @@
 .neologism-word__letter img {
   display: block;
   width: 100%;
-  max-height: 104px;
+  max-height: 84px;
   height: 100%;
   object-fit: contain;
   pointer-events: none;
