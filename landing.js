@@ -53,6 +53,15 @@ function randomVariant(letter, currentVariant = 0) {
   return nextVariant;
 }
 
+function adjustLetterForAspectRatio(image) {
+  const aspectRatio = image.naturalHeight / image.naturalWidth;
+  const aspectScale = aspectRatio > 1.4
+    ? Math.max(0.55, 1 - (aspectRatio - 1.4) * 0.26)
+    : 1;
+
+  image.style.setProperty("--aspect-scale", aspectScale.toFixed(3));
+}
+
 function setLetterVariant(button, variant) {
   const letter = button.dataset.letter;
   const image = button.querySelector("img");
@@ -120,6 +129,7 @@ function renderLetterWord(word) {
     button.dataset.letter = letter;
     button.setAttribute("aria-label", `Buchstabe ${letter} austauschen`);
     image.alt = "";
+    image.addEventListener("load", () => adjustLetterForAspectRatio(image));
     button.appendChild(image);
 
     randomizeLetterPosition(button);
