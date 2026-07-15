@@ -10,7 +10,9 @@ export default async function handler(request, response) {
 
   response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  response.setHeader("Cache-Control", "no-store, max-age=0");
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  response.setHeader("CDN-Cache-Control", "no-store");
+  response.setHeader("Vercel-CDN-Cache-Control", "no-store");
 
   // Browser senden teilweise zunächst eine OPTIONS-Anfrage.
   if (request.method === "OPTIONS") {
@@ -76,14 +78,14 @@ export default async function handler(request, response) {
             {
               role: "user",
               content: `
-Erfinde ein möglichst kurzes neues deutsches Wort, idealerweise mit höchstens acht Buchstaben.
+Erfinde ein möglichst kurzes neues deutsches Hauptwort, idealerweise mit höchstens acht Buchstaben.
 Schreibe eine präzise Definition mit höchstens zwölf Wörtern.
 
 Gib ausschließlich dieses JSON-Format zurück:
 
 {
   "word": "Das kurze erfundene Wort",
-  "wordType": "Substantiv, Verb oder Adjektiv",
+  "wordType": "Substantiv",
   "article": "der, die, das oder leer",
   "pronunciation": "Eine leicht lesbare deutsche Lautschrift ohne eckige Klammern",
   "definition": "Eine sehr kurze Definition mit höchstens zwölf Wörtern."

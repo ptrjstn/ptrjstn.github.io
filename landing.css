@@ -29,7 +29,7 @@
   place-items: center;
   min-width: 0;
   width: 116%;
-  height: clamp(35px, 9.5vw, 124px);
+  height: clamp(35px, 9vw, 104px);
   margin: 0 -8%;
   padding: 0;
   border: 0;
@@ -64,6 +64,7 @@
 .neologism-word__letter img {
   display: block;
   width: 100%;
+  max-height: 104px;
   height: 100%;
   object-fit: contain;
   pointer-events: none;
@@ -71,23 +72,43 @@
   -webkit-user-drag: none;
 }
 
+.neologism-word__letter[data-letter="I"] img {
+  height: 82%;
+}
+
 .neologism-details {
-  width: min(100%, 620px);
-  margin: clamp(26px, 5vw, 44px) 0 0;
+  width: min(100%, 560px);
+  margin: clamp(30px, 5vw, 48px) 0 0;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
   color: var(--ink);
   font-family: "Courier New", Courier, ui-monospace, monospace;
-  font-size: clamp(13px, 2vw, 16px);
-  line-height: 1.6;
+  font-size: clamp(13px, 2vw, 15px);
+  line-height: 1.55;
 }
 
 .neologism-details__meta {
   margin: 0;
+  color: var(--muted);
+  font-size: 0.9em;
+  font-style: italic;
+  letter-spacing: 0.025em;
   text-align: center;
 }
 
 .neologism-details__definition {
-  margin: 8px 0 0;
+  display: grid;
+  grid-template-columns: 2em minmax(0, 1fr);
+  gap: 0.4em;
+  margin: 12px 0 0;
   text-align: left;
+}
+
+.neologism-details__definition::before {
+  content: "1.";
+  color: var(--muted);
+  text-align: right;
 }
 
 .neologism-word[data-state="loading"] {

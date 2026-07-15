@@ -148,7 +148,11 @@ async function loadNeologism() {
   neologismWord.dataset.state = "loading";
 
   try {
-    const response = await fetch("/api/neologism", { cache: "no-store" });
+    const requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const response = await fetch(
+      `https://ptrjstn-github-io.vercel.app/api/neologism?request=${requestId}`,
+      { cache: "no-store" }
+    );
     const data = await response.json();
 
     if (!response.ok) {
