@@ -46,6 +46,24 @@ export default async function handler(request, response) {
         },
         body: JSON.stringify({
           model: "gpt-5-mini",
+          text: {
+            format: {
+              type: "json_schema",
+              name: "neologism",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  word: { type: "string" },
+                  wordType: { type: "string" },
+                  article: { type: "string" },
+                  definition: { type: "string" },
+                },
+                required: ["word", "wordType", "article", "definition"],
+                additionalProperties: false,
+              },
+            },
+          },
           input: [
             {
               role: "system",
@@ -82,9 +100,15 @@ Gib ausschließlich dieses JSON-Format zurück:
     }
 
     const result = await openAIResponse.json();
-    const rawText = result.output_text;
+    const rawText =
+      result.output_text ||
+      result.output
+        ?.flatMap((item) => item.content || [])
+        .find((item) => item.type === "output_text")
+        ?.text;
 
     if (!rawText) {
+      console.error("Unerwartete OpenAI-Antwort:", JSON.stringify(result));
       throw new Error("Die OpenAI-Antwort enthält keinen Text.");
     }
 
@@ -102,10 +126,10 @@ Gib ausschließlich dieses JSON-Format zurück:
 
     return response.status(200).json(wordData);
   } catch (error) {
-    console.error(error);
+    console.error("Fehler beim Erzeugen des Wortes:", error);
 
     return response.status(500).json({
-      error: "Beim Erzeugen des Wortes ist ein Fehler aufgetreten.",
+      error: "Beim Verarbeiten des neuen Wortes ist ein Fehler aufgetreten.",
     });
   }
 }
