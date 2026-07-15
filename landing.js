@@ -29,6 +29,8 @@ const letterVariantCounts = {
 
 const neologismWord = document.querySelector("[data-neologism-word]");
 const neologismDetails = document.querySelector("[data-neologism-details]");
+const neologismMeta = document.querySelector("[data-neologism-meta]");
+const neologismDefinition = document.querySelector("[data-neologism-definition]");
 
 function normalizeWord(word) {
   return word
@@ -96,7 +98,8 @@ function renderDetails(data) {
     ? data.pronunciation.trim().replace(/^\[|\]$/g, "")
     : data.word;
 
-  neologismDetails.textContent = `, ${article}[${pronunciation}]\n${data.definition}`;
+  neologismMeta.textContent = `, ${article}[${pronunciation}]`;
+  neologismDefinition.textContent = data.definition;
   neologismDetails.hidden = false;
 }
 

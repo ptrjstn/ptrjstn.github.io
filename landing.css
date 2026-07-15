@@ -78,8 +78,16 @@
   font-family: "Courier New", Courier, ui-monospace, monospace;
   font-size: clamp(13px, 2vw, 16px);
   line-height: 1.6;
+}
+
+.neologism-details__meta {
+  margin: 0;
+  text-align: center;
+}
+
+.neologism-details__definition {
+  margin: 8px 0 0;
   text-align: left;
-  white-space: pre-line;
 }
 
 .neologism-word[data-state="loading"] {

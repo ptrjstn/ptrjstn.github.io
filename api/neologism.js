@@ -47,7 +47,7 @@ export default async function handler(request, response) {
         body: JSON.stringify({
           model: "gpt-5-mini",
           reasoning: { effort: "minimal" },
-          max_output_tokens: 200,
+          max_output_tokens: 120,
           text: {
             format: {
               type: "json_schema",
@@ -71,21 +71,22 @@ export default async function handler(request, response) {
             {
               role: "system",
               content:
-                "Du erfindest glaubwürdige neue deutsche Wörter. Antworte ausschließlich als gültiges JSON ohne Markdown.",
+                "Du erfindest kurze, glaubwürdige neue deutsche Wörter. Antworte ausschließlich als gültiges JSON ohne Markdown.",
             },
             {
               role: "user",
               content: `
-Erfinde ein neues deutsches Wort und eine präzise, poetische Definition.
+Erfinde ein möglichst kurzes neues deutsches Wort, idealerweise mit höchstens acht Buchstaben.
+Schreibe eine präzise Definition mit höchstens zwölf Wörtern.
 
 Gib ausschließlich dieses JSON-Format zurück:
 
 {
-  "word": "Das erfundene Wort",
+  "word": "Das kurze erfundene Wort",
   "wordType": "Substantiv, Verb oder Adjektiv",
   "article": "der, die, das oder leer",
   "pronunciation": "Eine leicht lesbare deutsche Lautschrift ohne eckige Klammern",
-  "definition": "Die Definition in einem oder zwei Sätzen."
+  "definition": "Eine sehr kurze Definition mit höchstens zwölf Wörtern."
 }
               `.trim(),
             },
