@@ -79,6 +79,7 @@
   font-size: clamp(13px, 2vw, 16px);
   line-height: 1.6;
   text-align: left;
+  white-space: pre-line;
 }
 
 .neologism-word[data-state="loading"] {

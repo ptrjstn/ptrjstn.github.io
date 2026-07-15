@@ -10,7 +10,7 @@ export default async function handler(request, response) {
 
   response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  response.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
+  response.setHeader("Cache-Control", "no-store, max-age=0");
 
   // Browser senden teilweise zunächst eine OPTIONS-Anfrage.
   if (request.method === "OPTIONS") {
@@ -46,6 +46,8 @@ export default async function handler(request, response) {
         },
         body: JSON.stringify({
           model: "gpt-5-mini",
+          reasoning: { effort: "minimal" },
+          max_output_tokens: 200,
           text: {
             format: {
               type: "json_schema",

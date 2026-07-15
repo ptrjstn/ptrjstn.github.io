@@ -61,10 +61,10 @@ function setLetterVariant(button, variant) {
 }
 
 function randomizeLetterPosition(button) {
-  const x = Math.round((Math.random() - 0.5) * 18);
-  const y = Math.round((Math.random() - 0.5) * 20);
-  const tilt = (Math.random() - 0.5) * 5;
-  const scale = 0.92 + Math.random() * 0.14;
+  const x = Math.round((Math.random() - 0.5) * 10);
+  const y = Math.round((Math.random() - 0.5) * 12);
+  const tilt = (Math.random() - 0.5) * 2.4;
+  const scale = 0.96 + Math.random() * 0.06;
 
   button.style.setProperty("--letter-x", `${x}px`);
   button.style.setProperty("--letter-y", `${y}px`);
@@ -96,7 +96,7 @@ function renderDetails(data) {
     ? data.pronunciation.trim().replace(/^\[|\]$/g, "")
     : data.word;
 
-  neologismDetails.textContent = `, ${article}[${pronunciation}] ${data.definition}`;
+  neologismDetails.textContent = `, ${article}[${pronunciation}]\n${data.definition}`;
   neologismDetails.hidden = false;
 }
 
@@ -145,7 +145,7 @@ async function loadNeologism() {
   neologismWord.dataset.state = "loading";
 
   try {
-    const response = await fetch("/api/neologism");
+    const response = await fetch("/api/neologism", { cache: "no-store" });
     const data = await response.json();
 
     if (!response.ok) {
