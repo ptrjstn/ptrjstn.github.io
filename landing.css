@@ -2,7 +2,7 @@
   flex: 1;
   display: grid;
   place-items: center;
-  padding: clamp(40px, 8vw, 96px) 0;
+  padding: clamp(0px, calc(20vw - 100px), 96px) 0;
 }
 
 .site-title img {
@@ -14,7 +14,7 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   align-items: center;
-  width: min(57%, 375px);
+  width: min(75%, 375px);
   gap: 0;
 }
 
@@ -23,7 +23,7 @@
   place-items: center;
   min-width: 0;
   width: 116%;
-  height: clamp(70px, 9.5vw, 124px);
+  height: clamp(35px, 9.5vw, 124px);
   margin: 0 -8%;
   padding: 0;
   border: 0;
@@ -66,23 +66,6 @@
 }
 
 @media (max-width: 760px) {
-  .landing-wrap {
-    height: calc(100dvh - 24px);
-    min-height: calc(100dvh - 24px);
-  }
-
-  .landing {
-    padding: 0;
-  }
-
-  .lettermark {
-    width: 75%;
-  }
-
-  .lettermark__letter {
-    height: clamp(35px, 9vw, 50px);
-  }
-
   .lettermark__letter:hover {
     transform:
       translate(var(--letter-x, 0px), var(--letter-y, 0px))

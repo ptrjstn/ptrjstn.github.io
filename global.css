@@ -6,7 +6,33 @@
   --line: #d8d8d1;
   --link: #171717;
   --surface: rgba(255, 255, 255, 0.5);
+  --surface-strong: rgba(255, 255, 255, 0.88);
+  --overlay: rgba(248, 248, 245, 0.94);
+  --selection: rgba(23, 23, 23, 0.16);
+  --toggle-border: rgba(23, 23, 23, 0.14);
+  --toggle-shadow: 0 10px 24px rgba(23, 23, 23, 0.08);
+  --bg-texture: url("assets/shared/bg_texture.webp");
+  --bg-texture-opacity: 0.7;
+  --page-gutter: clamp(12px, 2.37vw, 18px);
+  --wrap-gutter: clamp(16px, 5.79vw, 44px);
   --sans: inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "segoe ui", sans-serif;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #2b2721;
+  --ink: #f2e9dc;
+  --muted: #b9ad9c;
+  --line: #574e42;
+  --link: #f2e9dc;
+  --surface: rgba(50, 44, 36, 0.68);
+  --surface-strong: rgba(60, 53, 44, 0.92);
+  --overlay: rgba(29, 26, 22, 0.94);
+  --selection: rgba(242, 233, 220, 0.2);
+  --toggle-border: rgba(242, 233, 220, 0.17);
+  --toggle-shadow: 0 10px 24px rgba(20, 16, 11, 0.26);
+  --bg-texture: url("assets/shared/bg_texture_dark.webp");
+  --bg-texture-opacity: 0.42;
 }
 
 * {
@@ -22,7 +48,7 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
-  padding: 18px;
+  padding: var(--page-gutter);
   background-color: var(--bg);
 
   color: var(--ink);
@@ -31,6 +57,7 @@ body {
   line-height: 1.5;
   text-rendering: geometricPrecision;
   overflow-anchor: none;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
 a {
@@ -46,17 +73,17 @@ a:hover {
 }
 
 ::selection {
-  background: rgba(23, 23, 23, 0.16);
+  background: var(--selection);
   color: var(--ink);
 }
 
 .wrap {
   position: relative;
   width: 100%;
-  min-height: calc(100dvh - 36px);
+  min-height: calc(100dvh - var(--page-gutter) - var(--page-gutter));
   display: flex;
   flex-direction: column;
-  padding: 24px 44px 44px;
+  padding: clamp(20px, 3.16vw, 24px) var(--wrap-gutter) clamp(20px, 3.16vw, 24px);
   margin: 0 auto;
   background: var(--surface);
 
@@ -67,11 +94,11 @@ a:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("assets/shared/bg_texture.webp");
+  background-image: var(--bg-texture);
   background-repeat: repeat;
   background-position: center;
   background-size: 520px auto;
-  opacity: 0.7;
+  opacity: var(--bg-texture-opacity);
   pointer-events: none;
 }
 
@@ -97,20 +124,24 @@ a:hover {
 .site-title img {
   display: block;
   width: auto;
-  height: 42px;
+  height: clamp(38px, 5.53vw, 42px);
   padding: 0;
   aspect-ratio: auto;
   object-fit: contain;
   object-position: left center;
 }
 
+:root[data-theme="dark"] .site-title img {
+  filter: brightness(0) invert(1);
+}
+
 .portfolio-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 28px;
+  gap: clamp(14px, 3.68vw, 28px);
   align-items: center;
-  margin-bottom: 14px;
-  padding: 14px 0 10px;
+  margin-bottom: clamp(10px, 1.84vw, 14px);
+  padding: clamp(10px, 1.84vw, 14px) 0 clamp(8px, 1.32vw, 10px);
   position: relative;
   z-index: 3;
 }
@@ -164,8 +195,8 @@ a:hover {
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 14px 18px;
-  font-size: 13px;
+  gap: clamp(10px, 1.84vw, 14px) clamp(12px, 2.37vw, 18px);
+  font-size: clamp(12px, 1.71vw, 13px);
   line-height: 1;
 }
 
@@ -205,6 +236,43 @@ a:hover {
   color: var(--muted);
 }
 
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--toggle-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--toggle-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  background: var(--surface-strong);
+}
+
+.theme-toggle:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px dotted currentColor;
+  outline-offset: 3px;
+}
+
 .landing-copy,
 .inline-link,
 .text,
@@ -227,30 +295,6 @@ a:hover {
 }
 
 @media (max-width: 760px) {
-  body {
-    padding: 12px;
-  }
-
-  .wrap {
-    min-height: calc(100dvh - 24px);
-    padding: 20px 16px 36px;
-  }
-
-  .portfolio-hero {
-    gap: 14px;
-    padding: 10px 0 8px;
-    margin-bottom: 10px;
-  }
-
-  .site-title img {
-    height: 38px;
-  }
-
-  .portfolio-nav {
-    gap: 10px 12px;
-    font-size: 12px;
-  }
-
   .portfolio-nav a,
   .portfolio-nav span {
     padding-bottom: 2px;

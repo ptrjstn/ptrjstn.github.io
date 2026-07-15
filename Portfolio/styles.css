@@ -226,7 +226,7 @@
   display: grid;
   place-items: center;
   padding: 32px;
-  background: rgba(248,248,245,0.94);
+  background: var(--overlay);
   opacity: 0;
   pointer-events: none;
   transition: opacity 160ms ease;
