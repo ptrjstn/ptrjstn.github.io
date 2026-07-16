@@ -23,6 +23,9 @@
   align-items: center;
   width: min(75%, var(--word-max-width, 375px));
   margin: 0;
+  transform: scale(var(--word-fit-scale, 1));
+  transform-origin: center top;
+  transition: transform 160ms ease;
 }
 
 .neologism-word__letter {
@@ -30,7 +33,7 @@
   place-items: center;
   min-width: 0;
   width: 116%;
-  height: clamp(32px, 8vw, 84px);
+  height: clamp(35px, 9vw, 104px);
   margin: 0 -8%;
   padding: 0;
   border: 0;
@@ -65,7 +68,7 @@
 .neologism-word__letter img {
   display: block;
   width: 100%;
-  max-height: 84px;
+  max-height: 104px;
   height: 100%;
   object-fit: contain;
   transform: scale(var(--aspect-scale, 1));
@@ -227,14 +230,6 @@
     padding-bottom: 4px;
   }
 
-  .neologism-word[data-state="loaded"] {
-    margin-bottom: 14px;
-  }
-
-  .neologism-details {
-    margin-top: 18px;
-  }
-
   .neologism-word__letter:hover {
     transform:
       translate(var(--letter-x, 0px), calc(var(--letter-y, 0px) - 4px))
@@ -244,6 +239,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .neologism-word,
   .neologism-word__letter,
   .neologism-info,
   .neologism-info__tooltip {

@@ -31,6 +31,35 @@ const neologismWord = document.querySelector("[data-neologism-word]");
 const neologismDetails = document.querySelector("[data-neologism-details]");
 const neologismMeta = document.querySelector("[data-neologism-meta]");
 const neologismDefinition = document.querySelector("[data-neologism-definition]");
+let fitAnimationFrame;
+
+function fitWordAboveDetails() {
+  if (neologismDetails.hidden || neologismWord.dataset.state !== "loaded") {
+    return;
+  }
+
+  window.cancelAnimationFrame(fitAnimationFrame);
+  neologismWord.style.setProperty("--word-fit-scale", "1");
+
+  fitAnimationFrame = window.requestAnimationFrame(() => {
+    const letterButtons = Array.from(neologismWord.querySelectorAll(".neologism-word__letter"));
+
+    if (!letterButtons.length) {
+      return;
+    }
+
+    const wordTop = neologismWord.getBoundingClientRect().top;
+    const detailsTop = neologismDetails.getBoundingClientRect().top;
+    const deepestLetterBottom = Math.max(
+      ...letterButtons.map((button) => button.getBoundingClientRect().bottom)
+    );
+    const letterDepth = deepestLetterBottom - wordTop;
+    const availableDepth = detailsTop - wordTop - 12;
+    const fitScale = Math.min(1, Math.max(0.45, availableDepth / letterDepth));
+
+    neologismWord.style.setProperty("--word-fit-scale", fitScale.toFixed(3));
+  });
+}
 
 function normalizeWord(word) {
   return word
@@ -72,13 +101,10 @@ function setLetterVariant(button, variant) {
 }
 
 function randomizeLetterPosition(button) {
-  const isMobile = window.matchMedia("(max-width: 760px)").matches;
-  const x = Math.round((Math.random() - 0.5) * (isMobile ? 6 : 10));
-  const y = Math.round((Math.random() - 0.5) * (isMobile ? 4 : 12));
-  const tilt = (Math.random() - 0.5) * (isMobile ? 1.6 : 2.4);
-  const scale = isMobile
-    ? 0.97 + Math.random() * 0.04
-    : 0.96 + Math.random() * 0.06;
+  const x = Math.round((Math.random() - 0.5) * 10);
+  const y = Math.round((Math.random() - 0.5) * 12);
+  const tilt = (Math.random() - 0.5) * 2.4;
+  const scale = 0.96 + Math.random() * 0.06;
 
   button.style.setProperty("--letter-x", `${x}px`);
   button.style.setProperty("--letter-y", `${y}px`);
@@ -113,6 +139,7 @@ function renderDetails(data) {
   neologismMeta.textContent = `, ${article}[${pronunciation}]`;
   neologismDefinition.textContent = data.definition;
   neologismDetails.hidden = false;
+  fitWordAboveDetails();
 }
 
 function renderLetterWord(word) {
@@ -132,7 +159,10 @@ function renderLetterWord(word) {
     button.dataset.letter = letter;
     button.setAttribute("aria-label", `Buchstabe ${letter} austauschen`);
     image.alt = "";
-    image.addEventListener("load", () => adjustLetterForAspectRatio(image));
+    image.addEventListener("load", () => {
+      adjustLetterForAspectRatio(image);
+      fitWordAboveDetails();
+    });
     button.appendChild(image);
 
     randomizeLetterPosition(button);
@@ -199,5 +229,7 @@ async function loadNeologism() {
     neologismWord.dataset.state = "error";
   }
 }
+
+window.addEventListener("resize", fitWordAboveDetails);
 
 loadNeologism();
