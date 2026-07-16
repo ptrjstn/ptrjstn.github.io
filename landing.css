@@ -211,12 +211,28 @@
 }
 
 @media (max-width: 760px) {
+  body {
+    padding-block: 6px;
+  }
+
+  .landing-wrap {
+    height: calc(100dvh - 12px);
+    min-height: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .portfolio-hero {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
   .neologism-word[data-state="loaded"] {
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
 
   .neologism-details {
-    margin-top: 24px;
+    margin-top: 18px;
   }
 
   .neologism-word__letter:hover {

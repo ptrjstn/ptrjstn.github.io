@@ -72,10 +72,13 @@ function setLetterVariant(button, variant) {
 }
 
 function randomizeLetterPosition(button) {
-  const x = Math.round((Math.random() - 0.5) * 10);
-  const y = Math.round((Math.random() - 0.5) * 12);
-  const tilt = (Math.random() - 0.5) * 2.4;
-  const scale = 0.96 + Math.random() * 0.06;
+  const isMobile = window.matchMedia("(max-width: 760px)").matches;
+  const x = Math.round((Math.random() - 0.5) * (isMobile ? 6 : 10));
+  const y = Math.round((Math.random() - 0.5) * (isMobile ? 4 : 12));
+  const tilt = (Math.random() - 0.5) * (isMobile ? 1.6 : 2.4);
+  const scale = isMobile
+    ? 0.97 + Math.random() * 0.04
+    : 0.96 + Math.random() * 0.06;
 
   button.style.setProperty("--letter-x", `${x}px`);
   button.style.setProperty("--letter-y", `${y}px`);
