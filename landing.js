@@ -47,19 +47,34 @@ function fitWordAboveDetails() {
       return;
     }
 
-    const wordTop = neologismWord.getBoundingClientRect().top;
     const detailsTop = neologismDetails.getBoundingClientRect().top;
-    const deepestLetterBottom = Math.max(
-      ...letterButtons.map((button) => button.getBoundingClientRect().bottom)
-    );
-    const letterDepth = deepestLetterBottom - wordTop;
-    const availableDepth = detailsTop - wordTop - 12;
-    const currentScale = Number.parseFloat(
-      getComputedStyle(neologismWord).getPropertyValue("--word-fit-scale")
-    ) || 1;
-    const fitScale = Math.min(1, Math.max(0.2, currentScale * availableDepth / letterDepth));
+    const fitsAtScale = (scale) => {
+      neologismWord.style.setProperty("--word-fit-scale", scale.toFixed(3));
+      const deepestLetterBottom = Math.max(
+        ...letterButtons.map((button) => button.getBoundingClientRect().bottom)
+      );
 
-    neologismWord.style.setProperty("--word-fit-scale", fitScale.toFixed(3));
+      return deepestLetterBottom <= detailsTop - 12;
+    };
+
+    if (fitsAtScale(1)) {
+      return;
+    }
+
+    let lowerScale = 0.2;
+    let upperScale = 1;
+
+    for (let step = 0; step < 10; step += 1) {
+      const candidateScale = (lowerScale + upperScale) / 2;
+
+      if (fitsAtScale(candidateScale)) {
+        lowerScale = candidateScale;
+      } else {
+        upperScale = candidateScale;
+      }
+    }
+
+    neologismWord.style.setProperty("--word-fit-scale", lowerScale.toFixed(3));
   });
 }
 
@@ -233,5 +248,11 @@ async function loadNeologism() {
 }
 
 window.addEventListener("resize", fitWordAboveDetails);
+
+if (typeof ResizeObserver === "function") {
+  const layoutObserver = new ResizeObserver(fitWordAboveDetails);
+  layoutObserver.observe(neologismWord);
+  layoutObserver.observe(neologismDetails);
+}
 
 loadNeologism();
