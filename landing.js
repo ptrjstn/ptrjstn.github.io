@@ -39,7 +39,6 @@ function fitWordAboveDetails() {
   }
 
   window.cancelAnimationFrame(fitAnimationFrame);
-  neologismWord.style.setProperty("--word-fit-scale", "1");
 
   fitAnimationFrame = window.requestAnimationFrame(() => {
     const letterButtons = Array.from(neologismWord.querySelectorAll(".neologism-word__letter"));
@@ -55,7 +54,10 @@ function fitWordAboveDetails() {
     );
     const letterDepth = deepestLetterBottom - wordTop;
     const availableDepth = detailsTop - wordTop - 12;
-    const fitScale = Math.min(1, Math.max(0.45, availableDepth / letterDepth));
+    const currentScale = Number.parseFloat(
+      getComputedStyle(neologismWord).getPropertyValue("--word-fit-scale")
+    ) || 1;
+    const fitScale = Math.min(1, Math.max(0.2, currentScale * availableDepth / letterDepth));
 
     neologismWord.style.setProperty("--word-fit-scale", fitScale.toFixed(3));
   });

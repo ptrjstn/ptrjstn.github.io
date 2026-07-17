@@ -7,7 +7,7 @@
 
 .site-title img {
   width: auto;
-  height: 42px;
+  height: 29.4px;
 }
 
 .neologism-entry {
@@ -25,7 +25,6 @@
   margin: 0;
   transform: scale(var(--word-fit-scale, 1));
   transform-origin: center top;
-  transition: transform 160ms ease;
 }
 
 .neologism-word__letter {
