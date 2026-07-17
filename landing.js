@@ -41,20 +41,25 @@ function fitWordAboveDetails() {
   window.cancelAnimationFrame(fitAnimationFrame);
 
   fitAnimationFrame = window.requestAnimationFrame(() => {
-    const letterButtons = Array.from(neologismWord.querySelectorAll(".neologism-word__letter"));
+    const letterImages = Array.from(neologismWord.querySelectorAll(".neologism-word__letter img"));
+    const captionElements = [neologismMeta, neologismDefinition].filter(
+      (element) => element.textContent.trim()
+    );
 
-    if (!letterButtons.length) {
+    if (!letterImages.length || !captionElements.length) {
       return;
     }
 
-    const detailsTop = neologismDetails.getBoundingClientRect().top;
     const fitsAtScale = (scale) => {
       neologismWord.style.setProperty("--word-fit-scale", scale.toFixed(3));
       const deepestLetterBottom = Math.max(
-        ...letterButtons.map((button) => button.getBoundingClientRect().bottom)
+        ...letterImages.map((image) => image.getBoundingClientRect().bottom)
+      );
+      const highestCaptionTop = Math.min(
+        ...captionElements.map((element) => element.getBoundingClientRect().top)
       );
 
-      return deepestLetterBottom <= detailsTop - 12;
+      return deepestLetterBottom <= highestCaptionTop - 12;
     };
 
     if (fitsAtScale(1)) {
