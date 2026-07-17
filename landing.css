@@ -23,8 +23,7 @@
   align-items: center;
   width: min(75%, var(--word-max-width, 375px));
   margin: 0;
-  transform: scale(var(--word-fit-scale, 1));
-  transform-origin: center top;
+  transform: translateY(calc(var(--overlap-shift, 0px) * -1));
 }
 
 .neologism-word__letter {
@@ -148,6 +147,7 @@
   width: min(100%, 560px);
   margin: clamp(20px, 3vw, 28px) 0 0;
   color: var(--ink);
+  transform: translateY(var(--overlap-shift, 0px));
   font-family: "Courier New", Courier, ui-monospace, monospace;
   font-size: clamp(13px, 2vw, 15px);
   line-height: 1.4;

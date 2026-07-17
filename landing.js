@@ -28,6 +28,7 @@ const letterVariantCounts = {
 };
 
 const neologismWord = document.querySelector("[data-neologism-word]");
+const neologismEntry = neologismWord.closest(".neologism-entry");
 const neologismDetails = document.querySelector("[data-neologism-details]");
 const neologismMeta = document.querySelector("[data-neologism-meta]");
 const neologismDefinition = document.querySelector("[data-neologism-definition]");
@@ -50,36 +51,17 @@ function fitWordAboveDetails() {
       return;
     }
 
-    const fitsAtScale = (scale) => {
-      neologismWord.style.setProperty("--word-fit-scale", scale.toFixed(3));
-      const deepestLetterBottom = Math.max(
-        ...letterImages.map((image) => image.getBoundingClientRect().bottom)
-      );
-      const highestCaptionTop = Math.min(
-        ...captionElements.map((element) => element.getBoundingClientRect().top)
-      );
+    neologismEntry.style.setProperty("--overlap-shift", "0px");
 
-      return deepestLetterBottom <= highestCaptionTop - 12;
-    };
+    const deepestLetterBottom = Math.max(
+      ...letterImages.map((image) => image.getBoundingClientRect().bottom)
+    );
+    const highestCaptionTop = Math.min(
+      ...captionElements.map((element) => element.getBoundingClientRect().top)
+    );
+    const overlap = Math.max(0, deepestLetterBottom + 12 - highestCaptionTop);
 
-    if (fitsAtScale(1)) {
-      return;
-    }
-
-    let lowerScale = 0.2;
-    let upperScale = 1;
-
-    for (let step = 0; step < 10; step += 1) {
-      const candidateScale = (lowerScale + upperScale) / 2;
-
-      if (fitsAtScale(candidateScale)) {
-        lowerScale = candidateScale;
-      } else {
-        upperScale = candidateScale;
-      }
-    }
-
-    neologismWord.style.setProperty("--word-fit-scale", lowerScale.toFixed(3));
+    neologismEntry.style.setProperty("--overlap-shift", `${(overlap / 2).toFixed(2)}px`);
   });
 }
 
