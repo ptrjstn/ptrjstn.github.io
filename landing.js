@@ -34,35 +34,36 @@ const neologismMeta = document.querySelector("[data-neologism-meta]");
 const neologismDefinition = document.querySelector("[data-neologism-definition]");
 let fitAnimationFrame;
 
-function fitWordAboveDetails() {
+function positionWordAndDetails() {
   if (neologismDetails.hidden || neologismWord.dataset.state !== "loaded") {
     return;
   }
 
+  const letterImages = Array.from(neologismWord.querySelectorAll(".neologism-word__letter img"));
+  const captionElements = [neologismMeta, neologismDefinition].filter(
+    (element) => element.textContent.trim()
+  );
+
+  if (!letterImages.length || !captionElements.length) {
+    return;
+  }
+
+  neologismEntry.style.setProperty("--overlap-shift", "0px");
+
+  const deepestLetterBottom = Math.max(
+    ...letterImages.map((image) => image.getBoundingClientRect().bottom)
+  );
+  const highestCaptionTop = Math.min(
+    ...captionElements.map((element) => element.getBoundingClientRect().top)
+  );
+  const overlap = Math.max(0, deepestLetterBottom + 12 - highestCaptionTop);
+
+  neologismEntry.style.setProperty("--overlap-shift", `${(overlap / 2).toFixed(2)}px`);
+}
+
+function fitWordAboveDetails() {
   window.cancelAnimationFrame(fitAnimationFrame);
-
-  fitAnimationFrame = window.requestAnimationFrame(() => {
-    const letterImages = Array.from(neologismWord.querySelectorAll(".neologism-word__letter img"));
-    const captionElements = [neologismMeta, neologismDefinition].filter(
-      (element) => element.textContent.trim()
-    );
-
-    if (!letterImages.length || !captionElements.length) {
-      return;
-    }
-
-    neologismEntry.style.setProperty("--overlap-shift", "0px");
-
-    const deepestLetterBottom = Math.max(
-      ...letterImages.map((image) => image.getBoundingClientRect().bottom)
-    );
-    const highestCaptionTop = Math.min(
-      ...captionElements.map((element) => element.getBoundingClientRect().top)
-    );
-    const overlap = Math.max(0, deepestLetterBottom + 12 - highestCaptionTop);
-
-    neologismEntry.style.setProperty("--overlap-shift", `${(overlap / 2).toFixed(2)}px`);
-  });
+  fitAnimationFrame = window.requestAnimationFrame(positionWordAndDetails);
 }
 
 function normalizeWord(word) {
@@ -143,10 +144,9 @@ function renderDetails(data) {
   neologismMeta.textContent = `, ${article}[${pronunciation}]`;
   neologismDefinition.textContent = data.definition;
   neologismDetails.hidden = false;
-  fitWordAboveDetails();
 }
 
-function renderLetterWord(word) {
+async function renderLetterWord(word) {
   const letters = normalizeWord(word);
 
   if (!letters) {
@@ -154,6 +154,7 @@ function renderLetterWord(word) {
   }
 
   const fragment = document.createDocumentFragment();
+  const imageReadyPromises = [];
   const buttons = Array.from(letters).map((letter) => {
     const button = document.createElement("button");
     const image = document.createElement("img");
@@ -167,6 +168,19 @@ function renderLetterWord(word) {
       adjustLetterForAspectRatio(image);
       fitWordAboveDetails();
     });
+    imageReadyPromises.push(new Promise((resolve, reject) => {
+      image.addEventListener("load", async () => {
+        try {
+          await image.decode();
+        } catch (error) {
+          // A successful load still provides usable image dimensions.
+        }
+        resolve();
+      }, { once: true });
+      image.addEventListener("error", () => {
+        reject(new Error(`Das Letter-Bild für ${letter} konnte nicht geladen werden.`));
+      }, { once: true });
+    }));
     button.appendChild(image);
 
     randomizeLetterPosition(button);
@@ -199,6 +213,8 @@ function renderLetterWord(word) {
   infoButton.appendChild(infoTooltip);
   fragment.appendChild(infoButton);
 
+  await Promise.all(imageReadyPromises);
+
   neologismWord.replaceChildren(fragment);
   neologismWord.style.gridTemplateColumns = `repeat(${letters.length}, minmax(0, 1fr))`;
   neologismWord.style.setProperty("--word-max-width", `${letters.length * 54}px`);
@@ -226,8 +242,9 @@ async function loadNeologism() {
       throw new Error("Die API hat kein Wort zurückgegeben.");
     }
 
-    renderLetterWord(data.word);
+    await renderLetterWord(data.word);
     renderDetails(data);
+    positionWordAndDetails();
   } catch (error) {
     neologismWord.textContent = error.message || "Der Neologismus konnte nicht geladen werden.";
     neologismWord.dataset.state = "error";
