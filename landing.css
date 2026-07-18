@@ -37,6 +37,7 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  pointer-events: none;
   z-index: var(--letter-z, 1);
   transform:
     translate(var(--letter-x, 0px), var(--letter-y, 0px))
@@ -71,7 +72,8 @@
   object-fit: contain;
   transform: scale(var(--aspect-scale, 1));
   transform-origin: center;
-  pointer-events: none;
+  cursor: pointer;
+  pointer-events: auto;
   user-select: none;
   -webkit-user-drag: none;
 }
