@@ -88,10 +88,22 @@ function randomVariant(letter, currentVariant = 0) {
 }
 
 function adjustLetterForAspectRatio(image) {
+  if (!image.naturalWidth || !image.naturalHeight) {
+    return;
+  }
+
   const aspectRatio = image.naturalHeight / image.naturalWidth;
-  const aspectScale = aspectRatio > 1.4
-    ? Math.max(0.55, 1 - (aspectRatio - 1.4) * 0.26)
-    : 1;
+  const boxWidth = image.clientWidth;
+  const boxHeight = image.clientHeight;
+
+  if (!boxWidth || !boxHeight) {
+    image.style.setProperty("--aspect-scale", Math.min(1, 1.4 / aspectRatio).toFixed(3));
+    return;
+  }
+
+  const renderedHeight = Math.min(boxHeight, boxWidth * aspectRatio);
+  const targetHeight = Math.min(boxHeight, boxWidth * 1.4);
+  const aspectScale = Math.min(1, targetHeight / renderedHeight);
 
   image.style.setProperty("--aspect-scale", aspectScale.toFixed(3));
 }
@@ -222,6 +234,7 @@ async function renderLetterWord(word) {
   neologismWord.style.gridTemplateColumns = `repeat(${letters.length}, minmax(0, 1fr))`;
   neologismWord.style.setProperty("--word-max-width", `${letters.length * 54}px`);
   neologismWord.setAttribute("aria-label", word);
+  buttons.forEach((button) => adjustLetterForAspectRatio(button.querySelector("img")));
   neologismWord.dataset.state = "loaded";
   randomizeStacking(buttons);
 }
