@@ -43,6 +43,7 @@
     translate(var(--letter-x, 0px), var(--letter-y, 0px))
     rotate(var(--letter-tilt, 0deg))
     scale(var(--letter-scale, 1));
+  transform-origin: center center;
   transition: transform 180ms ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -70,8 +71,9 @@
   max-height: 104px;
   height: 100%;
   object-fit: contain;
+  object-position: center center;
   transform: scale(var(--aspect-scale, 1));
-  transform-origin: center;
+  transform-origin: center center;
   cursor: pointer;
   pointer-events: auto;
   user-select: none;
