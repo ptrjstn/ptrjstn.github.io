@@ -97,12 +97,12 @@ function adjustLetterForAspectRatio(image) {
   const boxHeight = image.clientHeight;
 
   if (!boxWidth || !boxHeight) {
-    image.style.setProperty("--aspect-scale", Math.min(1, 1.4 / aspectRatio).toFixed(3));
+    image.style.setProperty("--aspect-scale", Math.min(1, 1 / aspectRatio).toFixed(3));
     return;
   }
 
   const renderedHeight = Math.min(boxHeight, boxWidth * aspectRatio);
-  const targetHeight = Math.min(boxHeight, boxWidth * 1.4);
+  const targetHeight = Math.min(boxHeight, boxWidth);
   const aspectScale = Math.min(1, targetHeight / renderedHeight);
 
   image.style.setProperty("--aspect-scale", aspectScale.toFixed(3));
