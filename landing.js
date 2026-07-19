@@ -63,7 +63,10 @@ function positionWordAndDetails() {
 
 function fitWordAboveDetails() {
   window.cancelAnimationFrame(fitAnimationFrame);
-  fitAnimationFrame = window.requestAnimationFrame(positionWordAndDetails);
+  fitAnimationFrame = window.requestAnimationFrame(() => {
+    adjustAllLetterSizes();
+    positionWordAndDetails();
+  });
 }
 
 function normalizeWord(word) {
@@ -88,24 +91,23 @@ function randomVariant(letter, currentVariant = 0) {
 }
 
 function adjustLetterForAspectRatio(image) {
-  if (!image.naturalWidth || !image.naturalHeight) {
+  const button = image.parentElement;
+
+  if (!image.naturalWidth || !image.naturalHeight || !button || !button.clientWidth || !button.clientHeight) {
     return;
   }
 
-  const aspectRatio = image.naturalHeight / image.naturalWidth;
-  const boxWidth = image.clientWidth;
-  const boxHeight = image.clientHeight;
+  const targetHeight = Math.min(button.clientHeight, button.clientWidth);
+  const targetWidth = targetHeight * (image.naturalWidth / image.naturalHeight);
 
-  if (!boxWidth || !boxHeight) {
-    image.style.setProperty("--aspect-scale", (1 / aspectRatio).toFixed(3));
-    return;
-  }
+  image.style.width = `${targetWidth.toFixed(2)}px`;
+  image.style.height = `${targetHeight.toFixed(2)}px`;
+}
 
-  const renderedHeight = Math.min(boxHeight, boxWidth * aspectRatio);
-  const targetHeight = Math.min(boxHeight, boxWidth);
-  const aspectScale = targetHeight / renderedHeight;
-
-  image.style.setProperty("--aspect-scale", aspectScale.toFixed(3));
+function adjustAllLetterSizes() {
+  neologismWord
+    .querySelectorAll(".neologism-word__letter img")
+    .forEach(adjustLetterForAspectRatio);
 }
 
 function setLetterVariant(button, variant) {
