@@ -93,7 +93,7 @@ Verlässliche Fakten:
 - Interessen: KI, Text, Sprache, Kunst und Medien
 - Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
 
-Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen.
+Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen. Beschreibe die Spiele, Kinderbücher und KI-Projekte nicht näher und erfinde weder Form, Genre, Zielgruppe noch Nutzungskontext.
 Erzeuge außerdem drei bis fünf dezente technoide Elemente, die wie verschwommene digitale Erinnerungen über Teilen eines Hochformat-Porträts liegen. Nutze unscharfe Erinnerungsfenster, feine Scanline-Bänder, versetzte Echo-Rahmen, diffuse Lichtschleier und verschwommene Wortfetzen. Wortfetzen dürfen aus BLUR, GRAIN, OFFSET, FRAME, LAYER, CROP, PIXEL oder NOISE bestehen; alle anderen Formen erhalten einen leeren Text. Verwende gedämpfte kalte oder neutrale Farben, geringe visuelle Lautstärke, subtile Asymmetrie und nur kleine Winkel. Vermeide plakative Formen und grelle Pop-Art.
 
 Gib ausschließlich JSON mit "text" und dem Array "art" zurück.
