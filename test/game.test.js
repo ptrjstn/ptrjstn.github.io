@@ -7,6 +7,7 @@ import {
   cosineSimilarity,
   dayDifference,
   getPuzzle,
+  hintForRank,
   normalize,
   similarityToRank,
 } from "../api/game.js";
@@ -22,11 +23,11 @@ test("berechnet den Berliner Kalendertag auch an einer UTC-Grenze", () => {
 
 test("rotiert die Tageswörter deterministisch", () => {
   assert.deepEqual(getPuzzle(new Date("2026-07-20T12:00:00Z")), {
-    id: "2026-07-20",
+    id: "2026-07-20-r2",
     number: 1,
-    target: "Schlüsselloch",
+    target: "Sternwarte",
   });
-  assert.equal(getPuzzle(new Date("2026-07-27T12:00:00Z")).target, "Schlüsselloch");
+  assert.equal(getPuzzle(new Date("2026-07-27T12:00:00Z")).target, "Sternwarte");
 });
 
 test("berechnet Kosinusähnlichkeit", () => {
@@ -39,6 +40,12 @@ test("bildet Ähnlichkeit monoton auf Ränge von 2 bis 1000 ab", () => {
   assert.equal(similarityToRank(0), 1000);
   assert.equal(similarityToRank(1), 2);
   assert.ok(similarityToRank(0.7) < similarityToRank(0.5));
+});
+
+test("liefert konkrete Hinweise für unterschiedliche Rangbereiche", () => {
+  assert.match(hintForRank(4), /engsten Bedeutungsfeld/);
+  assert.match(hintForRank(150), /präziseren/);
+  assert.match(hintForRank(900), /anderen Themenfeld/);
 });
 
 function mockResponse() {
@@ -97,12 +104,13 @@ test("validiert über OpenThesaurus und nutzt text-embedding-3-small", async () 
     await handler({
       method: "POST",
       headers: {},
-      body: { puzzleId: berlinDate(), guess },
+      body: { puzzleId: getPuzzle().id, guess },
     }, response);
 
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.word, guess);
     assert.equal(response.body.rank, 4);
+    assert.match(response.body.hint, /engsten Bedeutungsfeld/);
     assert.equal(requests.length, 2);
     const embeddingBody = JSON.parse(requests[1].options.body);
     assert.equal(embeddingBody.model, "text-embedding-3-small");

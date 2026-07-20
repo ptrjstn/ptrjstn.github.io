@@ -10,10 +10,12 @@ const result = document.querySelector("[data-result]");
 const solution = document.querySelector("[data-solution]");
 const summary = document.querySelector("[data-summary]");
 const puzzleNumber = document.querySelector("[data-puzzle-number]");
-const shareButton = document.querySelector("[data-share]");
+const sortButtons = [...document.querySelectorAll("[data-sort]")];
 let game = null;
+let sortKey = "attempt";
+let sortDirection = "desc";
 
-const storageKey = (id) => `ptrjstn-tageswort-${id}`;
+const storageKey = (id) => `ptrjstn-neuronym-${id}`;
 const normalize = (word) => word.trim().toLocaleLowerCase("de-DE");
 
 function readProgress(id) {
@@ -37,14 +39,40 @@ function render() {
   const bestRank = ranked.length ? Math.min(...ranked.map((item) => item.rank)) : null;
   best.textContent = bestRank ? `Bester Rang: #${bestRank}` : "Bester Rang: –";
 
-  game.attempts.forEach((attempt, index) => {
+  const attempts = game.attempts.map((attempt, index) => ({
+    ...attempt,
+    attemptNumber: index + 1,
+  }));
+  attempts.sort((left, right) => {
+    const difference = sortKey === "rank"
+      ? left.rank - right.rank
+      : left.attemptNumber - right.attemptNumber;
+    return sortDirection === "asc" ? difference : -difference;
+  });
+
+  sortButtons.forEach((button) => {
+    const active = button.dataset.sort === sortKey;
+    const label = button.dataset.sort === "attempt" ? "Versuch" : "Rang";
+    button.setAttribute("aria-pressed", String(active));
+    button.setAttribute(
+      "aria-label",
+      active
+        ? `${label}, ${sortDirection === "asc" ? "aufsteigend" : "absteigend"} sortiert`
+        : `Nach ${label} sortieren`,
+    );
+    button.querySelector("span").textContent = active
+      ? (sortDirection === "asc" ? "↑" : "↓")
+      : "";
+  });
+
+  attempts.forEach((attempt) => {
     const item = document.createElement("li");
     item.className = "attempt";
     if (attempt.rank === bestRank) item.classList.add("attempt--best");
     if (attempt.solved) item.classList.add("attempt--solution");
     const number = document.createElement("span");
     number.className = "attempt__number";
-    number.textContent = String(index + 1).padStart(2, "0");
+    number.textContent = String(attempt.attemptNumber).padStart(2, "0");
     const word = document.createElement("span");
     word.className = "attempt__word";
     word.textContent = attempt.word;
@@ -67,7 +95,7 @@ async function initialize() {
   try {
     const response = await fetch(`${API_URL}?request=${Date.now()}`);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Das Tageswort konnte nicht geladen werden.");
+    if (!response.ok) throw new Error(data.error || "Das Neuronym konnte nicht geladen werden.");
     game = { id: data.id, number: data.number, ...readProgress(data.id) };
     render();
     if (!game.solved) input.focus();
@@ -90,6 +118,8 @@ form.addEventListener("submit", async (event) => {
   submitButton.disabled = true;
   setMessage("Wird geprüft …");
   try {
+    const previousRanks = game.attempts.filter((item) => !item.solved).map((item) => item.rank);
+    const previousBest = previousRanks.length ? Math.min(...previousRanks) : null;
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -102,7 +132,13 @@ form.addEventListener("submit", async (event) => {
     if (data.solved) game.solution = data.word;
     saveProgress();
     input.value = "";
-    setMessage(data.solved ? "Genau das ist das Tageswort." : data.temperature);
+    const progress = previousBest !== null && data.rank < previousBest
+      ? "Neue beste Spur. "
+      : previousBest !== null && data.rank > previousBest
+        ? "Dein bisher bestes Wort liegt näher. "
+        : "";
+    const hint = data.hint || data.temperature || "Probiere eine andere Assoziation.";
+    setMessage(data.solved ? "Genau das ist das Neuronym." : `${progress}${hint}`);
     render();
   } catch (error) {
     setMessage(error.message, true);
@@ -112,15 +148,16 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-shareButton.addEventListener("click", async () => {
-  const ranks = game.attempts.map((item) => item.solved ? "🎯" : item.rank).join(" → ");
-  const text = `Tageswort #${game.number}\nGelöst in ${game.attempts.length} Versuchen\n${ranks}`;
-  try {
-    if (navigator.share) await navigator.share({ text, url: location.href });
-    else { await navigator.clipboard.writeText(`${text}\n${location.href}`); setMessage("Ergebnis kopiert."); }
-  } catch (error) {
-    if (error.name !== "AbortError") setMessage("Das Ergebnis konnte nicht geteilt werden.", true);
-  }
+sortButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const nextKey = button.dataset.sort;
+    if (nextKey === sortKey) sortDirection = sortDirection === "asc" ? "desc" : "asc";
+    else {
+      sortKey = nextKey;
+      sortDirection = nextKey === "rank" ? "asc" : "desc";
+    }
+    render();
+  });
 });
 
 initialize();

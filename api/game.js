@@ -1,15 +1,16 @@
 const ALLOWED_ORIGIN = "https://ptrjstn.github.io";
 const START_DATE = "2026-07-20";
+const PUZZLE_REVISION = "2";
 const OPENAI_MODEL = "text-embedding-3-small";
 const OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings";
 const OPENTHESAURUS_URL = "https://www.openthesaurus.de/synonyme/search";
 const OPENTHESAURUS_USER_AGENT =
-  "ptrjstn-tageswort/1.0 (+https://ptrjstn.github.io/)";
+  "ptrjstn-neuronym/1.0 (+https://ptrjstn.github.io/)";
 const REQUEST_TIMEOUT_MS = 8000;
 const CACHE_LIMIT = 500;
 
 const puzzles = [
-  "Schlüsselloch",
+  "Sternwarte",
   "Gewitter",
   "Bibliothek",
   "Schatten",
@@ -66,10 +67,10 @@ export function dayDifference(date) {
 }
 
 export function getPuzzle(now = new Date()) {
-  const id = berlinDate(now);
-  const elapsed = Math.max(0, dayDifference(id));
+  const date = berlinDate(now);
+  const elapsed = Math.max(0, dayDifference(date));
   return {
-    id,
+    id: `${date}-r${PUZZLE_REVISION}`,
     number: elapsed + 1,
     target: puzzles[elapsed % puzzles.length],
   };
@@ -111,12 +112,13 @@ export function similarityToRank(similarity) {
   return Math.max(2, Math.min(1000, estimatedRank));
 }
 
-function temperature(rank) {
-  if (rank <= 10) return "Sehr heiß.";
-  if (rank <= 50) return "Heiß.";
-  if (rank <= 200) return "Du kommst näher.";
-  if (rank <= 500) return "Entfernt verwandt.";
-  return "Noch ziemlich weit entfernt.";
+export function hintForRank(rank) {
+  if (rank <= 5) return "Fast geschafft: Du suchst im engsten Bedeutungsfeld.";
+  if (rank <= 20) return "Sehr nah: Denk an ein direkt verwandtes Substantiv.";
+  if (rank <= 75) return "Gute Spur: Bleib in diesem Themenfeld und werde konkreter.";
+  if (rank <= 200) return "Die Richtung stimmt. Suche nach einem präziseren Gegenstand oder Begriff.";
+  if (rank <= 500) return "Es gibt eine Verbindung, aber sie ist noch allgemein. Wechsle die Perspektive.";
+  return "Kaum Bedeutungsnähe. Probiere ein Substantiv aus einem anderen Themenfeld.";
 }
 
 function isExactDictionaryTerm(data, guess) {
@@ -243,7 +245,7 @@ export default async function handler(request, response) {
       word: target,
       rank: 1,
       solved: true,
-      temperature: "Treffer.",
+      hint: "Treffer.",
     });
   }
   if (!process.env.OPENAI_API_KEY) {
@@ -262,7 +264,7 @@ export default async function handler(request, response) {
       word: displayWord(guess),
       rank,
       solved: false,
-      temperature: temperature(rank),
+      hint: hintForRank(rank),
     });
   } catch (error) {
     console.error("Fehler beim Prüfen des Wortes:", error);
