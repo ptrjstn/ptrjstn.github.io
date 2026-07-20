@@ -71,6 +71,8 @@ test("behandelt fehlgeschlagenes Supabase-Logging als nicht kritisch", async () 
   try {
     const logged = await logGameGuess({
       puzzle_id: "2026-07-20-r3-g0",
+      target_word: "Sternwarte",
+      attempt_number: 1,
       guess: "Test",
       normalized_guess: "test",
       dictionary_word: null,
@@ -205,7 +207,7 @@ test("validiert über OpenThesaurus und nutzt text-embedding-3-small", async () 
     await handler({
       method: "POST",
       headers: {},
-      body: { puzzleId: getPuzzle().id, guess },
+      body: { puzzleId: getPuzzle().id, guess, attemptNumber: 3 },
     }, response);
 
     assert.equal(response.statusCode, 200);
@@ -222,6 +224,8 @@ test("validiert über OpenThesaurus und nutzt text-embedding-3-small", async () 
     assert.equal(logRequest.options.headers.apikey, "sb_secret_test");
     assert.equal(logRequest.options.headers.Authorization, undefined);
     assert.equal(logBody.guess, guess);
+    assert.equal(logBody.target_word, getPuzzle().target);
+    assert.equal(logBody.attempt_number, 3);
     assert.equal(logBody.status, "accepted");
     assert.equal(logBody.rank, 4);
   } finally {

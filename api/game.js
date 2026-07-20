@@ -252,6 +252,10 @@ export default async function handler(request, response) {
 
   const puzzleId = typeof request.body?.puzzleId === "string" ? request.body.puzzleId : "";
   const rawGuess = typeof request.body?.guess === "string" ? request.body.guess : "";
+  const attemptNumber = Number.isSafeInteger(request.body?.attemptNumber) &&
+    request.body.attemptNumber >= 1 && request.body.attemptNumber <= 10000
+    ? request.body.attemptNumber
+    : null;
   const puzzle = getPuzzleFromId(puzzleId);
   if (!puzzle) {
     return response.status(409).json({ error: "Dieses Spiel ist nicht mehr aktuell. Starte ein neues Spiel." });
@@ -268,6 +272,8 @@ export default async function handler(request, response) {
   if (guess === normalize(puzzle.target)) {
     await logGameGuess({
       puzzle_id: puzzleId,
+      target_word: puzzle.target,
+      attempt_number: attemptNumber,
       guess: rawGuess.trim(),
       normalized_guess: guess,
       dictionary_word: guess,
@@ -291,6 +297,8 @@ export default async function handler(request, response) {
     if (!dictionaryWord) {
       await logGameGuess({
         puzzle_id: puzzleId,
+        target_word: puzzle.target,
+        attempt_number: attemptNumber,
         guess: rawGuess.trim(),
         normalized_guess: guess,
         dictionary_word: null,
@@ -305,6 +313,8 @@ export default async function handler(request, response) {
     const rank = similarityToRank(similarity);
     await logGameGuess({
       puzzle_id: puzzleId,
+      target_word: puzzle.target,
+      attempt_number: attemptNumber,
       guess: rawGuess.trim(),
       normalized_guess: guess,
       dictionary_word: dictionaryWord,
@@ -322,6 +332,8 @@ export default async function handler(request, response) {
     console.error("Fehler beim Prüfen des Wortes:", error);
     await logGameGuess({
       puzzle_id: puzzleId,
+      target_word: puzzle.target,
+      attempt_number: attemptNumber,
       guess: rawGuess.trim(),
       normalized_guess: guess,
       dictionary_word: null,

@@ -132,7 +132,11 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ puzzleId: game.id, guess }),
+      body: JSON.stringify({
+        puzzleId: game.id,
+        guess,
+        attemptNumber: game.attempts.length + 1,
+      }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Das Wort konnte nicht geprüft werden.");
