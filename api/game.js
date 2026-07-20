@@ -1,4 +1,9 @@
-const ALLOWED_ORIGIN = "https://ptrjstn.de";
+const ALLOWED_ORIGINS = new Set([
+  "https://ptrjstn.de",
+  "https://www.ptrjstn.de",
+  "http://ptrjstn.de",
+  "http://www.ptrjstn.de",
+]);
 const START_DATE = "2026-07-20";
 const PUZZLE_REVISION = "3";
 const OPENAI_MODEL = "text-embedding-3-small";
@@ -212,9 +217,10 @@ async function getSimilarity(guess, target) {
 
 function setHeaders(request, response) {
   const origin = request.headers.origin;
-  if (origin === ALLOWED_ORIGIN) {
+  if (ALLOWED_ORIGINS.has(origin)) {
     response.setHeader("Access-Control-Allow-Origin", origin);
   }
+  response.setHeader("Vary", "Origin");
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
   response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
@@ -226,7 +232,7 @@ function setHeaders(request, response) {
 export default async function handler(request, response) {
   const origin = setHeaders(request, response);
   if (request.method === "OPTIONS") return response.status(204).end();
-  if (origin && origin !== ALLOWED_ORIGIN) {
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
     return response.status(403).json({ error: "Diese Website darf das Spiel nicht aufrufen." });
   }
 

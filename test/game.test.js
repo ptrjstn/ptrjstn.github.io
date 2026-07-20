@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import aboutHandler from "../api/about.js";
+import neologismHandler from "../api/neologism.js";
 import {
   default as handler,
   berlinDate,
@@ -85,15 +87,33 @@ test("liefert Puzzle-Metadaten ohne das Lösungswort", async () => {
   assert.deepEqual(Object.keys(response.body), ["id"]);
 });
 
-test("erlaubt die neue Website-Domain per CORS", async () => {
-  const response = mockResponse();
-  await handler({
-    method: "GET",
-    headers: { origin: "https://ptrjstn.de" },
-  }, response);
+test("erlaubt alle neuen Website-Origins per CORS", async () => {
+  const origins = [
+    "https://ptrjstn.de",
+    "https://www.ptrjstn.de",
+    "http://ptrjstn.de",
+    "http://www.ptrjstn.de",
+  ];
 
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.headers["Access-Control-Allow-Origin"], "https://ptrjstn.de");
+  for (const origin of origins) {
+    const response = mockResponse();
+    await handler({ method: "GET", headers: { origin } }, response);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.headers["Access-Control-Allow-Origin"], origin);
+    assert.equal(response.headers.Vary, "Origin");
+  }
+});
+
+test("erlaubt mobile Origins für alle API-Anwendungen", async () => {
+  for (const apiHandler of [aboutHandler, neologismHandler]) {
+    for (const origin of ["https://www.ptrjstn.de", "http://ptrjstn.de"]) {
+      const response = mockResponse();
+      await apiHandler({ method: "OPTIONS", headers: { origin } }, response);
+      assert.equal(response.statusCode, 204);
+      assert.equal(response.headers["Access-Control-Allow-Origin"], origin);
+      assert.equal(response.headers.Vary, "Origin");
+    }
+  }
 });
 
 test("liefert nach einem abgeschlossenen Spiel die nächste Runde", async () => {

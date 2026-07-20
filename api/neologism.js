@@ -1,13 +1,19 @@
-const ALLOWED_ORIGIN = "https://ptrjstn.de";
+const ALLOWED_ORIGINS = new Set([
+  "https://ptrjstn.de",
+  "https://www.ptrjstn.de",
+  "http://ptrjstn.de",
+  "http://www.ptrjstn.de",
+]);
 
 export default async function handler(request, response) {
   const origin = request.headers.origin;
 
   // Erlaubt Aufrufe von deiner GitHub-Pages-Website.
-  if (origin === ALLOWED_ORIGIN) {
+  if (ALLOWED_ORIGINS.has(origin)) {
     response.setHeader("Access-Control-Allow-Origin", origin);
   }
 
+  response.setHeader("Vary", "Origin");
   response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
   response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
@@ -25,7 +31,7 @@ export default async function handler(request, response) {
     });
   }
 
-  if (origin && origin !== ALLOWED_ORIGIN) {
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
     return response.status(403).json({
       error: "Diese Website darf die Funktion nicht aufrufen.",
     });
