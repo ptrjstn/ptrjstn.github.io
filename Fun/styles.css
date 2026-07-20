@@ -227,20 +227,19 @@
   z-index: 20;
   inset: 0;
   display: grid;
-  width: 132px;
-  height: 132px;
-  margin: auto;
-  place-content: center;
-  border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 18px 50px color-mix(in srgb, var(--ink) 28%, transparent);
-  color: var(--bg);
+  place-items: center;
+  color: var(--ink);
   pointer-events: none;
   text-align: center;
 }
 
 .rank-reveal[hidden] {
   display: none;
+}
+
+.rank-reveal > div {
+  display: grid;
+  place-items: center;
 }
 
 .rank-reveal span {
@@ -258,28 +257,37 @@
 }
 
 .rank-reveal.is-active {
-  animation: rank-reveal 1400ms ease-in-out both;
+  animation: rank-reveal 1400ms ease-out both;
 }
 
-.rank-reveal.is-active strong {
-  animation: rank-value 1400ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+.rank-reveal.is-active > div {
+  animation: rank-value 1400ms cubic-bezier(0.18, 0.75, 0.2, 1) both;
 }
 
 @keyframes rank-reveal {
-  0% { opacity: 0; transform: scale(0.78); }
-  14%, 68% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.08); }
+  0%, 68% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @keyframes rank-value {
-  0% { transform: translateY(8px); }
-  18%, 100% { transform: translateY(0); }
+  0% { transform: scale(0.72); }
+  68% { transform: scale(1.16); }
+  100% { transform: scale(1.28); }
 }
 
 @keyframes attempt-highlight {
-  0% { background: color-mix(in srgb, #e4b63f 34%, transparent); }
-  35% { background: color-mix(in srgb, #e4b63f 22%, transparent); }
-  100% { background: transparent; }
+  0% {
+    background: color-mix(in srgb, var(--ink) 18%, transparent);
+    box-shadow: inset 3px 0 0 var(--ink);
+  }
+  35% {
+    background: color-mix(in srgb, var(--ink) 10%, transparent);
+    box-shadow: inset 3px 0 0 var(--ink);
+  }
+  100% {
+    background: transparent;
+    box-shadow: inset 0 0 0 transparent;
+  }
 }
 
 .attempts__empty {
@@ -342,7 +350,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rank-reveal.is-active,
-  .rank-reveal.is-active strong,
+  .rank-reveal.is-active > div,
   .attempt--new {
     animation-duration: 1ms;
   }

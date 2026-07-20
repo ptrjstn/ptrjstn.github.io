@@ -58,9 +58,17 @@ function highlightAttempt(attemptId) {
   const item = [...list.children].find((entry) => entry.dataset.attemptId === attemptId);
   if (!item) return;
 
+  const returnScrollY = window.scrollY;
+  const itemBounds = item.getBoundingClientRect();
+  const scrolledDown = itemBounds.bottom > window.innerHeight;
   item.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
   item.classList.add("attempt--new");
-  item.addEventListener("animationend", () => item.classList.remove("attempt--new"), { once: true });
+  item.addEventListener("animationend", () => {
+    item.classList.remove("attempt--new");
+    if (scrolledDown && window.scrollY > returnScrollY) {
+      window.scrollTo({ top: returnScrollY, behavior: reduceMotion ? "auto" : "smooth" });
+    }
+  }, { once: true });
 }
 
 function readProgress(id) {
