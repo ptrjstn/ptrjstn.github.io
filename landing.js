@@ -193,7 +193,21 @@ async function renderLetterWord(word) {
     image.alt = "";
     image.addEventListener("load", fitWordAboveDetails);
     imageReadyPromises.push(new Promise((resolve, reject) => {
+      let retryCount = 0;
+      const handleInitialError = () => {
+        if (retryCount < 2) {
+          retryCount += 1;
+          const currentVariant = Number(button.dataset.variant);
+          setLetterVariant(button, randomVariant(letter, currentVariant));
+          return;
+        }
+
+        image.removeEventListener("error", handleInitialError);
+        reject(new Error(`Das Letter-Bild für ${letter} konnte nicht geladen werden.`));
+      };
+
       image.addEventListener("load", async () => {
+        image.removeEventListener("error", handleInitialError);
         try {
           await image.decode();
         } catch (error) {
@@ -201,9 +215,7 @@ async function renderLetterWord(word) {
         }
         resolve();
       }, { once: true });
-      image.addEventListener("error", () => {
-        reject(new Error(`Das Letter-Bild für ${letter} konnte nicht geladen werden.`));
-      }, { once: true });
+      image.addEventListener("error", handleInitialError);
     }));
     button.appendChild(image);
 

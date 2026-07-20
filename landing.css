@@ -5,10 +5,7 @@
   padding: clamp(0px, calc(20vw - 100px), 96px) 0;
 }
 
-.site-title img {
-  width: auto;
-  height: 29.4px;
-}
+
 
 .neologism-entry {
   display: flex;

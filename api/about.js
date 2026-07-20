@@ -71,6 +71,9 @@ Verlässliche Fakten:
 - Wohnort: Tübingen
 - Beruflicher Schwerpunkt: Copywriter und Konzeptioner
 - Interessen: KI, Text, Sprache, Kunst und Musik
+- Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
+
+Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen.
 
 Gib ausschließlich dieses JSON zurück:
 {"text":"Der neu formulierte About-Text"}

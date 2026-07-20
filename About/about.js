@@ -1,5 +1,13 @@
 const aboutText = document.querySelector("[data-about-text]");
-const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er beschäftigt sich mit KI, Text und Sprache – und interessiert sich außerdem für Kunst und Musik.";
+const aboutPortrait = document.querySelector("[data-about-portrait]");
+const generatedImage = document.querySelector("[data-about-generated-image]");
+const imageStatus = document.querySelector("[data-about-image-status]");
+const reloadButton = document.querySelector("[data-about-reload]");
+const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Musik. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
+
+function requestId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
 
 function renderAboutText(text) {
   const paragraph = document.createElement("p");
@@ -10,9 +18,8 @@ function renderAboutText(text) {
 
 async function loadAboutText() {
   try {
-    const requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const response = await fetch(
-      `https://ptrjstn-github-io.vercel.app/api/about?request=${requestId}`,
+      `https://ptrjstn-github-io.vercel.app/api/about?request=${requestId()}`,
       { cache: "no-store" }
     );
     const data = await response.json();
@@ -28,4 +35,31 @@ async function loadAboutText() {
   }
 }
 
+async function loadAboutImage() {
+  try {
+    const response = await fetch(
+      `https://ptrjstn-github-io.vercel.app/api/about-image?request=${requestId()}`,
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Die KI-Interpretation konnte nicht geladen werden.");
+    }
+
+    const imageBlob = await response.blob();
+    const imageUrl = URL.createObjectURL(imageBlob);
+    generatedImage.src = imageUrl;
+    await generatedImage.decode();
+    aboutPortrait.dataset.state = "ready";
+    imageStatus.textContent = "Original und KI-Interpretation im Wechsel.";
+  } catch (error) {
+    console.error("Fehler beim Laden der KI-Interpretation:", error);
+    aboutPortrait.dataset.state = "fallback";
+    imageStatus.textContent = "Originalporträt";
+  }
+}
+
+reloadButton.addEventListener("click", () => window.location.reload());
+
 loadAboutText();
+loadAboutImage();

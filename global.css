@@ -124,7 +124,7 @@ a:hover {
 .site-title img {
   display: block;
   width: auto;
-  height: clamp(38px, 5.53vw, 42px);
+  height: 29.4px;
   padding: 0;
   aspect-ratio: auto;
   object-fit: contain;
@@ -213,6 +213,13 @@ a:hover {
 
 .portfolio-nav span {
   color: var(--muted);
+}
+
+.portfolio-hero .portfolio-subnav {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
 }
 
 .footer-divider {
