@@ -14,14 +14,16 @@
   display: grid;
   grid-template-columns: 52px 1fr 52px;
   align-items: center;
+  width: min(calc(100% - 32px), 500px);
   min-height: 28px;
-  margin-bottom: 8px;
+  margin: 0 auto 8px;
 }
 
 .game__beta {
   margin: 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 22px;
+  line-height: 1;
 }
 
 .game__beta em {
@@ -150,7 +152,6 @@
 .give-up-button {
   padding: 6px 0;
   border: 0;
-  border-bottom: 1px solid currentColor;
   background: transparent;
   color: var(--ink);
   font: inherit;
@@ -158,8 +159,13 @@
   cursor: pointer;
 }
 
+.new-game-button {
+  border-bottom: 1px solid currentColor;
+}
+
 .give-up-button {
   justify-self: end;
+  color: var(--muted);
   font-size: 11px;
 }
 
@@ -317,13 +323,6 @@
   100% {
     background: transparent;
   }
-}
-
-.attempts__empty {
-  margin: 2px auto 0;
-  color: var(--muted);
-  font-size: 11px;
-  text-align: center;
 }
 
 .game__rules {

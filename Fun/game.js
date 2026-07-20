@@ -4,7 +4,6 @@ const input = form.elements.guess;
 const submitButton = form.querySelector("button");
 const message = document.querySelector("[data-message]");
 const list = document.querySelector("[data-attempts]");
-const empty = document.querySelector("[data-empty]");
 const result = document.querySelector("[data-result]");
 const resultLabel = document.querySelector("[data-result-label]");
 const solution = document.querySelector("[data-solution]");
@@ -21,6 +20,7 @@ let sortDirection = "asc";
 
 const STORAGE_PREFIX = "ptrjstn-neuronym-";
 const ACTIVE_GAME_KEY = `${STORAGE_PREFIX}active`;
+const INITIAL_HINT = "Gib ein Wort ein und nähere dich über seinen Bedeutungsrang.";
 const storageKey = (id) => `${STORAGE_PREFIX}${id}`;
 const normalize = (word) => word.trim().toLocaleLowerCase("de-DE");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -136,7 +136,6 @@ function setMessage(text = "", isError = false) {
 function render() {
   const finished = game.solved || game.gaveUp;
   list.replaceChildren();
-  empty.hidden = game.attempts.length > 0;
   const ranks = game.attempts.filter((item) => !item.solved).map((item) => item.rank);
   const bestRank = ranks.length ? Math.min(...ranks) : null;
 
@@ -218,9 +217,9 @@ async function initialize(loadNext = false) {
     saveActiveGameId(game.id);
     sortKey = "rank";
     sortDirection = "asc";
-    setMessage();
+    setMessage(game.submissionCount === 0 ? INITIAL_HINT : "");
     render();
-    if (!game.solved) input.focus();
+    if (!game.solved && !game.gaveUp) input.focus();
   } catch (error) {
     setMessage(error.message, true);
     if (!game) form.hidden = true;
