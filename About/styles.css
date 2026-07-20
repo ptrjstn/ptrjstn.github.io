@@ -38,52 +38,73 @@
   filter: saturate(0.9) contrast(1.02);
 }
 
-.about__portrait-generated {
+.about__art {
   position: absolute;
   inset: 0;
-  opacity: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.about__portrait[data-state="ready"] .about__portrait-generated {
-  animation: portrait-glitch 8s steps(1, end) infinite;
+.about__art-element {
+  position: absolute;
+  left: var(--art-x);
+  top: var(--art-y);
+  width: var(--art-width);
+  height: var(--art-height);
+  border: 1px solid currentColor;
+  opacity: 0.62;
+  transform: rotate(var(--art-rotation));
+  transform-origin: center;
+  mix-blend-mode: screen;
+  animation: art-glitch 4.6s steps(1, end) var(--art-delay) infinite;
 }
 
-@keyframes portrait-glitch
-  0%, 38%, 76%, 100% {
-    opacity: 0;
-    clip-path: inset(0);
-    transform: translate(0);
+.about__art-element--circle {
+  border-radius: 50%;
+}
+
+.about__art-element--line {
+  border: 0;
+  background: currentColor;
+}
+
+.about__art-element--cyan {
+  color: #49e6ee;
+}
+
+.about__art-element--magenta {
+  color: #f154bb;
+}
+
+.about__art-element--orange {
+  color: #ff9a3d;
+}
+
+.about__art-element--cream {
+  color: #fff0c7;
+}
+
+.about__art-element--black {
+  color: #171717;
+  mix-blend-mode: multiply;
+}
+
+@keyframes art-glitch {
+  0%, 84%, 100% {
+    opacity: 0.52;
+    translate: 0 0;
   }
-  39% {
-    opacity: 0.8;
-    clip-path: inset(8% 0 68% 0);
-    transform: translate(-7px, 2px);
-  }
-  40%, 70% {
-    opacity: 1;
-    clip-path: inset(0);
-    transform: translate(0);
-  }
-  48% {
+  85% {
     opacity: 0.9;
-    clip-path: inset(54% 0 18% 0);
-    transform: translate(8px, -2px);
+    translate: -5px 2px;
   }
-  49%, 63% {
-    opacity: 1;
-    clip-path: inset(0);
-    transform: translate(0);
+  87% {
+    opacity: 0.34;
+    translate: 7px -2px;
   }
-  71% {
-    opacity: 0.75;
-    clip-path: inset(22% 0 56% 0);
-    transform: translate(-9px, 1px);
-  }
-  72%, 75% {
-    opacity: 1;
-    clip-path: inset(0);
-    transform: translate(0);
+  89% {
+    opacity: 0.68;
+    translate: 0 0;
   }
 }
 
@@ -115,9 +136,9 @@
 .about__reload {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  padding: 7px;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
   border: 1px solid var(--toggle-border);
   border-radius: 50%;
   background: var(--surface);
@@ -136,6 +157,14 @@
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.about__reload[data-loading="true"] {
+  animation: reload-spin 700ms linear infinite;
+}
+
+@keyframes reload-spin {
+  to { transform: rotate(-360deg); }
 }
 
 .about__reload:hover {
@@ -231,7 +260,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .loading-dot,
-  .about__portrait-generated {
+  .about__art-element,
+  .about__reload {
     animation: none !important;
   }
 }

@@ -39,7 +39,7 @@ export default async function handler(request, response) {
       body: JSON.stringify({
         model: "gpt-5-mini",
         reasoning: { effort: "minimal" },
-        max_output_tokens: 180,
+        max_output_tokens: 420,
         text: {
           format: {
             type: "json_schema",
@@ -49,8 +49,27 @@ export default async function handler(request, response) {
               type: "object",
               properties: {
                 text: { type: "string" },
+                art: {
+                  type: "array",
+                  minItems: 3,
+                  maxItems: 6,
+                  items: {
+                    type: "object",
+                    properties: {
+                      shape: { type: "string", enum: ["rectangle", "circle", "line"] },
+                      x: { type: "integer", minimum: 0, maximum: 85 },
+                      y: { type: "integer", minimum: 0, maximum: 90 },
+                      width: { type: "integer", minimum: 8, maximum: 70 },
+                      height: { type: "integer", minimum: 2, maximum: 30 },
+                      rotation: { type: "integer", minimum: -18, maximum: 18 },
+                      color: { type: "string", enum: ["cyan", "magenta", "orange", "cream", "black"] },
+                    },
+                    required: ["shape", "x", "y", "width", "height", "rotation", "color"],
+                    additionalProperties: false,
+                  },
+                },
               },
-              required: ["text"],
+              required: ["text", "art"],
               additionalProperties: false,
             },
           },
@@ -74,9 +93,9 @@ Verlässliche Fakten:
 - Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
 
 Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen.
+Erzeuge außerdem drei bis sechs abstrakte grafische Elemente für eine dezente, wechselnde Glitch-Collage über Teilen eines Hochformat-Porträts. Verteile sie über das Bild, halte die Formen eher klein und verwende unterschiedliche Farben.
 
-Gib ausschließlich dieses JSON zurück:
-{"text":"Der neu formulierte About-Text"}
+Gib ausschließlich JSON mit "text" und dem Array "art" zurück.
             `.trim(),
           },
         ],
@@ -107,11 +126,18 @@ Gib ausschließlich dieses JSON zurück:
       .trim();
     const aboutData = JSON.parse(cleanedText);
 
-    if (!aboutData.text || typeof aboutData.text !== "string") {
+    if (
+      !aboutData.text ||
+      typeof aboutData.text !== "string" ||
+      !Array.isArray(aboutData.art)
+    ) {
       throw new Error("Die Antwort hat nicht das erwartete Format.");
     }
 
-    return response.status(200).json({ text: aboutData.text.trim() });
+    return response.status(200).json({
+      text: aboutData.text.trim(),
+      art: aboutData.art,
+    });
   } catch (error) {
     console.error("Fehler beim Erzeugen des About-Texts:", error);
     return response.status(500).json({ error: "Beim Verarbeiten des About-Texts ist ein Fehler aufgetreten." });
