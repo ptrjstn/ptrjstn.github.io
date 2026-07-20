@@ -7,6 +7,7 @@ import {
   cosineSimilarity,
   dayDifference,
   getPuzzle,
+  getPuzzleFromId,
   hintForRank,
   normalize,
   similarityToRank,
@@ -23,11 +24,17 @@ test("berechnet den Berliner Kalendertag auch an einer UTC-Grenze", () => {
 
 test("rotiert die Tageswörter deterministisch", () => {
   assert.deepEqual(getPuzzle(new Date("2026-07-20T12:00:00Z")), {
-    id: "2026-07-20-r2",
-    number: 1,
+    id: "2026-07-20-r3-g0",
     target: "Sternwarte",
   });
   assert.equal(getPuzzle(new Date("2026-07-27T12:00:00Z")).target, "Sternwarte");
+});
+
+test("löst fortlaufende Spiel-IDs nur am aktuellen Tag auf", () => {
+  const now = new Date("2026-07-20T12:00:00Z");
+  assert.equal(getPuzzle(now, 1).target, "Gewitter");
+  assert.equal(getPuzzleFromId("2026-07-20-r3-g1", now).target, "Gewitter");
+  assert.equal(getPuzzleFromId("2026-07-19-r3-g1", now), null);
 });
 
 test("berechnet Kosinusähnlichkeit", () => {
@@ -75,7 +82,21 @@ test("liefert Puzzle-Metadaten ohne das Lösungswort", async () => {
   await handler({ method: "GET", headers: {} }, response);
 
   assert.equal(response.statusCode, 200);
-  assert.deepEqual(Object.keys(response.body).sort(), ["id", "number"]);
+  assert.deepEqual(Object.keys(response.body), ["id"]);
+});
+
+test("liefert nach einem abgeschlossenen Spiel die nächste Runde", async () => {
+  const current = getPuzzle();
+  const response = mockResponse();
+  await handler({
+    method: "GET",
+    headers: {},
+    query: { after: current.id },
+  }, response);
+
+  assert.equal(response.statusCode, 200);
+  assert.notEqual(response.body.id, current.id);
+  assert.equal(getPuzzleFromId(response.body.id).target, getPuzzle(new Date(), dayDifference(berlinDate()) + 1).target);
 });
 
 test("validiert über OpenThesaurus und nutzt text-embedding-3-small", async () => {

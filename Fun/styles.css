@@ -9,14 +9,6 @@
   text-align: center;
 }
 
-.game__intro p {
-  margin: 0 0 16px;
-  color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .guess-form {
   position: relative;
   width: 100%;
@@ -86,6 +78,7 @@
 }
 
 .guess-form button:focus-visible,
+.new-game-button:focus-visible,
 .attempts__sort button:focus-visible,
 .game__rules summary:focus-visible {
   outline: 2px dotted var(--ink);
@@ -124,9 +117,25 @@
 }
 
 .game__result [data-summary] {
-  margin: 5px 0 0;
+  margin: 5px 0 12px;
   color: var(--muted);
   font-size: 13px;
+}
+
+.new-game-button {
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.new-game-button:disabled {
+  opacity: 0.4;
+  cursor: wait;
 }
 
 .attempts {
@@ -135,23 +144,9 @@
   text-align: left;
 }
 
-.attempts__heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.attempts__heading h2,
-.attempts__heading p {
-  margin: 0 0 7px;
-  font: inherit;
-}
-
 .attempts__sort {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto;
   margin-bottom: 2px;
   border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
@@ -170,6 +165,7 @@
 }
 
 .attempts__sort button:last-child {
+  min-width: 86px;
   text-align: right;
 }
 

@@ -5,15 +5,14 @@ const submitButton = form.querySelector("button");
 const message = document.querySelector("[data-message]");
 const list = document.querySelector("[data-attempts]");
 const empty = document.querySelector("[data-empty]");
-const best = document.querySelector("[data-best]");
 const result = document.querySelector("[data-result]");
 const solution = document.querySelector("[data-solution]");
 const summary = document.querySelector("[data-summary]");
-const puzzleNumber = document.querySelector("[data-puzzle-number]");
+const newGameButton = document.querySelector("[data-new-game]");
 const sortButtons = [...document.querySelectorAll("[data-sort]")];
 let game = null;
-let sortKey = "attempt";
-let sortDirection = "desc";
+let sortKey = "rank";
+let sortDirection = "asc";
 
 const storageKey = (id) => `ptrjstn-neuronym-${id}`;
 const normalize = (word) => word.trim().toLocaleLowerCase("de-DE");
@@ -32,21 +31,23 @@ function setMessage(text = "", isError = false) {
   message.dataset.error = String(isError);
 }
 function render() {
-  puzzleNumber.textContent = `#${game.number}`;
   list.replaceChildren();
   empty.hidden = game.attempts.length > 0;
-  const ranked = game.attempts.filter((item) => !item.solved);
-  const bestRank = ranked.length ? Math.min(...ranked.map((item) => item.rank)) : null;
-  best.textContent = bestRank ? `Bester Rang: #${bestRank}` : "Bester Rang: –";
+  const ranks = game.attempts.filter((item) => !item.solved).map((item) => item.rank);
+  const bestRank = ranks.length ? Math.min(...ranks) : null;
 
   const attempts = game.attempts.map((attempt, index) => ({
     ...attempt,
     attemptNumber: index + 1,
+    sortRank: attempt.solved ? 1 : Number(attempt.rank),
   }));
   attempts.sort((left, right) => {
-    const difference = sortKey === "rank"
-      ? left.rank - right.rank
+    const primaryDifference = sortKey === "rank"
+      ? left.sortRank - right.sortRank
       : left.attemptNumber - right.attemptNumber;
+    const difference = Number.isNaN(primaryDifference)
+      ? right.attemptNumber - left.attemptNumber
+      : primaryDifference || right.attemptNumber - left.attemptNumber;
     return sortDirection === "asc" ? difference : -difference;
   });
 
@@ -80,7 +81,7 @@ function render() {
     rank.className = "attempt__rank";
     rank.textContent = attempt.solved ? "Treffer" : `#${attempt.rank}`;
     item.append(number, word, rank);
-    list.prepend(item);
+    list.append(item);
   });
 
   result.hidden = !game.solved;
@@ -91,17 +92,25 @@ function render() {
   }
 }
 
-async function initialize() {
+async function initialize(loadNext = false) {
+  newGameButton.disabled = true;
   try {
-    const response = await fetch(`${API_URL}?request=${Date.now()}`);
+    const params = new URLSearchParams({ request: Date.now() });
+    if (loadNext && game?.id) params.set("after", game.id);
+    const response = await fetch(`${API_URL}?${params}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Das Neuronym konnte nicht geladen werden.");
-    game = { id: data.id, number: data.number, ...readProgress(data.id) };
+    game = { id: data.id, ...readProgress(data.id) };
+    sortKey = "rank";
+    sortDirection = "asc";
+    setMessage();
     render();
     if (!game.solved) input.focus();
   } catch (error) {
     setMessage(error.message, true);
-    form.hidden = true;
+    if (!game) form.hidden = true;
+  } finally {
+    newGameButton.disabled = false;
   }
 }
 
@@ -159,5 +168,7 @@ sortButtons.forEach((button) => {
     render();
   });
 });
+
+newGameButton.addEventListener("click", () => initialize(true));
 
 initialize();

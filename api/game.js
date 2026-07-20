@@ -1,6 +1,6 @@
 const ALLOWED_ORIGIN = "https://ptrjstn.github.io";
 const START_DATE = "2026-07-20";
-const PUZZLE_REVISION = "2";
+const PUZZLE_REVISION = "3";
 const OPENAI_MODEL = "text-embedding-3-small";
 const OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings";
 const OPENTHESAURUS_URL = "https://www.openthesaurus.de/synonyme/search";
@@ -66,14 +66,24 @@ export function dayDifference(date) {
   );
 }
 
-export function getPuzzle(now = new Date()) {
+export function getPuzzle(now = new Date(), requestedRound) {
   const date = berlinDate(now);
   const elapsed = Math.max(0, dayDifference(date));
+  const round = Number.isSafeInteger(requestedRound) && requestedRound >= 0
+    ? requestedRound
+    : elapsed;
   return {
-    id: `${date}-r${PUZZLE_REVISION}`,
-    number: elapsed + 1,
-    target: puzzles[elapsed % puzzles.length],
+    id: `${date}-r${PUZZLE_REVISION}-g${round}`,
+    target: puzzles[round % puzzles.length],
   };
+}
+
+export function getPuzzleFromId(id, now = new Date()) {
+  const match = /^(\d{4}-\d{2}-\d{2})-r3-g(\d+)$/.exec(id);
+  if (!match || match[1] !== berlinDate(now)) return null;
+
+  const round = Number(match[2]);
+  return Number.isSafeInteger(round) ? getPuzzle(now, round) : null;
 }
 
 export function normalize(value) {
@@ -220,16 +230,25 @@ export default async function handler(request, response) {
     return response.status(403).json({ error: "Diese Website darf das Spiel nicht aufrufen." });
   }
 
-  const { id, number, target } = getPuzzle();
-  if (request.method === "GET") return response.status(200).json({ id, number });
+  const dailyPuzzle = getPuzzle();
+  if (request.method === "GET") {
+    const after = typeof request.query?.after === "string"
+      ? getPuzzleFromId(request.query.after)
+      : null;
+    const puzzle = after
+      ? getPuzzle(new Date(), Number(after.id.match(/-g(\d+)$/)[1]) + 1)
+      : dailyPuzzle;
+    return response.status(200).json({ id: puzzle.id });
+  }
   if (request.method !== "POST") {
     return response.status(405).json({ error: "Nur GET- und POST-Anfragen sind erlaubt." });
   }
 
   const puzzleId = typeof request.body?.puzzleId === "string" ? request.body.puzzleId : "";
   const rawGuess = typeof request.body?.guess === "string" ? request.body.guess : "";
-  if (puzzleId !== id) {
-    return response.status(409).json({ error: "Inzwischen hat ein neues Tagesrätsel begonnen. Bitte lade die Seite neu." });
+  const puzzle = getPuzzleFromId(puzzleId);
+  if (!puzzle) {
+    return response.status(409).json({ error: "Dieses Spiel ist nicht mehr aktuell. Starte ein neues Spiel." });
   }
   if (rawGuess.length > 40) {
     return response.status(400).json({ error: "Das Wort ist zu lang." });
@@ -240,9 +259,9 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "Bitte gib genau ein deutsches Wort ohne Leer- oder Sonderzeichen ein." });
   }
 
-  if (guess === normalize(target)) {
+  if (guess === normalize(puzzle.target)) {
     return response.status(200).json({
-      word: target,
+      word: puzzle.target,
       rank: 1,
       solved: true,
       hint: "Treffer.",
@@ -258,7 +277,7 @@ export default async function handler(request, response) {
       return response.status(422).json({ error: "Dieses Wort ist nicht bei OpenThesaurus enthalten." });
     }
 
-    const similarity = await getSimilarity(dictionaryWord, target);
+    const similarity = await getSimilarity(dictionaryWord, puzzle.target);
     const rank = similarityToRank(similarity);
     return response.status(200).json({
       word: displayWord(guess),
