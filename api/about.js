@@ -95,7 +95,7 @@ export default async function handler(request, response) {
             role: "user",
             content: `
 Schreibe bei jedem Aufruf eine neue Variante eines kurzen About-Texts mit zwei bis vier Sätzen und höchstens 65 Wörtern.
-Der Ton ist kreativ-professionell, unaufdringlich und sprachlich abwechslungsreich. Schreibe in der dritten Person.
+Der Ton ist kreativ-professionell, unaufdringlich und sprachlich abwechslungsreich. Schreibe in der dritten Person. Jeder Satz muss unmittelbar auf einem der angegebenen Fakten beruhen. Füge keine zusammenfassende Bewertung und keine Aussagen über Peters Stimme, Persönlichkeit, Arbeitsqualität oder Wirkung hinzu.
 
 Verlässliche Fakten:
 - Name: Peter
