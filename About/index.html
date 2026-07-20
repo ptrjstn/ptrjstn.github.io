@@ -28,8 +28,8 @@
       plausible.init()
     </script>
     <link rel="stylesheet" href="../global.css?v=20260720-3" />
-    <link rel="stylesheet" href="styles.css?v=20260720-8" />
-    <script defer src="about.js?v=20260720-9"></script>
+    <link rel="stylesheet" href="styles.css?v=20260720-9" />
+    <script defer src="about.js?v=20260720-10"></script>
     <script defer src="../theme.js"></script>
   </head>
   <body>
@@ -55,9 +55,6 @@
         <div class="about__copy">
           <div class="about__title-row">
             <h1 id="about-title">About</h1>
-            <button class="about__reload" type="button" aria-label="About-Text neu generieren" title="Text neu generieren" data-about-reload>
-              <span aria-hidden="true">↻</span>
-            </button>
           </div>
           <div class="about__text" role="status" aria-live="polite" data-about-text data-state="loading">
             <span class="loading-dot" aria-hidden="true">•</span>
@@ -65,7 +62,12 @@
             <span class="loading-dot" aria-hidden="true">•</span>
             <span class="sr-only">Text wird von der KI geschrieben.</span>
           </div>
-          <p class="about__note">Dieser Text wird bei jedem Besuch von einer KI neu formuliert.</p>
+          <p class="about__note">
+            <span>Dieser Text wird bei jedem Besuch von einer KI neu formuliert.</span>
+            <button class="about__reload" type="button" aria-label="About-Inhalte neu generieren" title="Neu generieren" data-about-reload>
+              <span aria-hidden="true">↻</span>
+            </button>
+          </p>
         </div>
       </section>
 

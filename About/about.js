@@ -4,9 +4,8 @@ const portraitTrigger = document.querySelector("[data-about-portrait-trigger]");
 const reloadButton = document.querySelector("[data-about-reload]");
 const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Medien. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
 const fallbackArt = [
-  { shape: "word", x: 8, y: 24, width: 46, height: 12, rotation: -3, color: "ice", text: "GRAIN" },
-  { shape: "echo", x: 57, y: 48, width: 28, height: 16, rotation: 2, color: "violet", text: "" },
-  { shape: "haze", x: 16, y: 72, width: 42, height: 10, rotation: -2, color: "silver", text: "" },
+  { shape: "echo", x: 57, y: 48, width: 28, height: 16, rotation: 2, color: "violet" },
+  { shape: "haze", x: 16, y: 72, width: 42, height: 10, rotation: -2, color: "silver" },
 ];
 
 function requestId() {
@@ -30,22 +29,29 @@ function renderAboutText(text) {
   aboutText.dataset.state = "loaded";
 }
 
-function renderAboutArt(items) {
+function renderAboutArt(items, wordFragment) {
   const fragment = document.createDocumentFragment();
-  const hasWordFragment = items.some((item) => item.shape === "word");
+
+  if (wordFragment && wordFragment.text.trim()) {
+    const word = document.createElement("span");
+    word.className = `about__art-element about__art-element--word about__art-element--${wordFragment.color}`;
+    word.style.setProperty("--art-x", `${wordFragment.x}%`);
+    word.style.setProperty("--art-y", `${wordFragment.y}%`);
+    word.style.setProperty("--art-rotation", `${wordFragment.rotation}deg`);
+    word.style.setProperty("--art-delay", "0s");
+    word.textContent = wordFragment.text.trim();
+    fragment.appendChild(word);
+  }
 
   items.forEach((item, index) => {
     const element = document.createElement("span");
-    const shape = !hasWordFragment && index === 0 ? "word" : item.shape;
-    const fallbackWord = ["BLUR", "GRAIN", "OFFSET", "NOISE"][index % 4];
-    element.className = `about__art-element about__art-element--${shape} about__art-element--${item.color}`;
+    element.className = `about__art-element about__art-element--${item.shape} about__art-element--${item.color}`;
     element.style.setProperty("--art-x", `${item.x}%`);
     element.style.setProperty("--art-y", `${item.y}%`);
     element.style.setProperty("--art-width", `${item.width}%`);
     element.style.setProperty("--art-height", `${item.height}%`);
     element.style.setProperty("--art-rotation", `${item.rotation}deg`);
-    element.style.setProperty("--art-delay", `${index * -0.37}s`);
-    element.textContent = shape === "word" ? (item.text || fallbackWord) : "";
+    element.style.setProperty("--art-delay", `${(index + 1) * -0.37}s`);
     fragment.appendChild(element);
   });
 
@@ -79,7 +85,10 @@ async function loadAboutData({ updateText, updateArt }) {
     }
 
     if (updateArt) {
-      renderAboutArt(Array.isArray(data.art) && data.art.length ? data.art : fallbackArt);
+      renderAboutArt(
+        Array.isArray(data.art) && data.art.length ? data.art : fallbackArt,
+        data.wordFragment
+      );
     }
   } catch (error) {
     console.error("Fehler beim Laden der About-Inhalte:", error);
@@ -89,7 +98,7 @@ async function loadAboutData({ updateText, updateArt }) {
     }
 
     if (updateArt && !aboutArt.children.length) {
-      renderAboutArt(fallbackArt);
+      renderAboutArt(fallbackArt, null);
     }
   } finally {
     if (updateText) {

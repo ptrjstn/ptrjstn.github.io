@@ -152,6 +152,9 @@
 }
 
 .about__note {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   color: var(--muted);
   font-family: "Courier New", Courier, ui-monospace, monospace;
 }
@@ -175,14 +178,15 @@
 .about__reload {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  padding: 4px;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  padding: 2px;
   border: 0;
   background: transparent;
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", sans-serif;
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1;
   cursor: pointer;
