@@ -3,12 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ptrjstn</title>
-    <meta
-      name="description"
-      content="Zentrale Website für Peter Justen: Landingpage, Kinderbücher und Portfolio in einem Repo."
-    />
-    <meta name="robots" content="noindex, nofollow" />
+    <title>About – ptrjstn</title>
+    <meta name="description" content="Über Peter, Copywriter und Konzeptioner aus Tübingen." />
     <script>
       (() => {
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -31,35 +27,38 @@
       window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
       plausible.init()
     </script>
-    <link rel="stylesheet" href="global.css" />
-    <link rel="stylesheet" href="landing.css?v=20260720-1" />
-    <script defer src="landing.js?v=20260718-4"></script>
-    <script defer src="theme.js"></script>
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="styles.css?v=20260720-1" />
+    <script defer src="about.js?v=20260720-1"></script>
+    <script defer src="../theme.js"></script>
   </head>
   <body>
-    <main class="wrap portfolio-wrap landing-wrap" aria-label="Einleitung">
+    <main class="wrap portfolio-wrap about-wrap">
       <header class="portfolio-hero" aria-label="Kopfbereich">
-        <a class="site-title" href="./" aria-label="Startseite">
-          <img src="assets/shared/logo.png" alt="ptrjstn" width="226" height="98" />
+        <a class="site-title" href="../" aria-label="Startseite">
+          <img src="../assets/shared/logo.png" alt="ptrjstn" width="226" height="98" />
         </a>
-
         <nav class="portfolio-nav" aria-label="Navigation">
-          <a href="Portfolio/">Work</a>
-          <a href="About/">About</a>
+          <a href="../Portfolio/">Work</a>
+          <a href="./" aria-current="page">About</a>
         </nav>
       </header>
 
-      <section class="landing" aria-label="Neologismus">
-        <div class="neologism-entry">
-          <h1 class="neologism-word" role="status" aria-live="polite" aria-label="Neologismus wird geladen" data-neologism-word data-state="loading">
+      <section class="about" aria-labelledby="about-title">
+        <figure class="about__portrait">
+          <img src="../assets/about/peter.webp" alt="Porträt von Peter" width="1000" height="1500" />
+        </figure>
+
+        <div class="about__copy">
+          <p class="about__eyebrow">Über Peter, jedes Mal neu erzählt.</p>
+          <h1 id="about-title">About</h1>
+          <div class="about__text" role="status" aria-live="polite" data-about-text data-state="loading">
             <span class="loading-dot" aria-hidden="true">•</span>
             <span class="loading-dot" aria-hidden="true">•</span>
             <span class="loading-dot" aria-hidden="true">•</span>
-          </h1>
-          <div class="neologism-details" data-neologism-details hidden>
-            <p class="neologism-details__meta" data-neologism-meta></p>
-            <p class="neologism-details__definition" data-neologism-definition></p>
+            <span class="sr-only">Text wird von der KI geschrieben.</span>
           </div>
+          <p class="about__note">Dieser Text wird bei jedem Besuch von einer KI neu formuliert.</p>
         </div>
       </section>
 
