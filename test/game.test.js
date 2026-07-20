@@ -85,6 +85,17 @@ test("liefert Puzzle-Metadaten ohne das Lösungswort", async () => {
   assert.deepEqual(Object.keys(response.body), ["id"]);
 });
 
+test("erlaubt die neue Website-Domain per CORS", async () => {
+  const response = mockResponse();
+  await handler({
+    method: "GET",
+    headers: { origin: "https://ptrjstn.de" },
+  }, response);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.headers["Access-Control-Allow-Origin"], "https://ptrjstn.de");
+});
+
 test("liefert nach einem abgeschlossenen Spiel die nächste Runde", async () => {
   const current = getPuzzle();
   const response = mockResponse();

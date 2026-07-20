@@ -1,4 +1,4 @@
-const ALLOWED_ORIGIN = "https://ptrjstn.github.io";
+const ALLOWED_ORIGIN = "https://ptrjstn.de";
 
 export default async function handler(request, response) {
   const origin = request.headers.origin;

@@ -1,11 +1,11 @@
-const ALLOWED_ORIGIN = "https://ptrjstn.github.io";
+const ALLOWED_ORIGIN = "https://ptrjstn.de";
 const START_DATE = "2026-07-20";
 const PUZZLE_REVISION = "3";
 const OPENAI_MODEL = "text-embedding-3-small";
 const OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings";
 const OPENTHESAURUS_URL = "https://www.openthesaurus.de/synonyme/search";
 const OPENTHESAURUS_USER_AGENT =
-  "ptrjstn-neuronym/1.0 (+https://ptrjstn.github.io/)";
+  "ptrjstn-neuronym/1.0 (+https://ptrjstn.de/)";
 const REQUEST_TIMEOUT_MS = 8000;
 const CACHE_LIMIT = 500;
 
