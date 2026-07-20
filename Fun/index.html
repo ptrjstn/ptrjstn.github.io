@@ -20,7 +20,7 @@
     </script>
     <script async src="https://plausible.io/js/pa-hQ3kjDb9KU1cXZu8uwK2e.js"></script>
     <link rel="stylesheet" href="../global.css?v=20260720-3" />
-    <link rel="stylesheet" href="styles.css?v=20260720-9" />
+    <link rel="stylesheet" href="styles.css?v=20260720-10" />
     <script defer src="game.js?v=20260720-10"></script>
     <script defer src="../theme.js"></script>
   </head>
@@ -36,6 +36,18 @@
       </header>
 
       <section class="game" aria-label="Neuronym">
+        <div class="game__toolbar">
+          <details class="game__rules">
+            <summary aria-label="Spielregeln" title="Spielregeln">?</summary>
+            <div>
+              <p>Gesucht wird jeden Tag ein Substantiv. Je kleiner der Rang, desto näher liegt dein Wort an der Lösung. <strong>#2</strong> ist besonders nah. Wiederholungen zählen nicht erneut.</p>
+              <p class="muted">Eingaben und Spielaktionen werden ohne Nutzerkonto gespeichert, um das Spiel zu verbessern.</p>
+              <p class="muted">Wortdaten: <a href="https://www.openthesaurus.de/">OpenThesaurus</a> (CC BY-SA 4.0 / LGPL).</p>
+            </div>
+          </details>
+          <p class="game__beta"><em>[beta]</em></p>
+          <button class="give-up-button" type="button" data-give-up hidden>Aufgeben</button>
+        </div>
 
         <form class="guess-form" data-guess-form>
           <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="40" placeholder="Dein Wort" aria-label="Dein Wort" required />
@@ -46,7 +58,6 @@
           </button>
         </form>
         <p class="game__message" data-message role="status" aria-live="polite"></p>
-        <button class="give-up-button" type="button" data-give-up hidden>Aufgeben</button>
 
         <section class="game__result" data-result hidden aria-live="polite">
           <p data-result-label>Gefunden</p>
@@ -64,14 +75,6 @@
           <p class="attempts__empty" data-empty>Gib ein Wort ein und nähere dich über seinen Bedeutungsrang.</p>
         </section>
 
-        <details class="game__rules">
-          <summary>?</summary>
-          <div>
-            <p>Gesucht wird jeden Tag ein Substantiv. Je kleiner der Rang, desto näher liegt dein Wort an der Lösung. <strong>#2</strong> ist besonders nah. Wiederholungen zählen nicht erneut.</p>
-            <p class="muted">Eingaben und Spielaktionen werden ohne Nutzerkonto gespeichert, um das Spiel zu verbessern.</p>
-            <p class="muted">Wortdaten: <a href="https://www.openthesaurus.de/">OpenThesaurus</a> (CC BY-SA 4.0 / LGPL).</p>
-          </div>
-        </details>
       </section>
 
       <div class="rank-reveal" data-rank-reveal hidden aria-live="polite">

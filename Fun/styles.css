@@ -9,6 +9,25 @@
   text-align: center;
 }
 
+.game__toolbar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 8px;
+}
+
+.game__beta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.game__beta em {
+  font-style: italic;
+}
+
 .guess-form {
   position: relative;
   width: 100%;
@@ -140,7 +159,8 @@
 }
 
 .give-up-button {
-  margin-top: -7px;
+  justify-self: end;
+  font-size: 11px;
 }
 
 .new-game-button:disabled,
@@ -308,8 +328,9 @@
 
 .game__rules {
   position: relative;
-  width: min(100%, 500px);
-  margin: 24px auto 0;
+  z-index: 5;
+  justify-self: start;
+  margin: 0;
   color: var(--muted);
   font-size: 11px;
 }
@@ -318,7 +339,7 @@
   display: grid;
   width: 22px;
   height: 22px;
-  margin: 0 auto;
+  margin: 0;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 50%;
@@ -331,8 +352,16 @@
 }
 
 .game__rules div {
-  max-width: 440px;
-  margin: 12px auto 0;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(440px, calc(100vw - var(--page-gutter) * 2));
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-strong);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 10%, transparent);
+  text-align: left;
 }
 
 .game__rules p {
