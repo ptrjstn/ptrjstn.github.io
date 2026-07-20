@@ -19,7 +19,7 @@
     </script>
     <script async src="https://plausible.io/js/pa-hQ3kjDb9KU1cXZu8uwK2e.js"></script>
     <link rel="stylesheet" href="../global.css?v=20260720-3" />
-    <link rel="stylesheet" href="styles.css?v=20260720-2" />
+    <link rel="stylesheet" href="styles.css?v=20260720-3" />
     <script defer src="game.js?v=20260720-2"></script>
     <script defer src="../theme.js"></script>
   </head>
@@ -28,7 +28,6 @@
       <header class="portfolio-hero" aria-label="Kopfbereich">
         <a class="site-title" href="../" aria-label="Startseite"><img src="../assets/shared/logo.png" alt="ptrjstn" width="226" height="98" /></a>
         <nav class="portfolio-nav" aria-label="Navigation">
-          <span aria-current="page">Fun</span>
           <a href="../Portfolio/">Work</a>
           <a href="../About/">About</a>
         </nav>
@@ -41,9 +40,12 @@
         </header>
 
         <form class="guess-form" data-guess-form>
-          <label class="sr-only" for="guess">Dein Wort</label>
-          <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="Welches Wort suchst du?" required />
-          <button type="submit" aria-label="Wort prüfen" title="Wort prüfen">↑</button>
+          <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="Your Guess" aria-label="Your Guess" required />
+          <button type="submit" aria-label="Wort prüfen" title="Wort prüfen">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 16V4m0 0L5.5 8.5M10 4l4.5 4.5" />
+            </svg>
+          </button>
         </form>
         <p class="game__message" data-message role="status" aria-live="polite"></p>
 
