@@ -35,7 +35,7 @@ function render() {
   empty.hidden = game.attempts.length > 0;
   const ranked = game.attempts.filter((item) => !item.solved);
   const bestRank = ranked.length ? Math.min(...ranked.map((item) => item.rank)) : null;
-  best.textContent = bestRank ? `Dein bester Rang: #${bestRank}` : "Dein bester Rang: –";
+  best.textContent = bestRank ? `Bester Rang: #${bestRank}` : "Bester Rang: –";
 
   game.attempts.forEach((attempt, index) => {
     const item = document.createElement("li");

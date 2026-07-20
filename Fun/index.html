@@ -19,8 +19,8 @@
     </script>
     <script async src="https://plausible.io/js/pa-hQ3kjDb9KU1cXZu8uwK2e.js"></script>
     <link rel="stylesheet" href="../global.css?v=20260720-3" />
-    <link rel="stylesheet" href="styles.css?v=20260720-1" />
-    <script defer src="game.js?v=20260720-1"></script>
+    <link rel="stylesheet" href="styles.css?v=20260720-2" />
+    <script defer src="game.js?v=20260720-2"></script>
     <script defer src="../theme.js"></script>
   </head>
   <body>
@@ -36,38 +36,39 @@
 
       <section class="game" aria-labelledby="game-title">
         <header class="game__intro">
-          <p class="game__eyebrow">Tageswort <span data-puzzle-number>–</span></p>
-          <h1 id="game-title">Wie nah kommst du?</h1>
-          <p>Gib ein deutsches Wort ein. Je kleiner der Rang, desto näher liegt es am gesuchten Wort.</p>
+          <p>Tageswort <span data-puzzle-number>–</span></p>
+          <h1 id="game-title" class="sr-only">Tägliches Assoziationsspiel</h1>
         </header>
 
         <form class="guess-form" data-guess-form>
           <label class="sr-only" for="guess">Dein Wort</label>
-          <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="Dein Wort" required />
-          <button type="submit">Prüfen</button>
+          <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="Welches Wort suchst du?" required />
+          <button type="submit" aria-label="Wort prüfen" title="Wort prüfen">↑</button>
         </form>
         <p class="game__message" data-message role="status" aria-live="polite"></p>
 
         <section class="game__result" data-result hidden aria-live="polite">
-          <p class="game__eyebrow">Gefunden</p>
+          <p>Gefunden</p>
           <h2 data-solution></h2>
           <p data-summary></p>
-          <button class="share-button" type="button" data-share>Ergebnis teilen</button>
+          <button class="share-button" type="button" data-share>Teilen</button>
         </section>
 
         <section class="attempts" aria-labelledby="attempts-title">
           <div class="attempts__heading">
             <h2 id="attempts-title">Versuche</h2>
-            <p data-best>Dein bester Rang: –</p>
+            <p data-best>Bester Rang: –</p>
           </div>
           <ol class="attempts__list" data-attempts></ol>
-          <p class="attempts__empty" data-empty>Noch kein Versuch.</p>
+          <p class="attempts__empty" data-empty>Gib ein Wort ein und nähere dich über seinen Bedeutungsrang.</p>
         </section>
 
         <details class="game__rules">
-          <summary>So funktioniert’s</summary>
-          <p>Gesucht wird jeden Tag ein Wort. Jeder erkannte Begriff hat einen festen Bedeutungsrang: <strong>#2</strong> ist sehr nah, hohe Zahlen sind weit entfernt. Groß- und Kleinschreibung werden ignoriert. Wiederholte Wörter zählen nicht erneut.</p>
-          <p class="muted">Beta: Der deutsche Wortbestand wird schrittweise erweitert.</p>
+          <summary>?</summary>
+          <div>
+            <p>Je kleiner der Rang, desto näher liegt dein Wort an der heutigen Lösung. <strong>#2</strong> ist besonders nah. Wiederholungen zählen nicht erneut.</p>
+            <p class="muted">Beta · Der deutsche Wortbestand wird schrittweise erweitert.</p>
+          </div>
         </details>
       </section>
 
