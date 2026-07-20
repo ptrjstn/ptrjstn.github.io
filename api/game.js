@@ -1,8 +1,6 @@
 const ALLOWED_ORIGINS = new Set([
   "https://ptrjstn.de",
   "https://www.ptrjstn.de",
-  "http://ptrjstn.de",
-  "http://www.ptrjstn.de",
 ]);
 const START_DATE = "2026-07-20";
 const PUZZLE_REVISION = "3";

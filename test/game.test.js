@@ -91,8 +91,6 @@ test("erlaubt alle neuen Website-Origins per CORS", async () => {
   const origins = [
     "https://ptrjstn.de",
     "https://www.ptrjstn.de",
-    "http://ptrjstn.de",
-    "http://www.ptrjstn.de",
   ];
 
   for (const origin of origins) {
@@ -106,7 +104,7 @@ test("erlaubt alle neuen Website-Origins per CORS", async () => {
 
 test("erlaubt mobile Origins für alle API-Anwendungen", async () => {
   for (const apiHandler of [aboutHandler, neologismHandler]) {
-    for (const origin of ["https://www.ptrjstn.de", "http://ptrjstn.de"]) {
+    for (const origin of ["https://ptrjstn.de", "https://www.ptrjstn.de"]) {
       const response = mockResponse();
       await apiHandler({ method: "OPTIONS", headers: { origin } }, response);
       assert.equal(response.statusCode, 204);
@@ -114,6 +112,17 @@ test("erlaubt mobile Origins für alle API-Anwendungen", async () => {
       assert.equal(response.headers.Vary, "Origin");
     }
   }
+});
+
+test("weist unsichere HTTP-Origins nach der HTTPS-Aktivierung ab", async () => {
+  const response = mockResponse();
+  await handler({
+    method: "GET",
+    headers: { origin: "http://ptrjstn.de" },
+  }, response);
+
+  assert.equal(response.statusCode, 403);
+  assert.equal(response.headers["Access-Control-Allow-Origin"], undefined);
 });
 
 test("liefert nach einem abgeschlossenen Spiel die nächste Runde", async () => {

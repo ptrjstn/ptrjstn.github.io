@@ -1,8 +1,6 @@
 const ALLOWED_ORIGINS = new Set([
   "https://ptrjstn.de",
   "https://www.ptrjstn.de",
-  "http://ptrjstn.de",
-  "http://www.ptrjstn.de",
 ]);
 
 export default async function handler(request, response) {
