@@ -4,7 +4,7 @@ const portraitTrigger = document.querySelector("[data-about-portrait-trigger]");
 const reloadButton = document.querySelector("[data-about-reload]");
 const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Medien. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
 const fallbackArt = [
-  { shape: "word", x: 8, y: 24, width: 46, height: 12, rotation: -3, color: "ice", text: "ERINNERUNG" },
+  { shape: "word", x: 8, y: 24, width: 46, height: 12, rotation: -3, color: "ice", text: "GRAIN" },
   { shape: "echo", x: 57, y: 48, width: 28, height: 16, rotation: 2, color: "violet", text: "" },
   { shape: "haze", x: 16, y: 72, width: 42, height: 10, rotation: -2, color: "silver", text: "" },
 ];
@@ -37,7 +37,7 @@ function renderAboutArt(items) {
   items.forEach((item, index) => {
     const element = document.createElement("span");
     const shape = !hasWordFragment && index === 0 ? "word" : item.shape;
-    const fallbackWord = ["ERINNERUNG", "SIGNAL", "SPRACHE", "RAUSCHEN"][index % 4];
+    const fallbackWord = ["BLUR", "GRAIN", "OFFSET", "NOISE"][index % 4];
     element.className = `about__art-element about__art-element--${shape} about__art-element--${item.color}`;
     element.style.setProperty("--art-x", `${item.x}%`);
     element.style.setProperty("--art-y", `${item.y}%`);

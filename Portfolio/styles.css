@@ -144,10 +144,10 @@
 
 .portfolio-contact{
   display: grid;
-  grid-template-columns: minmax(180px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(156px, 224px) minmax(0, 1fr);
   gap: 34px;
   align-items: center;
-  margin: 0 0 56px;
+  margin: 0 0 24px;
   padding-top: 28px;
   border-top: 1px solid var(--line);
 }
@@ -304,6 +304,10 @@
   border-top: 1px solid var(--line);
 }
 
+.cv-section:first-of-type {
+  border-top: 0;
+}
+
 .cv-section > h2{
   position: sticky;
   top: 24px;
@@ -441,6 +445,11 @@
     grid-template-columns: 1fr;
   }
 
+  .portfolio-contact img {
+    width: 70%;
+    max-width: 224px;
+  }
+
   .project-copy{
     position: static;
   }
@@ -463,7 +472,7 @@
   .cv-section{
     grid-template-columns: 1fr;
     gap: 28px;
-    padding-bottom: 58px;
+    padding-bottom: 28px;
   }
 
   .cv-section > h2{
@@ -480,7 +489,7 @@
   }
 
   .portfolio-list{
-    gap: 54px;
+    gap: 28px;
   }
 
   .portfolio-project{
