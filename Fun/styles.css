@@ -79,6 +79,7 @@
 
 .guess-form button:focus-visible,
 .new-game-button:focus-visible,
+.give-up-button:focus-visible,
 .attempts__sort button:focus-visible,
 .game__rules summary:focus-visible {
   outline: 2px dotted var(--ink);
@@ -126,7 +127,8 @@
   font-size: 13px;
 }
 
-.new-game-button {
+.new-game-button,
+.give-up-button {
   padding: 6px 0;
   border: 0;
   border-bottom: 1px solid currentColor;
@@ -137,9 +139,19 @@
   cursor: pointer;
 }
 
-.new-game-button:disabled {
+.give-up-button {
+  margin-top: -7px;
+}
+
+.new-game-button:disabled,
+.give-up-button:disabled {
   opacity: 0.4;
   cursor: wait;
+}
+
+.game__message[hidden],
+.give-up-button[hidden] {
+  display: none;
 }
 
 .attempts {

@@ -6,9 +6,11 @@ const message = document.querySelector("[data-message]");
 const list = document.querySelector("[data-attempts]");
 const empty = document.querySelector("[data-empty]");
 const result = document.querySelector("[data-result]");
+const resultLabel = document.querySelector("[data-result-label]");
 const solution = document.querySelector("[data-solution]");
 const summary = document.querySelector("[data-summary]");
 const newGameButton = document.querySelector("[data-new-game]");
+const giveUpButton = document.querySelector("[data-give-up]");
 const rankReveal = document.querySelector("[data-rank-reveal]");
 const rankCaption = rankReveal.querySelector("[data-rank-caption]");
 const rankValue = rankReveal.querySelector("[data-rank-value]");
@@ -17,9 +19,49 @@ let game = null;
 let sortKey = "rank";
 let sortDirection = "asc";
 
-const storageKey = (id) => `ptrjstn-neuronym-${id}`;
+const STORAGE_PREFIX = "ptrjstn-neuronym-";
+const ACTIVE_GAME_KEY = `${STORAGE_PREFIX}active`;
+const storageKey = (id) => `${STORAGE_PREFIX}${id}`;
 const normalize = (word) => word.trim().toLocaleLowerCase("de-DE");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function berlinDate() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Berlin",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function readActiveGameId() {
+  try {
+    const puzzlePrefix = `${STORAGE_PREFIX}${berlinDate()}-r3-g`;
+    const activeId = localStorage.getItem(ACTIVE_GAME_KEY);
+    if (`${STORAGE_PREFIX}${activeId}`.startsWith(puzzlePrefix)) return activeId;
+
+    let latestRound = -1;
+    let latestId = null;
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (!key?.startsWith(puzzlePrefix)) continue;
+      const round = Number(key.slice(puzzlePrefix.length));
+      if (Number.isSafeInteger(round) && round > latestRound) {
+        latestRound = round;
+        latestId = key.slice(STORAGE_PREFIX.length);
+      }
+    }
+    return latestId;
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveActiveGameId(id) {
+  try { localStorage.setItem(ACTIVE_GAME_KEY, id); } catch (error) {
+    // Ohne lokalen Speicher fällt das Spiel auf die tägliche Runde zurück.
+  }
+}
 
 function createAttemptId() {
   return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -92,6 +134,7 @@ function setMessage(text = "", isError = false) {
   message.dataset.error = String(isError);
 }
 function render() {
+  const finished = game.solved || game.gaveUp;
   list.replaceChildren();
   empty.hidden = game.attempts.length > 0;
   const ranks = game.attempts.filter((item) => !item.solved).map((item) => item.rank);
@@ -146,11 +189,16 @@ function render() {
     list.append(item);
   });
 
-  result.hidden = !game.solved;
-  form.hidden = game.solved;
-  if (game.solved) {
+  result.hidden = !finished;
+  form.hidden = finished;
+  message.hidden = finished;
+  giveUpButton.hidden = finished;
+  if (finished) {
+    resultLabel.textContent = game.gaveUp ? "Lösung" : "Gefunden";
     solution.textContent = game.solution;
-    summary.textContent = `Gelöst in ${game.attempts.length} ${game.attempts.length === 1 ? "Versuch" : "Versuchen"}.`;
+    summary.textContent = game.gaveUp
+      ? `Aufgegeben nach ${game.attempts.length} ${game.attempts.length === 1 ? "Versuch" : "Versuchen"}.`
+      : `Gelöst in ${game.attempts.length} ${game.attempts.length === 1 ? "Versuch" : "Versuchen"}.`;
   }
 }
 
@@ -159,10 +207,15 @@ async function initialize(loadNext = false) {
   try {
     const params = new URLSearchParams({ request: Date.now() });
     if (loadNext && game?.id) params.set("after", game.id);
+    else {
+      const activeId = readActiveGameId();
+      if (activeId) params.set("puzzleId", activeId);
+    }
     const response = await fetch(`${API_URL}?${params}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Das Neuronym konnte nicht geladen werden.");
     game = { id: data.id, ...readProgress(data.id) };
+    saveActiveGameId(game.id);
     sortKey = "rank";
     sortDirection = "asc";
     setMessage();
@@ -244,5 +297,35 @@ sortButtons.forEach((button) => {
 });
 
 newGameButton.addEventListener("click", () => initialize(true));
+
+giveUpButton.addEventListener("click", async () => {
+  if (!game || game.solved || game.gaveUp) return;
+  giveUpButton.disabled = true;
+  submitButton.disabled = true;
+  setMessage("Lösung wird geladen …");
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "give_up",
+        puzzleId: game.id,
+        attemptNumber: game.submissionCount,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Die Lösung konnte nicht geladen werden.");
+    game.gaveUp = true;
+    game.solution = data.word;
+    saveProgress();
+    setMessage();
+    render();
+  } catch (error) {
+    setMessage(error.message, true);
+  } finally {
+    giveUpButton.disabled = false;
+    submitButton.disabled = false;
+  }
+});
 
 initialize();

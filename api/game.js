@@ -238,12 +238,15 @@ export default async function handler(request, response) {
 
   const dailyPuzzle = getPuzzle();
   if (request.method === "GET") {
+    const requestedPuzzle = typeof request.query?.puzzleId === "string"
+      ? getPuzzleFromId(request.query.puzzleId)
+      : null;
     const after = typeof request.query?.after === "string"
       ? getPuzzleFromId(request.query.after)
       : null;
     const puzzle = after
       ? getPuzzle(new Date(), Number(after.id.match(/-g(\d+)$/)[1]) + 1)
-      : dailyPuzzle;
+      : requestedPuzzle || dailyPuzzle;
     return response.status(200).json({ id: puzzle.id });
   }
   if (request.method !== "POST") {
@@ -256,10 +259,28 @@ export default async function handler(request, response) {
     request.body.attemptNumber >= 1 && request.body.attemptNumber <= 10000
     ? request.body.attemptNumber
     : null;
+  const giveUpAttemptCount = Number.isSafeInteger(request.body?.attemptNumber) &&
+    request.body.attemptNumber >= 0 && request.body.attemptNumber <= 10000
+    ? request.body.attemptNumber
+    : null;
   const duplicate = request.body?.duplicate === true;
   const puzzle = getPuzzleFromId(puzzleId);
   if (!puzzle) {
     return response.status(409).json({ error: "Dieses Spiel ist nicht mehr aktuell. Starte ein neues Spiel." });
+  }
+  if (request.body?.action === "give_up") {
+    await logGameGuess({
+      puzzle_id: puzzleId,
+      target_word: puzzle.target,
+      attempt_number: giveUpAttemptCount,
+      guess: null,
+      normalized_guess: null,
+      dictionary_word: null,
+      status: "gave_up",
+      rank: null,
+      solved: false,
+    });
+    return response.status(200).json({ word: puzzle.target, gaveUp: true });
   }
   if (rawGuess.length > 40) {
     return response.status(400).json({ error: "Das Wort ist zu lang." });

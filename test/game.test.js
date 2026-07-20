@@ -122,6 +122,58 @@ test("liefert Puzzle-Metadaten ohne das Lösungswort", async () => {
   assert.deepEqual(Object.keys(response.body), ["id"]);
 });
 
+test("stellt eine angeforderte aktive Runde wieder her", async () => {
+  const activePuzzle = getPuzzle(new Date(), 3);
+  const response = mockResponse();
+  await handler({
+    method: "GET",
+    headers: {},
+    query: { puzzleId: activePuzzle.id },
+  }, response);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.id, activePuzzle.id);
+});
+
+test("liefert und protokolliert die Lösung beim Aufgeben", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalUrl = process.env.SUPABASE_URL;
+  const originalSecret = process.env.SUPABASE_SECRET_KEY;
+  let logBody = null;
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_SECRET_KEY = "sb_secret_test";
+  globalThis.fetch = async (url, options = {}) => {
+    if (String(url).startsWith("https://example.supabase.co/")) {
+      logBody = JSON.parse(options.body);
+      return new Response(null, { status: 201 });
+    }
+    throw new Error(`Unerwartete Anfrage: ${url}`);
+  };
+
+  try {
+    const puzzle = getPuzzle();
+    const response = mockResponse();
+    await handler({
+      method: "POST",
+      headers: {},
+      body: { action: "give_up", puzzleId: puzzle.id, attemptNumber: 2 },
+    }, response);
+
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.body, { word: puzzle.target, gaveUp: true });
+    assert.equal(logBody.status, "gave_up");
+    assert.equal(logBody.target_word, puzzle.target);
+    assert.equal(logBody.attempt_number, 2);
+    assert.equal(logBody.guess, null);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = originalUrl;
+    if (originalSecret === undefined) delete process.env.SUPABASE_SECRET_KEY;
+    else process.env.SUPABASE_SECRET_KEY = originalSecret;
+  }
+});
+
 test("protokolliert abgelehnte Wiederholungen und Formatfehler", async () => {
   const originalFetch = globalThis.fetch;
   const originalUrl = process.env.SUPABASE_URL;

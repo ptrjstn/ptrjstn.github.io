@@ -20,8 +20,8 @@
     </script>
     <script async src="https://plausible.io/js/pa-hQ3kjDb9KU1cXZu8uwK2e.js"></script>
     <link rel="stylesheet" href="../global.css?v=20260720-3" />
-    <link rel="stylesheet" href="styles.css?v=20260720-8" />
-    <script defer src="game.js?v=20260720-9"></script>
+    <link rel="stylesheet" href="styles.css?v=20260720-9" />
+    <script defer src="game.js?v=20260720-10"></script>
     <script defer src="../theme.js"></script>
   </head>
   <body>
@@ -46,9 +46,10 @@
           </button>
         </form>
         <p class="game__message" data-message role="status" aria-live="polite"></p>
+        <button class="give-up-button" type="button" data-give-up hidden>Aufgeben</button>
 
         <section class="game__result" data-result hidden aria-live="polite">
-          <p>Gefunden</p>
+          <p data-result-label>Gefunden</p>
           <h2 data-solution></h2>
           <p data-summary></p>
           <button class="new-game-button" type="button" data-new-game>Neues Spiel</button>
@@ -67,7 +68,7 @@
           <summary>?</summary>
           <div>
             <p>Gesucht wird jeden Tag ein Substantiv. Je kleiner der Rang, desto näher liegt dein Wort an der Lösung. <strong>#2</strong> ist besonders nah. Wiederholungen zählen nicht erneut.</p>
-            <p class="muted">Eingaben werden anonym gespeichert, um das Spiel zu verbessern.</p>
+            <p class="muted">Eingaben und Spielaktionen werden ohne Nutzerkonto gespeichert, um das Spiel zu verbessern.</p>
             <p class="muted">Wortdaten: <a href="https://www.openthesaurus.de/">OpenThesaurus</a> (CC BY-SA 4.0 / LGPL).</p>
           </div>
         </details>
