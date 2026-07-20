@@ -122,6 +122,58 @@ test("liefert Puzzle-Metadaten ohne das Lösungswort", async () => {
   assert.deepEqual(Object.keys(response.body), ["id"]);
 });
 
+test("protokolliert abgelehnte Wiederholungen und Formatfehler", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalUrl = process.env.SUPABASE_URL;
+  const originalSecret = process.env.SUPABASE_SECRET_KEY;
+  const logBodies = [];
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_SECRET_KEY = "sb_secret_test";
+  globalThis.fetch = async (url, options = {}) => {
+    if (String(url).startsWith("https://example.supabase.co/")) {
+      logBodies.push(JSON.parse(options.body));
+      return new Response(null, { status: 201 });
+    }
+    throw new Error(`Unerwartete Anfrage: ${url}`);
+  };
+
+  try {
+    const duplicateResponse = mockResponse();
+    await handler({
+      method: "POST",
+      headers: {},
+      body: {
+        puzzleId: getPuzzle().id,
+        guess: "Bibliothek",
+        attemptNumber: 4,
+        duplicate: true,
+      },
+    }, duplicateResponse);
+
+    const invalidResponse = mockResponse();
+    await handler({
+      method: "POST",
+      headers: {},
+      body: {
+        puzzleId: getPuzzle().id,
+        guess: "zwei Wörter",
+        attemptNumber: 5,
+      },
+    }, invalidResponse);
+
+    assert.equal(duplicateResponse.statusCode, 409);
+    assert.equal(invalidResponse.statusCode, 400);
+    assert.deepEqual(logBodies.map((body) => body.status), ["duplicate", "invalid_format"]);
+    assert.deepEqual(logBodies.map((body) => body.attempt_number), [4, 5]);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = originalUrl;
+    if (originalSecret === undefined) delete process.env.SUPABASE_SECRET_KEY;
+    else process.env.SUPABASE_SECRET_KEY = originalSecret;
+  }
+});
+
 test("erlaubt alle neuen Website-Origins per CORS", async () => {
   const origins = [
     "https://ptrjstn.de",

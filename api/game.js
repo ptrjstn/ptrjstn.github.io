@@ -256,6 +256,7 @@ export default async function handler(request, response) {
     request.body.attemptNumber >= 1 && request.body.attemptNumber <= 10000
     ? request.body.attemptNumber
     : null;
+  const duplicate = request.body?.duplicate === true;
   const puzzle = getPuzzleFromId(puzzleId);
   if (!puzzle) {
     return response.status(409).json({ error: "Dieses Spiel ist nicht mehr aktuell. Starte ein neues Spiel." });
@@ -266,7 +267,35 @@ export default async function handler(request, response) {
 
   const guess = normalize(rawGuess);
   if (!/^[a-zäöüß]+$/iu.test(guess)) {
+    if (guess) {
+      await logGameGuess({
+        puzzle_id: puzzleId,
+        target_word: puzzle.target,
+        attempt_number: attemptNumber,
+        guess: rawGuess.trim(),
+        normalized_guess: guess,
+        dictionary_word: null,
+        status: "invalid_format",
+        rank: null,
+        solved: false,
+      });
+    }
     return response.status(400).json({ error: "Bitte gib genau ein deutsches Wort ohne Leer- oder Sonderzeichen ein." });
+  }
+
+  if (duplicate) {
+    await logGameGuess({
+      puzzle_id: puzzleId,
+      target_word: puzzle.target,
+      attempt_number: attemptNumber,
+      guess: rawGuess.trim(),
+      normalized_guess: guess,
+      dictionary_word: null,
+      status: "duplicate",
+      rank: null,
+      solved: false,
+    });
+    return response.status(409).json({ error: "Dieses Wort hast du bereits versucht." });
   }
 
   if (guess === normalize(puzzle.target)) {
@@ -289,6 +318,17 @@ export default async function handler(request, response) {
     });
   }
   if (!process.env.OPENAI_API_KEY) {
+    await logGameGuess({
+      puzzle_id: puzzleId,
+      target_word: puzzle.target,
+      attempt_number: attemptNumber,
+      guess: rawGuess.trim(),
+      normalized_guess: guess,
+      dictionary_word: null,
+      status: "configuration_error",
+      rank: null,
+      solved: false,
+    });
     return response.status(500).json({ error: "Der OpenAI API-Key fehlt." });
   }
 

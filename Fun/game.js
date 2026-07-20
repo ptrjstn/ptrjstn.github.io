@@ -18,8 +18,15 @@ const storageKey = (id) => `ptrjstn-neuronym-${id}`;
 const normalize = (word) => word.trim().toLocaleLowerCase("de-DE");
 
 function readProgress(id) {
-  try { return JSON.parse(localStorage.getItem(storageKey(id))) || { attempts: [], solved: false }; }
-  catch (error) { return { attempts: [], solved: false }; }
+  try {
+    const progress = JSON.parse(localStorage.getItem(storageKey(id))) || { attempts: [], solved: false };
+    const submissionCount = Number.isSafeInteger(progress.submissionCount)
+      ? Math.max(progress.submissionCount, progress.attempts.length)
+      : progress.attempts.length;
+    return { ...progress, submissionCount };
+  } catch (error) {
+    return { attempts: [], solved: false, submissionCount: 0 };
+  }
 }
 function saveProgress() {
   try { localStorage.setItem(storageKey(game.id), JSON.stringify(game)); } catch (error) {
@@ -119,11 +126,10 @@ form.addEventListener("submit", async (event) => {
   const guess = input.value.trim();
   const normalized = normalize(guess);
   if (!guess || !game) return;
-  if (game.attempts.some((item) => normalize(item.word) === normalized)) {
-    setMessage("Dieses Wort hast du bereits versucht.", true);
-    input.select();
-    return;
-  }
+  const duplicate = game.attempts.some((item) => normalize(item.word) === normalized);
+  game.submissionCount += 1;
+  const attemptNumber = game.submissionCount;
+  saveProgress();
   submitButton.disabled = true;
   setMessage("Wird geprüft …");
   try {
@@ -135,7 +141,8 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         puzzleId: game.id,
         guess,
-        attemptNumber: game.attempts.length + 1,
+        attemptNumber,
+        duplicate,
       }),
     });
     const data = await response.json();
