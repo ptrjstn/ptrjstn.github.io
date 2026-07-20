@@ -32,17 +32,20 @@ function renderAboutText(text) {
 
 function renderAboutArt(items) {
   const fragment = document.createDocumentFragment();
+  const hasWordFragment = items.some((item) => item.shape === "word");
 
   items.forEach((item, index) => {
     const element = document.createElement("span");
-    element.className = `about__art-element about__art-element--${item.shape} about__art-element--${item.color}`;
+    const shape = !hasWordFragment && index === 0 ? "word" : item.shape;
+    const fallbackWord = ["ERINNERUNG", "SIGNAL", "SPRACHE", "RAUSCHEN"][index % 4];
+    element.className = `about__art-element about__art-element--${shape} about__art-element--${item.color}`;
     element.style.setProperty("--art-x", `${item.x}%`);
     element.style.setProperty("--art-y", `${item.y}%`);
     element.style.setProperty("--art-width", `${item.width}%`);
     element.style.setProperty("--art-height", `${item.height}%`);
     element.style.setProperty("--art-rotation", `${item.rotation}deg`);
     element.style.setProperty("--art-delay", `${index * -0.37}s`);
-    element.textContent = item.text || "";
+    element.textContent = shape === "word" ? (item.text || fallbackWord) : "";
     fragment.appendChild(element);
   });
 
