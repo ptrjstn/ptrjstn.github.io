@@ -39,7 +39,7 @@ export default async function handler(request, response) {
       body: JSON.stringify({
         model: "gpt-5-mini",
         reasoning: { effort: "minimal" },
-        max_output_tokens: 420,
+        max_output_tokens: 180,
         text: {
           format: {
             type: "json_schema",
@@ -49,39 +49,8 @@ export default async function handler(request, response) {
               type: "object",
               properties: {
                 text: { type: "string" },
-                wordFragment: {
-                  type: "object",
-                  properties: {
-                    text: { type: "string" },
-                    x: { type: "integer", minimum: 0, maximum: 72 },
-                    y: { type: "integer", minimum: 5, maximum: 88 },
-                    rotation: { type: "integer", minimum: -8, maximum: 8 },
-                    color: { type: "string", enum: ["ice", "violet", "amber", "silver", "shadow"] },
-                  },
-                  required: ["text", "x", "y", "rotation", "color"],
-                  additionalProperties: false,
-                },
-                art: {
-                  type: "array",
-                  minItems: 3,
-                  maxItems: 6,
-                  items: {
-                    type: "object",
-                    properties: {
-                      shape: { type: "string", enum: ["memory", "scan", "echo", "haze"] },
-                      x: { type: "integer", minimum: 0, maximum: 85 },
-                      y: { type: "integer", minimum: 0, maximum: 90 },
-                      width: { type: "integer", minimum: 8, maximum: 70 },
-                      height: { type: "integer", minimum: 2, maximum: 30 },
-                      rotation: { type: "integer", minimum: -18, maximum: 18 },
-                      color: { type: "string", enum: ["ice", "violet", "amber", "silver", "shadow"] },
-                    },
-                    required: ["shape", "x", "y", "width", "height", "rotation", "color"],
-                    additionalProperties: false,
-                  },
-                },
               },
-              required: ["text", "wordFragment", "art"],
+              required: ["text"],
               additionalProperties: false,
             },
           },
@@ -104,10 +73,7 @@ Verlässliche Fakten:
 - Interessen: KI, Text, Sprache, Kunst und Medien
 - Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
 
-Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen. Beschreibe die Spiele, Kinderbücher und KI-Projekte nicht näher und erfinde weder Form, Genre, Zielgruppe noch Nutzungskontext.
-Erzeuge außerdem drei bis fünf dezente technoide Elemente, die wie verschwommene digitale Erinnerungen über Teilen eines Hochformat-Porträts liegen. Nutze unscharfe Erinnerungsfenster, feine Scanline-Bänder, versetzte Echo-Rahmen und diffuse Lichtschleier. Erfinde zusätzlich für "wordFragment" bei jedem Aufruf einen neuen kurzen englischen Wortfetzen aus dem Themenfeld Grafik, Bildbearbeitung, Typografie, Druck oder digitale Gestaltung. Lege das Wort nicht aus einer festen Liste fest. Verwende gedämpfte kalte oder neutrale Farben, geringe visuelle Lautstärke, subtile Asymmetrie und nur kleine Winkel. Vermeide plakative Formen und grelle Pop-Art.
-
-Gib ausschließlich JSON mit "text" und dem Array "art" zurück.
+Gib ausschließlich JSON mit dem Feld "text" zurück.
             `.trim(),
           },
         ],
@@ -140,23 +106,12 @@ Gib ausschließlich JSON mit "text" und dem Array "art" zurück.
 
     if (
       !aboutData.text ||
-      typeof aboutData.text !== "string" ||
-      !aboutData.wordFragment ||
-      typeof aboutData.wordFragment.text !== "string" ||
-      !aboutData.wordFragment.text.trim() ||
-      !Array.isArray(aboutData.art)
+      typeof aboutData.text !== "string"
     ) {
       throw new Error("Die Antwort hat nicht das erwartete Format.");
     }
 
-    return response.status(200).json({
-      text: aboutData.text.trim(),
-      wordFragment: {
-        ...aboutData.wordFragment,
-        text: aboutData.wordFragment.text.trim().slice(0, 24).toUpperCase(),
-      },
-      art: aboutData.art,
-    });
+    return response.status(200).json({ text: aboutData.text.trim() });
   } catch (error) {
     console.error("Fehler beim Erzeugen des About-Texts:", error);
     return response.status(500).json({ error: "Beim Verarbeiten des About-Texts ist ein Fehler aufgetreten." });

@@ -147,7 +147,7 @@
   grid-template-columns: minmax(156px, 224px) minmax(0, 1fr);
   gap: 34px;
   align-items: center;
-  margin: 0 0 24px;
+  margin: 0;
   padding-top: 28px;
   border-top: 1px solid var(--line);
 }
@@ -399,7 +399,7 @@
   display: flex;
   gap: 20px;
   justify-content: flex-end;
-  padding: 0 0 72px;
+  padding: 0;
   font-size: 13px;
 }
 

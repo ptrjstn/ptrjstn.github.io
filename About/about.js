@@ -1,12 +1,6 @@
 const aboutText = document.querySelector("[data-about-text]");
-const aboutArt = document.querySelector("[data-about-art]");
-const portraitTrigger = document.querySelector("[data-about-portrait-trigger]");
 const reloadButton = document.querySelector("[data-about-reload]");
 const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Medien. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
-const fallbackArt = [
-  { shape: "echo", x: 57, y: 48, width: 28, height: 16, rotation: 2, color: "violet" },
-  { shape: "haze", x: 16, y: 72, width: 42, height: 10, rotation: -2, color: "silver" },
-];
 
 function requestId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -29,45 +23,9 @@ function renderAboutText(text) {
   aboutText.dataset.state = "loaded";
 }
 
-function renderAboutArt(items, wordFragment) {
-  const fragment = document.createDocumentFragment();
-
-  if (wordFragment && wordFragment.text.trim()) {
-    const word = document.createElement("span");
-    word.className = `about__art-element about__art-element--word about__art-element--${wordFragment.color}`;
-    word.style.setProperty("--art-x", `${wordFragment.x}%`);
-    word.style.setProperty("--art-y", `${wordFragment.y}%`);
-    word.style.setProperty("--art-rotation", `${wordFragment.rotation}deg`);
-    word.style.setProperty("--art-delay", "0s");
-    word.textContent = wordFragment.text.trim();
-    fragment.appendChild(word);
-  }
-
-  items.forEach((item, index) => {
-    const element = document.createElement("span");
-    element.className = `about__art-element about__art-element--${item.shape} about__art-element--${item.color}`;
-    element.style.setProperty("--art-x", `${item.x}%`);
-    element.style.setProperty("--art-y", `${item.y}%`);
-    element.style.setProperty("--art-width", `${item.width}%`);
-    element.style.setProperty("--art-height", `${item.height}%`);
-    element.style.setProperty("--art-rotation", `${item.rotation}deg`);
-    element.style.setProperty("--art-delay", `${(index + 1) * -0.37}s`);
-    fragment.appendChild(element);
-  });
-
-  aboutArt.replaceChildren(fragment);
-}
-
-async function loadAboutData({ updateText, updateArt }) {
-  if (updateText) {
-    showTextLoader();
-    reloadButton.disabled = true;
-    reloadButton.dataset.loading = "true";
-  }
-
-  if (updateArt) {
-    portraitTrigger.dataset.loading = "true";
-  }
+async function loadAboutText() {
+  showTextLoader();
+  reloadButton.disabled = true;
 
   try {
     const response = await fetch(
@@ -77,54 +35,18 @@ async function loadAboutData({ updateText, updateArt }) {
     const data = await response.json();
 
     if (!response.ok || !data.text) {
-      throw new Error(data.error || "Die About-Inhalte konnten nicht geladen werden.");
+      throw new Error(data.error || "Der About-Text konnte nicht geladen werden.");
     }
 
-    if (updateText) {
-      renderAboutText(data.text);
-    }
-
-    if (updateArt) {
-      renderAboutArt(
-        Array.isArray(data.art) && data.art.length ? data.art : fallbackArt,
-        data.wordFragment
-      );
-    }
+    renderAboutText(data.text);
   } catch (error) {
-    console.error("Fehler beim Laden der About-Inhalte:", error);
-
-    if (updateText) {
-      renderAboutText(fallbackText);
-    }
-
-    if (updateArt && !aboutArt.children.length) {
-      renderAboutArt(fallbackArt, null);
-    }
+    console.error("Fehler beim Laden des About-Texts:", error);
+    renderAboutText(fallbackText);
   } finally {
-    if (updateText) {
-      reloadButton.disabled = false;
-      delete reloadButton.dataset.loading;
-    }
-
-    if (updateArt) {
-      delete portraitTrigger.dataset.loading;
-    }
+    reloadButton.disabled = false;
   }
 }
 
-reloadButton.addEventListener("click", () => {
-  loadAboutData({ updateText: true, updateArt: true });
-});
+reloadButton.addEventListener("click", loadAboutText);
 
-portraitTrigger.addEventListener("click", () => {
-  loadAboutData({ updateText: false, updateArt: true });
-});
-
-portraitTrigger.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    loadAboutData({ updateText: false, updateArt: true });
-  }
-});
-
-loadAboutData({ updateText: true, updateArt: true });
+loadAboutText();
