@@ -21,7 +21,6 @@
   gap: 42px;
   align-items: start;
   padding-top: 28px;
-  border-top: 1px solid var(--line);
 }
 
 .project-copy{
@@ -58,7 +57,6 @@
 
 .work-block + .work-block{
   padding-top: 26px;
-  border-top: 1px solid var(--line);
 }
 
 .work-block h2{
@@ -145,7 +143,6 @@
   align-items: center;
   margin: 0 0 56px;
   padding-top: 28px;
-  border-top: 1px solid var(--line);
 }
 
 .portfolio-contact img{
@@ -297,7 +294,6 @@
   grid-template-columns: minmax(150px, 0.23fr) minmax(0, 1fr);
   gap: 42px;
   padding: 28px 0 74px;
-  border-top: 1px solid var(--line);
 }
 
 .cv-section > h2{
@@ -323,7 +319,6 @@
 
 .cv-entry + .cv-entry{
   padding-top: 28px;
-  border-top: 1px solid var(--line);
 }
 
 .cv-entry:last-child{
@@ -367,7 +362,6 @@
   grid-template-columns: 150px minmax(0, 1fr);
   gap: 28px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--line);
 }
 
 .cv-personal dl div:first-child{
