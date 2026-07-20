@@ -90,24 +90,35 @@ function randomVariant(letter, currentVariant = 0) {
   return nextVariant;
 }
 
-function adjustLetterForAspectRatio(image) {
-  const button = image.parentElement;
+function adjustAllLetterSizes() {
+  const images = Array.from(neologismWord.querySelectorAll(".neologism-word__letter img"));
 
-  if (!image.naturalWidth || !image.naturalHeight || !button || !button.clientWidth || !button.clientHeight) {
+  if (!images.length || images.some((image) => !image.naturalWidth || !image.naturalHeight)) {
     return;
   }
 
-  const targetHeight = Math.min(button.clientHeight, button.clientWidth);
-  const targetWidth = targetHeight * (image.naturalWidth / image.naturalHeight);
+  const gap = 2;
+  const availableWidth = Math.min(neologismEntry.clientWidth * 0.75, images.length * 54);
+  const availableImageWidth = availableWidth - gap * (images.length - 1);
+  const aspectRatios = images.map((image) => image.naturalWidth / image.naturalHeight);
+  const aspectRatioSum = aspectRatios.reduce((sum, ratio) => sum + ratio, 0);
+  const responsiveHeight = Math.max(35, window.innerWidth * 0.09);
+  const targetHeight = Math.min(104, responsiveHeight, availableImageWidth / aspectRatioSum);
+  const columnWidths = aspectRatios.map((ratio) => targetHeight * ratio);
 
-  image.style.width = `${targetWidth.toFixed(2)}px`;
-  image.style.height = `${targetHeight.toFixed(2)}px`;
-}
+  images.forEach((image, index) => {
+    const button = image.parentElement;
+    const targetWidth = columnWidths[index];
 
-function adjustAllLetterSizes() {
-  neologismWord
-    .querySelectorAll(".neologism-word__letter img")
-    .forEach(adjustLetterForAspectRatio);
+    button.style.width = `${targetWidth.toFixed(2)}px`;
+    button.style.height = `${targetHeight.toFixed(2)}px`;
+    image.style.width = `${targetWidth.toFixed(2)}px`;
+    image.style.height = `${targetHeight.toFixed(2)}px`;
+  });
+
+  neologismWord.style.width = `${(columnWidths.reduce((sum, width) => sum + width, 0) + gap * (images.length - 1)).toFixed(2)}px`;
+  neologismWord.style.columnGap = `${gap}px`;
+  neologismWord.style.gridTemplateColumns = columnWidths.map((width) => `${width.toFixed(2)}px`).join(" ");
 }
 
 function setLetterVariant(button, variant) {
@@ -121,14 +132,13 @@ function setLetterVariant(button, variant) {
 
 function randomizeLetterPosition(button) {
   const isMobile = window.matchMedia("(max-width: 760px)").matches;
-  const x = Math.round((Math.random() - 0.5) * (isMobile ? 6 : 10));
   const y = Math.round((Math.random() - 0.5) * (isMobile ? 4 : 12));
   const tilt = (Math.random() - 0.5) * (isMobile ? 1.6 : 2.4);
   const scale = isMobile
     ? 0.97 + Math.random() * 0.04
     : 0.96 + Math.random() * 0.06;
 
-  button.style.setProperty("--letter-x", `${x}px`);
+  button.style.setProperty("--letter-x", "0px");
   button.style.setProperty("--letter-y", `${y}px`);
   button.style.setProperty("--letter-tilt", `${tilt}deg`);
   button.style.setProperty("--letter-scale", scale.toFixed(3));
@@ -181,10 +191,7 @@ async function renderLetterWord(word) {
     button.dataset.letter = letter;
     button.setAttribute("aria-label", `Buchstabe ${letter} austauschen`);
     image.alt = "";
-    image.addEventListener("load", () => {
-      adjustLetterForAspectRatio(image);
-      fitWordAboveDetails();
-    });
+    image.addEventListener("load", fitWordAboveDetails);
     imageReadyPromises.push(new Promise((resolve, reject) => {
       image.addEventListener("load", async () => {
         try {
@@ -233,10 +240,8 @@ async function renderLetterWord(word) {
   await Promise.all(imageReadyPromises);
 
   neologismWord.replaceChildren(fragment);
-  neologismWord.style.gridTemplateColumns = `repeat(${letters.length}, minmax(0, 1fr))`;
-  neologismWord.style.setProperty("--word-max-width", `${letters.length * 54}px`);
   neologismWord.setAttribute("aria-label", word);
-  buttons.forEach((button) => adjustLetterForAspectRatio(button.querySelector("img")));
+  adjustAllLetterSizes();
   neologismWord.dataset.state = "loaded";
   randomizeStacking(buttons);
 }

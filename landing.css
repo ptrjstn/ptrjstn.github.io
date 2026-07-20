@@ -30,9 +30,7 @@
   display: grid;
   place-items: center;
   min-width: 0;
-  width: 116%;
-  height: clamp(35px, 9vw, 104px);
-  margin: 0 -8%;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
