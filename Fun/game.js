@@ -9,6 +9,9 @@ const result = document.querySelector("[data-result]");
 const solution = document.querySelector("[data-solution]");
 const summary = document.querySelector("[data-summary]");
 const newGameButton = document.querySelector("[data-new-game]");
+const rankReveal = document.querySelector("[data-rank-reveal]");
+const rankCaption = rankReveal.querySelector("[data-rank-caption]");
+const rankValue = rankReveal.querySelector("[data-rank-value]");
 const sortButtons = [...document.querySelectorAll("[data-sort]")];
 let game = null;
 let sortKey = "rank";
@@ -16,6 +19,49 @@ let sortDirection = "asc";
 
 const storageKey = (id) => `ptrjstn-neuronym-${id}`;
 const normalize = (word) => word.trim().toLocaleLowerCase("de-DE");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function createAttemptId() {
+  return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function playRankReveal(rank, solved) {
+  if (reduceMotion) return Promise.resolve();
+
+  rankCaption.textContent = solved ? "Treffer" : "Rang";
+  rankValue.textContent = `#${rank}`;
+  rankReveal.hidden = false;
+  rankReveal.classList.remove("is-active");
+  void rankReveal.offsetWidth;
+  rankReveal.classList.add("is-active");
+
+  return new Promise((resolve) => {
+    let completed = false;
+    const finish = () => {
+      if (completed) return;
+      completed = true;
+      clearTimeout(fallback);
+      rankReveal.removeEventListener("animationend", onAnimationEnd);
+      rankReveal.hidden = true;
+      rankReveal.classList.remove("is-active");
+      resolve();
+    };
+    const onAnimationEnd = (event) => {
+      if (event.target === rankReveal) finish();
+    };
+    const fallback = setTimeout(finish, 1700);
+    rankReveal.addEventListener("animationend", onAnimationEnd);
+  });
+}
+
+function highlightAttempt(attemptId) {
+  const item = [...list.children].find((entry) => entry.dataset.attemptId === attemptId);
+  if (!item) return;
+
+  item.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+  item.classList.add("attempt--new");
+  item.addEventListener("animationend", () => item.classList.remove("attempt--new"), { once: true });
+}
 
 function readProgress(id) {
   try {
@@ -76,6 +122,7 @@ function render() {
   attempts.forEach((attempt) => {
     const item = document.createElement("li");
     item.className = "attempt";
+    if (attempt.id) item.dataset.attemptId = attempt.id;
     if (attempt.rank === bestRank) item.classList.add("attempt--best");
     if (attempt.solved) item.classList.add("attempt--solution");
     const number = document.createElement("span");
@@ -147,7 +194,13 @@ form.addEventListener("submit", async (event) => {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Das Wort konnte nicht geprüft werden.");
-    game.attempts.push({ word: data.word, rank: data.rank, solved: data.solved });
+    const newAttempt = {
+      id: createAttemptId(),
+      word: data.word,
+      rank: data.rank,
+      solved: data.solved,
+    };
+    game.attempts.push(newAttempt);
     game.solved = data.solved;
     if (data.solved) game.solution = data.word;
     saveProgress();
@@ -160,6 +213,8 @@ form.addEventListener("submit", async (event) => {
     const hint = data.hint || data.temperature || "Probiere eine andere Assoziation.";
     setMessage(data.solved ? "Genau das ist das Neuronym." : `${progress}${hint}`);
     render();
+    await playRankReveal(data.rank, data.solved);
+    highlightAttempt(newAttempt.id);
   } catch (error) {
     setMessage(error.message, true);
     input.select();
