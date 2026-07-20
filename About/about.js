@@ -1,7 +1,6 @@
 const aboutText = document.querySelector("[data-about-text]");
 const aboutPortrait = document.querySelector("[data-about-portrait]");
 const generatedImage = document.querySelector("[data-about-generated-image]");
-const imageStatus = document.querySelector("[data-about-image-status]");
 const reloadButton = document.querySelector("[data-about-reload]");
 const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Musik. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
 
@@ -51,11 +50,9 @@ async function loadAboutImage() {
     generatedImage.src = imageUrl;
     await generatedImage.decode();
     aboutPortrait.dataset.state = "ready";
-    imageStatus.textContent = "Original und KI-Interpretation im Wechsel.";
   } catch (error) {
     console.error("Fehler beim Laden der KI-Interpretation:", error);
     aboutPortrait.dataset.state = "fallback";
-    imageStatus.textContent = "Originalporträt";
   }
 }
 

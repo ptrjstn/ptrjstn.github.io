@@ -49,16 +49,7 @@
   animation: portrait-glitch 8s steps(1, end) infinite;
 }
 
-.about__portrait figcaption {
-  min-height: 1.5em;
-  margin-top: 8px;
-  color: var(--muted);
-  font-family: "Courier New", Courier, ui-monospace, monospace;
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-@keyframes portrait-glitch {
+@keyframes portrait-glitch
   0%, 38%, 76%, 100% {
     opacity: 0;
     clip-path: inset(0);
@@ -100,15 +91,9 @@
   max-width: 520px;
 }
 
-.about__eyebrow,
 .about__note {
   color: var(--muted);
   font-family: "Courier New", Courier, ui-monospace, monospace;
-}
-
-.about__eyebrow {
-  margin: 0 0 12px;
-  font-size: clamp(12px, 1.8vw, 14px);
 }
 
 .about__title-row {
@@ -120,10 +105,11 @@
 
 .about h1 {
   margin: 0;
-  font-size: clamp(38px, 7vw, 72px);
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
+  color: var(--muted);
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.025em;
 }
 
 .about__reload {
@@ -131,19 +117,29 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  padding: 0 0 2px;
+  padding: 7px;
   border: 1px solid var(--toggle-border);
   border-radius: 50%;
   background: var(--surface);
   color: var(--ink);
   box-shadow: var(--toggle-shadow);
-  font: 22px/1 Georgia, "Times New Roman", serif;
   cursor: pointer;
   transition: transform 160ms ease, background-color 160ms ease;
 }
 
+.about__reload svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .about__reload:hover {
-  transform: rotate(25deg);
+  transform: rotate(-25deg);
   background: var(--surface-strong);
 }
 

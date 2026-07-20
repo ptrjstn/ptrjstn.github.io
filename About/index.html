@@ -28,8 +28,8 @@
       plausible.init()
     </script>
     <link rel="stylesheet" href="../global.css?v=20260720-1" />
-        <link rel="stylesheet" href="styles.css?v=20260720-2" />
-        <script defer src="about.js?v=20260720-2"></script>
+    <link rel="stylesheet" href="styles.css?v=20260720-3" />
+    <script defer src="about.js?v=20260720-3"></script>
     <script defer src="../theme.js"></script>
   </head>
   <body>
@@ -50,14 +50,16 @@
             <img class="about__portrait-original" src="../assets/about/peter.webp" alt="Porträt von Peter" width="1000" height="1500" />
             <img class="about__portrait-generated" alt="KI-Interpretation des Porträts von Peter" data-about-generated-image />
           </div>
-          <figcaption data-about-image-status>KI-Interpretation wird erzeugt …</figcaption>
         </figure>
 
         <div class="about__copy">
-          <p class="about__eyebrow">Über Peter, jedes Mal neu erzählt.</p>
           <div class="about__title-row">
             <h1 id="about-title">About</h1>
-            <button class="about__reload" type="button" aria-label="About-Seite neu laden" title="Neu laden" data-about-reload>↻</button>
+            <button class="about__reload" type="button" aria-label="About-Seite neu laden" title="Neu laden" data-about-reload>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" />
+              </svg>
+            </button>
           </div>
           <div class="about__text" role="status" aria-live="polite" data-about-text data-state="loading">
             <span class="loading-dot" aria-hidden="true">•</span>
