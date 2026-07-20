@@ -80,7 +80,7 @@
   position: absolute;
   top: -18px;
   right: -30px;
-  z-index: 40;
+  z-index: 1000;
   display: grid;
   place-items: center;
   width: 18px;
