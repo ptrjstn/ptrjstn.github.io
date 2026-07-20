@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import aboutHandler from "../api/about.js";
 import neologismHandler from "../api/neologism.js";
+import { logGameGuess } from "../api/lib/supabase.js";
 import {
   default as handler,
   berlinDate,
@@ -55,6 +56,38 @@ test("liefert konkrete Hinweise für unterschiedliche Rangbereiche", () => {
   assert.match(hintForRank(4), /engsten Bedeutungsfeld/);
   assert.match(hintForRank(150), /präziseren/);
   assert.match(hintForRank(900), /anderen Themenfeld/);
+});
+
+test("behandelt fehlgeschlagenes Supabase-Logging als nicht kritisch", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalUrl = process.env.SUPABASE_URL;
+  const originalSecret = process.env.SUPABASE_SECRET_KEY;
+  const originalConsoleError = console.error;
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_SECRET_KEY = "sb_secret_test";
+  globalThis.fetch = async () => new Response("Tabelle fehlt", { status: 404 });
+  console.error = () => {};
+
+  try {
+    const logged = await logGameGuess({
+      puzzle_id: "2026-07-20-r3-g0",
+      guess: "Test",
+      normalized_guess: "test",
+      dictionary_word: null,
+      status: "not_in_dictionary",
+      rank: null,
+      solved: false,
+    });
+
+    assert.equal(logged, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+    if (originalUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = originalUrl;
+    if (originalSecret === undefined) delete process.env.SUPABASE_SECRET_KEY;
+    else process.env.SUPABASE_SECRET_KEY = originalSecret;
+  }
 });
 
 function mockResponse() {
@@ -142,15 +175,22 @@ test("liefert nach einem abgeschlossenen Spiel die nächste Runde", async () => 
 test("validiert über OpenThesaurus und nutzt text-embedding-3-small", async () => {
   const originalFetch = globalThis.fetch;
   const originalKey = process.env.OPENAI_API_KEY;
+  const originalSupabaseUrl = process.env.SUPABASE_URL;
+  const originalSupabaseSecret = process.env.SUPABASE_SECRET_KEY;
   const requests = [];
   const guess = getPuzzle().target === "Bibliothek" ? "Gewitter" : "Bibliothek";
   process.env.OPENAI_API_KEY = "test-key";
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_SECRET_KEY = "sb_secret_test";
   globalThis.fetch = async (url, options = {}) => {
     requests.push({ url: String(url), options });
     if (String(url).startsWith("https://www.openthesaurus.de/")) {
       return new Response(JSON.stringify({
         synsets: [{ terms: [{ term: guess }] }],
       }), { status: 200 });
+    }
+    if (String(url).startsWith("https://example.supabase.co/")) {
+      return new Response(null, { status: 201 });
     }
     return new Response(JSON.stringify({
       data: [
@@ -172,13 +212,25 @@ test("validiert über OpenThesaurus und nutzt text-embedding-3-small", async () 
     assert.equal(response.body.word, guess);
     assert.equal(response.body.rank, 4);
     assert.match(response.body.hint, /engsten Bedeutungsfeld/);
-    assert.equal(requests.length, 2);
+    assert.equal(requests.length, 3);
     const embeddingBody = JSON.parse(requests[1].options.body);
     assert.equal(embeddingBody.model, "text-embedding-3-small");
     assert.equal(embeddingBody.input.length, 2);
+    const logRequest = requests[2];
+    const logBody = JSON.parse(logRequest.options.body);
+    assert.equal(logRequest.url, "https://example.supabase.co/rest/v1/game_guesses");
+    assert.equal(logRequest.options.headers.apikey, "sb_secret_test");
+    assert.equal(logRequest.options.headers.Authorization, undefined);
+    assert.equal(logBody.guess, guess);
+    assert.equal(logBody.status, "accepted");
+    assert.equal(logBody.rank, 4);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = originalKey;
+    if (originalSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = originalSupabaseUrl;
+    if (originalSupabaseSecret === undefined) delete process.env.SUPABASE_SECRET_KEY;
+    else process.env.SUPABASE_SECRET_KEY = originalSupabaseSecret;
   }
 });

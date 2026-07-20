@@ -1,3 +1,5 @@
+import { logGameGuess } from "./lib/supabase.js";
+
 const ALLOWED_ORIGINS = new Set([
   "https://ptrjstn.de",
   "https://www.ptrjstn.de",
@@ -264,6 +266,15 @@ export default async function handler(request, response) {
   }
 
   if (guess === normalize(puzzle.target)) {
+    await logGameGuess({
+      puzzle_id: puzzleId,
+      guess: rawGuess.trim(),
+      normalized_guess: guess,
+      dictionary_word: guess,
+      status: "solved",
+      rank: 1,
+      solved: true,
+    });
     return response.status(200).json({
       word: puzzle.target,
       rank: 1,
@@ -278,11 +289,29 @@ export default async function handler(request, response) {
   try {
     const dictionaryWord = await findDictionaryWord(guess);
     if (!dictionaryWord) {
+      await logGameGuess({
+        puzzle_id: puzzleId,
+        guess: rawGuess.trim(),
+        normalized_guess: guess,
+        dictionary_word: null,
+        status: "not_in_dictionary",
+        rank: null,
+        solved: false,
+      });
       return response.status(422).json({ error: "Dieses Wort ist nicht bei OpenThesaurus enthalten." });
     }
 
     const similarity = await getSimilarity(dictionaryWord, puzzle.target);
     const rank = similarityToRank(similarity);
+    await logGameGuess({
+      puzzle_id: puzzleId,
+      guess: rawGuess.trim(),
+      normalized_guess: guess,
+      dictionary_word: dictionaryWord,
+      status: "accepted",
+      rank,
+      solved: false,
+    });
     return response.status(200).json({
       word: displayWord(guess),
       rank,
@@ -291,6 +320,15 @@ export default async function handler(request, response) {
     });
   } catch (error) {
     console.error("Fehler beim Prüfen des Wortes:", error);
+    await logGameGuess({
+      puzzle_id: puzzleId,
+      guess: rawGuess.trim(),
+      normalized_guess: guess,
+      dictionary_word: null,
+      status: "processing_error",
+      rank: null,
+      solved: false,
+    });
     return response.status(502).json({
       error: "Die Wortprüfung ist momentan nicht verfügbar. Bitte versuche es erneut.",
     });
