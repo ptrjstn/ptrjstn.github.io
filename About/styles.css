@@ -61,82 +61,81 @@
   top: var(--art-y);
   width: var(--art-width);
   height: var(--art-height);
-  opacity: 0.68;
+  opacity: 0.38;
   transform: rotate(var(--art-rotation));
   transform-origin: center;
   mix-blend-mode: screen;
-  animation: art-glitch 4.6s steps(1, end) var(--art-delay) infinite;
+  animation: art-memory 7.5s ease-in-out var(--art-delay) infinite alternate;
 }
 
-.about__art-element--blob {
-  border-radius: 67% 33% 58% 42% / 38% 62% 38% 62%;
-  background: currentColor;
-  filter: blur(1px);
+.about__art-element--memory {
+  border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
+  border-radius: 48% 52% 46% 54% / 56% 42% 58% 44%;
+  background: linear-gradient(115deg, transparent, currentColor 48%, transparent 78%);
+  filter: blur(5px);
 }
 
-.about__art-element--scribble {
-  border: 3px double currentColor;
-  border-radius: 43% 57% 37% 63% / 61% 35% 65% 39%;
+.about__art-element--scan {
+  background: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 4px);
+  clip-path: polygon(0 17%, 100% 0, 96% 79%, 4% 100%);
+  filter: blur(0.35px);
+}
+
+.about__art-element--echo {
+  border: 1px solid currentColor;
+  border-radius: 2px;
   background: transparent;
-  clip-path: polygon(0 38%, 13% 8%, 25% 72%, 39% 20%, 53% 88%, 68% 14%, 81% 76%, 100% 33%, 91% 100%, 73% 58%, 57% 100%, 43% 52%, 25% 96%, 11% 61%);
+  box-shadow: 5px 3px 0 color-mix(in srgb, currentColor 24%, transparent), -4px -2px 0 color-mix(in srgb, currentColor 16%, transparent);
+  filter: blur(0.6px);
 }
 
-.about__art-element--smear {
-  border-radius: 72% 28% 81% 19% / 45% 61% 39% 55%;
-  background: linear-gradient(90deg, transparent, currentColor 12% 76%, transparent);
-  filter: blur(2px);
-}
-
-.about__art-element--arc {
-  border: 3px solid currentColor;
-  border-right-color: transparent;
-  border-bottom-color: transparent;
+.about__art-element--haze {
   border-radius: 50%;
-  background: transparent;
+  background: radial-gradient(ellipse at center, currentColor, transparent 68%);
+  filter: blur(9px);
 }
 
-.about__art-element--slice {
-  background: repeating-linear-gradient(-12deg, currentColor 0 2px, transparent 2px 6px);
-  clip-path: polygon(0 30%, 100% 0, 92% 70%, 8% 100%);
+.about__art-element--fragment {
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  backdrop-filter: blur(7px) saturate(0.7) contrast(1.15);
+  -webkit-backdrop-filter: blur(7px) saturate(0.7) contrast(1.15);
+  clip-path: polygon(3% 8%, 100% 0, 94% 92%, 0 100%);
 }
 
-.about__art-element--cyan {
-  color: #49e6ee;
+.about__art-element--ice {
+  color: #9ee9ee;
 }
 
-.about__art-element--magenta {
-  color: #f154bb;
+.about__art-element--violet {
+  color: #b7a7d9;
 }
 
-.about__art-element--orange {
-  color: #ff9a3d;
+.about__art-element--amber {
+  color: #d8b684;
 }
 
-.about__art-element--cream {
-  color: #fff0c7;
+.about__art-element--silver {
+  color: #d7d9d6;
 }
 
-.about__art-element--black {
-  color: #171717;
+.about__art-element--shadow {
+  color: #43464c;
   mix-blend-mode: multiply;
 }
 
-@keyframes art-glitch {
-  0%, 84%, 100% {
-    opacity: 0.52;
-    translate: 0 0;
+@keyframes art-memory {
+  0% {
+    opacity: 0.22;
+    translate: -1px 0;
   }
-  85% {
-    opacity: 0.9;
-    translate: -5px 2px;
+  45% {
+    opacity: 0.42;
+    translate: 2px -1px;
   }
-  87% {
-    opacity: 0.34;
-    translate: 7px -2px;
-  }
-  89% {
-    opacity: 0.68;
-    translate: 0 0;
+  100% {
+    opacity: 0.3;
+    translate: 0 1px;
   }
 }
 

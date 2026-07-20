@@ -216,13 +216,23 @@ a:hover {
 }
 
 .portfolio-hero.portfolio-hero--with-subnav {
-  row-gap: 4px;
+  row-gap: 6px;
 }
 
 .portfolio-hero .portfolio-subnav {
   grid-column: 1 / -1;
-  width: 100%;
-  padding-top: 0;
+  justify-self: end;
+  width: auto;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-strong) 68%, transparent);
+  gap: 11px;
+  font-size: 11px;
+}
+
+.portfolio-subnav a,
+.portfolio-subnav span {
+  padding-bottom: 1px;
 }
 
 .footer-divider {
@@ -305,6 +315,10 @@ a:hover {
 }
 
 @media (max-width: 760px) {
+  .portfolio-hero .portfolio-subnav {
+    justify-self: start;
+  }
+
   .portfolio-nav a,
   .portfolio-nav span {
     padding-bottom: 2px;
