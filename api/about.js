@@ -56,7 +56,7 @@ export default async function handler(request, response) {
                   items: {
                     type: "object",
                     properties: {
-                      shape: { type: "string", enum: ["rectangle", "circle", "line"] },
+                      shape: { type: "string", enum: ["blob", "scribble", "smear", "arc", "slice"] },
                       x: { type: "integer", minimum: 0, maximum: 85 },
                       y: { type: "integer", minimum: 0, maximum: 90 },
                       width: { type: "integer", minimum: 8, maximum: 70 },
@@ -93,7 +93,7 @@ Verlässliche Fakten:
 - Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
 
 Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen.
-Erzeuge außerdem drei bis sechs abstrakte grafische Elemente für eine dezente, wechselnde Glitch-Collage über Teilen eines Hochformat-Porträts. Verteile sie über das Bild, halte die Formen eher klein und verwende unterschiedliche Farben.
+Erzeuge außerdem drei bis sechs expressive grafische Elemente für eine wechselnde Glitch-Collage über Teilen eines Hochformat-Porträts. Nutze organische Blobs, wilde Kritzeleien, Farbschmierer, unvollständige Bögen und zerschnittene Schraffuren. Verteile sie asymmetrisch, variiere Größen und Winkel deutlich und vermeide eine saubere geometrische Anordnung.
 
 Gib ausschließlich JSON mit "text" und dem Array "art" zurück.
             `.trim(),

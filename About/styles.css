@@ -24,6 +24,16 @@
   aspect-ratio: 2 / 3;
   border-radius: 2px;
   background: var(--surface-strong);
+  cursor: pointer;
+}
+
+.about__portrait-frame:focus-visible {
+  outline: 2px dotted var(--ink);
+  outline-offset: 4px;
+}
+
+.about__portrait-frame[data-loading="true"] {
+  cursor: progress;
 }
 
 .about__portrait img {
@@ -51,21 +61,43 @@
   top: var(--art-y);
   width: var(--art-width);
   height: var(--art-height);
-  border: 1px solid currentColor;
-  opacity: 0.62;
+  opacity: 0.68;
   transform: rotate(var(--art-rotation));
   transform-origin: center;
   mix-blend-mode: screen;
   animation: art-glitch 4.6s steps(1, end) var(--art-delay) infinite;
 }
 
-.about__art-element--circle {
-  border-radius: 50%;
+.about__art-element--blob {
+  border-radius: 67% 33% 58% 42% / 38% 62% 38% 62%;
+  background: currentColor;
+  filter: blur(1px);
 }
 
-.about__art-element--line {
-  border: 0;
-  background: currentColor;
+.about__art-element--scribble {
+  border: 3px double currentColor;
+  border-radius: 43% 57% 37% 63% / 61% 35% 65% 39%;
+  background: transparent;
+  clip-path: polygon(0 38%, 13% 8%, 25% 72%, 39% 20%, 53% 88%, 68% 14%, 81% 76%, 100% 33%, 91% 100%, 73% 58%, 57% 100%, 43% 52%, 25% 96%, 11% 61%);
+}
+
+.about__art-element--smear {
+  border-radius: 72% 28% 81% 19% / 45% 61% 39% 55%;
+  background: linear-gradient(90deg, transparent, currentColor 12% 76%, transparent);
+  filter: blur(2px);
+}
+
+.about__art-element--arc {
+  border: 3px solid currentColor;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.about__art-element--slice {
+  background: repeating-linear-gradient(-12deg, currentColor 0 2px, transparent 2px 6px);
+  clip-path: polygon(0 30%, 100% 0, 92% 70%, 8% 100%);
 }
 
 .about__art-element--cyan {

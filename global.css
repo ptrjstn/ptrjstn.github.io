@@ -215,11 +215,14 @@ a:hover {
   color: var(--muted);
 }
 
+.portfolio-hero.portfolio-hero--with-subnav {
+  row-gap: 4px;
+}
+
 .portfolio-hero .portfolio-subnav {
   grid-column: 1 / -1;
   width: 100%;
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
+  padding-top: 0;
 }
 
 .footer-divider {
