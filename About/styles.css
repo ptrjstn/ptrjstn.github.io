@@ -152,11 +152,16 @@
 }
 
 .about__note {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--muted);
   font-family: "Courier New", Courier, ui-monospace, monospace;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 160ms ease;
 }
 
 .about__title-row {
@@ -175,37 +180,7 @@
   letter-spacing: -0.025em;
 }
 
-.about__reload {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  padding: 2px;
-  border: 0;
-  background: transparent;
-  color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 160ms ease;
-}
 
-.about__reload span {
-  display: block;
-  transform: translateY(-1px);
-}
-
-.about__reload:hover {
-  color: var(--muted);
-}
-
-.about__reload:focus-visible {
-  outline: 2px dotted currentColor;
-  outline-offset: 3px;
-}
 
 .about__text {
   min-height: 8.4em;
@@ -249,6 +224,21 @@
   margin: clamp(18px, 3vw, 26px) 0 0;
   font-size: 12px;
   line-height: 1.5;
+}
+
+.about__note:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.about__note:focus-visible {
+  outline: 2px dotted currentColor;
+  outline-offset: 3px;
+}
+
+.about__note:disabled {
+  cursor: progress;
+  opacity: 0.72;
 }
 
 .sr-only {
