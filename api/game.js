@@ -1,66 +1,273 @@
 const ALLOWED_ORIGIN = "https://ptrjstn.github.io";
 const START_DATE = "2026-07-20";
+const OPENAI_MODEL = "text-embedding-3-small";
+const OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings";
+const OPENTHESAURUS_URL = "https://www.openthesaurus.de/synonyme/search";
+const OPENTHESAURUS_USER_AGENT =
+  "ptrjstn-tageswort/1.0 (+https://ptrjstn.github.io/)";
+const REQUEST_TIMEOUT_MS = 8000;
+const CACHE_LIMIT = 500;
 
 const puzzles = [
-  { target: "Schlüsselloch", words: ["spion", "guckloch", "türspion", "schlüssel", "türschloss", "loch", "tür", "luke", "öffnung", "fenster", "blick", "aussicht", "sehen", "beobachten", "auge", "griff", "klinke", "zimmer", "haus", "wand", "fernseher"] },
-  { target: "Gewitter", words: ["donnerwetter", "unwetter", "blitz", "donner", "sturm", "wolkenbruch", "regen", "wetter", "wolke", "hagel", "orkan", "himmel", "nass", "dunkel", "sommer", "luft", "wind", "schauer", "pfütze", "schirm", "sonne"] },
-  { target: "Bibliothek", words: ["bücherei", "bibliothekar", "buch", "lesen", "regal", "literatur", "ausleihe", "archiv", "roman", "wissen", "autor", "seite", "papier", "schule", "universität", "leise", "lernen", "geschichte", "schrift", "zimmer", "drucker"] },
-  { target: "Schatten", words: ["silhouette", "schattig", "dunkelheit", "licht", "sonne", "umriss", "nacht", "dunkel", "spiegelbild", "gestalt", "baum", "körper", "laterne", "grau", "boden", "wand", "sommer", "kühl", "wolke", "bild", "farbe"] },
-  { target: "Kompass", words: ["kompassnadel", "norden", "navigation", "richtung", "orientierung", "landkarte", "magnet", "nadel", "süden", "osten", "westen", "wandern", "weg", "reise", "meer", "schiff", "instrument", "kreis", "ziel", "wald", "uhr"] },
-  { target: "Leuchtturm", words: ["leuchtfeuer", "bake", "turm", "küste", "licht", "meer", "schiff", "hafen", "signal", "insel", "strand", "welle", "seefahrt", "laterne", "nacht", "fels", "sturm", "horizont", "haus", "hoch", "lampe"] },
-  { target: "Sehnsucht", words: ["verlangen", "fernweh", "vermissen", "wunsch", "heimweh", "liebe", "hoffnung", "träumen", "gefühl", "ferne", "erinnerung", "warten", "nähe", "einsamkeit", "traurig", "herz", "reise", "glück", "zukunft", "zeit", "mensch"] },
+  "Schlüsselloch",
+  "Gewitter",
+  "Bibliothek",
+  "Schatten",
+  "Kompass",
+  "Leuchtturm",
+  "Sehnsucht",
 ];
 
-function berlinDate() {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+const dictionaryCache = new Map();
+const embeddingCache = new Map();
+
+function cache(cacheStore, key, loader) {
+  if (cacheStore.has(key)) return cacheStore.get(key);
+
+  const pending = loader().catch((error) => {
+    cacheStore.delete(key);
+    throw error;
+  });
+  cacheStore.set(key, pending);
+
+  if (cacheStore.size > CACHE_LIMIT) {
+    cacheStore.delete(cacheStore.keys().next().value);
+  }
+  return pending;
 }
-function dayDifference(date) {
-  const [y, m, d] = date.split("-").map(Number);
-  const [sy, sm, sd] = START_DATE.split("-").map(Number);
-  return Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(sy, sm - 1, sd)) / 86400000);
+
+async function fetchWithTimeout(url, options) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
-function getPuzzle() {
-  const id = berlinDate();
+
+export function berlinDate(now = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Berlin",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
+export function dayDifference(date) {
+  const [year, month, day] = date.split("-").map(Number);
+  const [startYear, startMonth, startDay] = START_DATE.split("-").map(Number);
+  return Math.floor(
+    (Date.UTC(year, month - 1, day) -
+      Date.UTC(startYear, startMonth - 1, startDay)) /
+      86400000,
+  );
+}
+
+export function getPuzzle(now = new Date()) {
+  const id = berlinDate(now);
   const elapsed = Math.max(0, dayDifference(id));
-  return { id, number: elapsed + 1, puzzle: puzzles[elapsed % puzzles.length] };
+  return {
+    id,
+    number: elapsed + 1,
+    target: puzzles[elapsed % puzzles.length],
+  };
 }
-function normalize(value) {
+
+export function normalize(value) {
   return value.trim().normalize("NFC").toLocaleLowerCase("de-DE");
 }
+
 function displayWord(word) {
   return word.charAt(0).toLocaleUpperCase("de-DE") + word.slice(1);
 }
+
+export function cosineSimilarity(left, right) {
+  if (left.length !== right.length || left.length === 0) {
+    throw new Error("Die Embeddings haben nicht die erwartete Form.");
+  }
+
+  let product = 0;
+  let leftLength = 0;
+  let rightLength = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    product += left[index] * right[index];
+    leftLength += left[index] ** 2;
+    rightLength += right[index] ** 2;
+  }
+
+  const denominator = Math.sqrt(leftLength) * Math.sqrt(rightLength);
+  if (!denominator) throw new Error("Ein Embedding ist leer.");
+  return product / denominator;
+}
+
+// Eine exponentielle Skala macht hohe semantische Ähnlichkeit deutlich sichtbar.
+export function similarityToRank(similarity) {
+  const boundedSimilarity = Math.max(0.25, Math.min(0.9, similarity));
+  const estimatedRank = Math.round(
+    1000 * Math.exp(-10 * (boundedSimilarity - 0.25)),
+  );
+  return Math.max(2, Math.min(1000, estimatedRank));
+}
+
 function temperature(rank) {
-  if (rank <= 3) return "Sehr heiß.";
-  if (rank <= 7) return "Heiß.";
-  if (rank <= 12) return "Du kommst näher.";
-  if (rank <= 18) return "Entfernt verwandt.";
+  if (rank <= 10) return "Sehr heiß.";
+  if (rank <= 50) return "Heiß.";
+  if (rank <= 200) return "Du kommst näher.";
+  if (rank <= 500) return "Entfernt verwandt.";
   return "Noch ziemlich weit entfernt.";
 }
 
-export default async function handler(request, response) {
+function isExactDictionaryTerm(data, guess) {
+  return data.synsets?.some((synset) =>
+    synset.terms?.some((entry) => normalize(entry.term || "") === guess),
+  );
+}
+
+async function findDictionaryWord(guess) {
+  return cache(dictionaryCache, guess, async () => {
+    const url = new URL(OPENTHESAURUS_URL);
+    url.searchParams.set("q", guess);
+    url.searchParams.set("format", "application/json");
+    url.searchParams.set("baseform", "true");
+
+    const thesaurusResponse = await fetchWithTimeout(url, {
+      headers: { "User-Agent": OPENTHESAURUS_USER_AGENT },
+    });
+    if (!thesaurusResponse.ok) {
+      throw new Error(`OpenThesaurus antwortet mit ${thesaurusResponse.status}.`);
+    }
+
+    const data = await thesaurusResponse.json();
+    if (isExactDictionaryTerm(data, guess)) return guess;
+
+    const baseform = data.baseforms?.find((word) =>
+      /^[a-zäöüß]+$/iu.test(normalize(word)),
+    );
+    return baseform ? normalize(baseform) : null;
+  });
+}
+
+async function createEmbeddings(words) {
+  const openAIResponse = await fetchWithTimeout(OPENAI_EMBEDDINGS_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      input: words.map((word) => `Deutsches Wort: ${word}`),
+      encoding_format: "float",
+    }),
+  });
+
+  if (!openAIResponse.ok) {
+    const details = await openAIResponse.text();
+    console.error("OpenAI-Fehler:", details);
+    throw new Error(`OpenAI antwortet mit ${openAIResponse.status}.`);
+  }
+
+  const result = await openAIResponse.json();
+  const vectors = result.data
+    ?.slice()
+    .sort((left, right) => left.index - right.index)
+    .map((item) => item.embedding);
+  if (vectors?.length !== words.length || vectors.some((vector) => !Array.isArray(vector))) {
+    throw new Error("Die OpenAI-Antwort enthält nicht alle Embeddings.");
+  }
+  return vectors;
+}
+
+async function getSimilarity(guess, target) {
+  const targetKey = normalize(target);
+  const cachedTarget = embeddingCache.get(targetKey);
+
+  if (cachedTarget) {
+    const [guessVector, targetVector] = await Promise.all([
+      cache(embeddingCache, guess, async () => (await createEmbeddings([guess]))[0]),
+      cachedTarget,
+    ]);
+    return cosineSimilarity(guessVector, targetVector);
+  }
+
+  const [guessVector, targetVector] = await createEmbeddings([guess, targetKey]);
+  embeddingCache.set(guess, Promise.resolve(guessVector));
+  embeddingCache.set(targetKey, Promise.resolve(targetVector));
+  return cosineSimilarity(guessVector, targetVector);
+}
+
+function setHeaders(request, response) {
   const origin = request.headers.origin;
-  if (origin === ALLOWED_ORIGIN) response.setHeader("Access-Control-Allow-Origin", origin);
+  if (origin === ALLOWED_ORIGIN) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+  }
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
   response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-  if (request.method === "OPTIONS") return response.status(204).end();
-  if (origin && origin !== ALLOWED_ORIGIN) return response.status(403).json({ error: "Diese Website darf das Spiel nicht aufrufen." });
+  response.setHeader("CDN-Cache-Control", "no-store");
+  response.setHeader("Vercel-CDN-Cache-Control", "no-store");
+  return origin;
+}
 
-  const { id, number, puzzle } = getPuzzle();
+export default async function handler(request, response) {
+  const origin = setHeaders(request, response);
+  if (request.method === "OPTIONS") return response.status(204).end();
+  if (origin && origin !== ALLOWED_ORIGIN) {
+    return response.status(403).json({ error: "Diese Website darf das Spiel nicht aufrufen." });
+  }
+
+  const { id, number, target } = getPuzzle();
   if (request.method === "GET") return response.status(200).json({ id, number });
-  if (request.method !== "POST") return response.status(405).json({ error: "Nur GET- und POST-Anfragen sind erlaubt." });
+  if (request.method !== "POST") {
+    return response.status(405).json({ error: "Nur GET- und POST-Anfragen sind erlaubt." });
+  }
 
   const puzzleId = typeof request.body?.puzzleId === "string" ? request.body.puzzleId : "";
   const rawGuess = typeof request.body?.guess === "string" ? request.body.guess : "";
-  if (puzzleId !== id) return response.status(409).json({ error: "Inzwischen hat ein neues Tagesrätsel begonnen. Bitte lade die Seite neu." });
-  if (rawGuess.length > 40) return response.status(400).json({ error: "Das Wort ist zu lang." });
+  if (puzzleId !== id) {
+    return response.status(409).json({ error: "Inzwischen hat ein neues Tagesrätsel begonnen. Bitte lade die Seite neu." });
+  }
+  if (rawGuess.length > 40) {
+    return response.status(400).json({ error: "Das Wort ist zu lang." });
+  }
+
   const guess = normalize(rawGuess);
-  if (!/^[a-zäöüß]+$/iu.test(guess)) return response.status(400).json({ error: "Bitte gib genau ein deutsches Wort ohne Leer- oder Sonderzeichen ein." });
-  const target = normalize(puzzle.target);
-  if (guess === target) return response.status(200).json({ word: puzzle.target, rank: 1, solved: true, temperature: "Treffer." });
-  const index = puzzle.words.indexOf(guess);
-  if (index === -1) return response.status(422).json({ error: "Dieses Wort ist im aktuellen Beta-Wortbestand noch nicht enthalten." });
-  const rank = index + 2;
-  return response.status(200).json({ word: displayWord(guess), rank, solved: false, temperature: temperature(rank) });
+  if (!/^[a-zäöüß]+$/iu.test(guess)) {
+    return response.status(400).json({ error: "Bitte gib genau ein deutsches Wort ohne Leer- oder Sonderzeichen ein." });
+  }
+
+  if (guess === normalize(target)) {
+    return response.status(200).json({
+      word: target,
+      rank: 1,
+      solved: true,
+      temperature: "Treffer.",
+    });
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    return response.status(500).json({ error: "Der OpenAI API-Key fehlt." });
+  }
+
+  try {
+    const dictionaryWord = await findDictionaryWord(guess);
+    if (!dictionaryWord) {
+      return response.status(422).json({ error: "Dieses Wort ist nicht bei OpenThesaurus enthalten." });
+    }
+
+    const similarity = await getSimilarity(dictionaryWord, target);
+    const rank = similarityToRank(similarity);
+    return response.status(200).json({
+      word: displayWord(guess),
+      rank,
+      solved: false,
+      temperature: temperature(rank),
+    });
+  } catch (error) {
+    console.error("Fehler beim Prüfen des Wortes:", error);
+    return response.status(502).json({
+      error: "Die Wortprüfung ist momentan nicht verfügbar. Bitte versuche es erneut.",
+    });
+  }
 }
