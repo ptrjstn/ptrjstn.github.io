@@ -219,7 +219,7 @@ form.addEventListener("submit", async (event) => {
         ? "Dein bisher bestes Wort liegt näher. "
         : "";
     const hint = data.hint || data.temperature || "Probiere eine andere Assoziation.";
-    setMessage(data.solved ? "Genau das ist das Neuronym." : `${progress}${hint}`);
+    setMessage(data.solved ? "" : `${progress}${hint}`);
     render();
     await playRankReveal(data.rank, data.solved);
     highlightAttempt(newAttempt.id);

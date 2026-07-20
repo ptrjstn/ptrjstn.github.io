@@ -270,23 +270,20 @@
 }
 
 @keyframes rank-value {
-  0% { transform: scale(0.72); }
-  68% { transform: scale(1.16); }
-  100% { transform: scale(1.28); }
+  0% { transform: scale(0.72) rotate(-6deg); }
+  68% { transform: scale(1.16) rotate(-6deg); }
+  100% { transform: scale(1.28) rotate(-6deg); }
 }
 
 @keyframes attempt-highlight {
   0% {
     background: color-mix(in srgb, var(--ink) 18%, transparent);
-    box-shadow: inset 3px 0 0 var(--ink);
   }
   35% {
     background: color-mix(in srgb, var(--ink) 10%, transparent);
-    box-shadow: inset 3px 0 0 var(--ink);
   }
   100% {
     background: transparent;
-    box-shadow: inset 0 0 0 transparent;
   }
 }
 
