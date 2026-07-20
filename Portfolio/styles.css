@@ -11,8 +11,8 @@
 
 .portfolio-list{
   display: grid;
-  gap: 76px;
-  margin: 0 0 76px;
+  gap: 28px;
+  margin: 0 0 28px;
 }
 
 .portfolio-project{
@@ -52,7 +52,7 @@
 
 .project-body{
   display: grid;
-  gap: 32px;
+  gap: 26px;
   min-width: 0;
 }
 
@@ -300,7 +300,7 @@
   display: grid;
   grid-template-columns: minmax(150px, 0.23fr) minmax(0, 1fr);
   gap: 42px;
-  padding: 28px 0 74px;
+  padding: 28px 0;
   border-top: 1px solid var(--line);
 }
 

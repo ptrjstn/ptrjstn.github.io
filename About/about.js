@@ -4,9 +4,9 @@ const portraitTrigger = document.querySelector("[data-about-portrait-trigger]");
 const reloadButton = document.querySelector("[data-about-reload]");
 const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Medien. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
 const fallbackArt = [
-  { shape: "fragment", x: 8, y: 24, width: 46, height: 12, rotation: -3, color: "ice" },
-  { shape: "echo", x: 57, y: 48, width: 28, height: 16, rotation: 2, color: "violet" },
-  { shape: "haze", x: 16, y: 72, width: 42, height: 10, rotation: -2, color: "silver" },
+  { shape: "word", x: 8, y: 24, width: 46, height: 12, rotation: -3, color: "ice", text: "ERINNERUNG" },
+  { shape: "echo", x: 57, y: 48, width: 28, height: 16, rotation: 2, color: "violet", text: "" },
+  { shape: "haze", x: 16, y: 72, width: 42, height: 10, rotation: -2, color: "silver", text: "" },
 ];
 
 function requestId() {
@@ -42,6 +42,7 @@ function renderAboutArt(items) {
     element.style.setProperty("--art-height", `${item.height}%`);
     element.style.setProperty("--art-rotation", `${item.rotation}deg`);
     element.style.setProperty("--art-delay", `${index * -0.37}s`);
+    element.textContent = item.text || "";
     fragment.appendChild(element);
   });
 

@@ -56,15 +56,16 @@ export default async function handler(request, response) {
                   items: {
                     type: "object",
                     properties: {
-                      shape: { type: "string", enum: ["memory", "scan", "echo", "haze", "fragment"] },
+                      shape: { type: "string", enum: ["memory", "scan", "echo", "haze", "word"] },
                       x: { type: "integer", minimum: 0, maximum: 85 },
                       y: { type: "integer", minimum: 0, maximum: 90 },
                       width: { type: "integer", minimum: 8, maximum: 70 },
                       height: { type: "integer", minimum: 2, maximum: 30 },
                       rotation: { type: "integer", minimum: -18, maximum: 18 },
                       color: { type: "string", enum: ["ice", "violet", "amber", "silver", "shadow"] },
+                      text: { type: "string", enum: ["", "SPRACHE", "SIGNAL", "ERINNERUNG", "MEDIEN", "SPIEL", "TEXT", "KI", "RAUSCHEN"] },
                     },
-                    required: ["shape", "x", "y", "width", "height", "rotation", "color"],
+                    required: ["shape", "x", "y", "width", "height", "rotation", "color", "text"],
                     additionalProperties: false,
                   },
                 },
@@ -93,7 +94,7 @@ Verlässliche Fakten:
 - Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
 
 Formuliere auch den Freizeit-Fakt bei jedem Aufruf anders, ohne ihn wegzulassen.
-Erzeuge außerdem drei bis fünf dezente technoide Elemente, die wie verschwommene digitale Erinnerungen über Teilen eines Hochformat-Porträts liegen. Nutze unscharfe Erinnerungsfenster, feine Scanline-Bänder, versetzte Echo-Rahmen, diffuse Lichtschleier und lokal weichgezeichnete Fragmente. Verwende gedämpfte kalte oder neutrale Farben, geringe visuelle Lautstärke, subtile Asymmetrie und nur kleine Winkel. Vermeide plakative Formen und grelle Pop-Art.
+Erzeuge außerdem drei bis fünf dezente technoide Elemente, die wie verschwommene digitale Erinnerungen über Teilen eines Hochformat-Porträts liegen. Nutze unscharfe Erinnerungsfenster, feine Scanline-Bänder, versetzte Echo-Rahmen, diffuse Lichtschleier und verschwommene Wortfetzen. Wortfetzen dürfen aus SPRACHE, SIGNAL, ERINNERUNG, MEDIEN, SPIEL, TEXT, KI oder RAUSCHEN bestehen; alle anderen Formen erhalten einen leeren Text. Verwende gedämpfte kalte oder neutrale Farben, geringe visuelle Lautstärke, subtile Asymmetrie und nur kleine Winkel. Vermeide plakative Formen und grelle Pop-Art.
 
 Gib ausschließlich JSON mit "text" und dem Array "art" zurück.
             `.trim(),

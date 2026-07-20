@@ -95,12 +95,20 @@
   filter: blur(9px);
 }
 
-.about__art-element--fragment {
-  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
-  background: color-mix(in srgb, currentColor 9%, transparent);
-  backdrop-filter: blur(7px) saturate(0.7) contrast(1.15);
-  -webkit-backdrop-filter: blur(7px) saturate(0.7) contrast(1.15);
-  clip-path: polygon(3% 8%, 100% 0, 94% 92%, 0 100%);
+.about__art-element--word {
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: auto;
+  color: currentColor;
+  font-family: "Courier New", Courier, ui-monospace, monospace;
+  font-size: clamp(10px, 2.4vw, 18px);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  filter: blur(2.8px);
+  text-shadow: 5px 1px 5px currentColor, -4px 0 7px currentColor;
 }
 
 .about__art-element--ice {
@@ -167,16 +175,14 @@
 .about__reload {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  padding: 6px;
-  border: 1px solid var(--toggle-border);
-  border-radius: 50%;
-  background: var(--surface);
+  width: 26px;
+  height: 26px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
   color: var(--ink);
-  box-shadow: var(--toggle-shadow);
   cursor: pointer;
-  transition: transform 160ms ease, background-color 160ms ease;
+  transition: transform 160ms ease, color 160ms ease;
 }
 
 .about__reload svg {
@@ -195,12 +201,12 @@
 }
 
 @keyframes reload-spin {
-  to { transform: rotate(-360deg); }
+  to { transform: rotate(360deg); }
 }
 
 .about__reload:hover {
-  transform: rotate(-25deg);
-  background: var(--surface-strong);
+  color: var(--muted);
+  transform: rotate(25deg);
 }
 
 .about__reload:focus-visible {
