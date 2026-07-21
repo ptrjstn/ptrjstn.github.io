@@ -22,7 +22,7 @@ function renderHistory() {
 }
 function renderStage() {
   stage.replaceChildren(); const center = document.createElement("div"); center.className = "orb orb--center"; center.textContent = game.current; stage.append(center);
-  game.neighbors.forEach((word, index) => { const orb = document.createElement("div"); orb.className = "orb orb--neighbor"; orb.dataset.word = word; orb.textContent = game.revealed ? word : "?"; if (game.revealed) orb.classList.add("orb--revealed"); if (normalize(word) === normalize(game.lastHit || "")) orb.classList.add("orb--hit"); stage.append(orb); });
+  game.neighbors.forEach((word, index) => { const orb = document.createElement("div"); orb.className = "orb orb--neighbor"; if (word) orb.dataset.word = word; orb.textContent = game.revealed && word ? word : "?"; if (game.revealed) orb.classList.add("orb--revealed"); if (word && normalize(word) === normalize(game.lastHit || "")) orb.classList.add("orb--hit"); stage.append(orb); });
 }
 function render() {
   document.querySelector("[data-goal]").textContent = game.goal;
