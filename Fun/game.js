@@ -38,7 +38,7 @@ async function submitWord() {
   finally { requestInFlight = false; focusKeyboard(); }
 }
 function focusKeyboard() { if (!game?.finished) keyboard.focus({ preventScroll: true }); }
-keyboard.addEventListener("input", () => { draft = keyboard.value.replace(/[^a-zäöüß]/giu, "").slice(0, 40); keyboard.value = ""; renderLetters(draftElement, draft, "letter-word--draft"); });
+keyboard.addEventListener("input", () => { draft = `${draft}${keyboard.value.replace(/[^a-zäöüß]/giu, "")}`.slice(0, 40); keyboard.value = ""; renderLetters(draftElement, draft, "letter-word--draft"); });
 keyboard.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); submitWord(); } if (event.key === "Backspace") { event.preventDefault(); draft = draft.slice(0, -1); renderLetters(draftElement, draft, "letter-word--draft"); } });
 currentArea.addEventListener("click", focusKeyboard);
 document.addEventListener("keydown", (event) => { if (event.target === keyboard) return; if (event.key === "Enter") { event.preventDefault(); submitWord(); } else if (event.key === "Backspace" && draft) { draft = draft.slice(0, -1); renderLetters(draftElement, draft, "letter-word--draft"); } else if (event.key.length === 1 && /[a-zäöüß]/iu.test(event.key)) { draft += event.key; renderLetters(draftElement, draft, "letter-word--draft"); } focusKeyboard(); });
