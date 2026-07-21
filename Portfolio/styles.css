@@ -436,7 +436,8 @@
   .portfolio-nav{
     grid-column: auto;
     grid-row: auto;
-    justify-content: flex-start;
+    justify-self: end;
+    justify-content: flex-end;
   }
 
   .portfolio-project,
