@@ -7,6 +7,7 @@ const OPENAI_MODEL = "text-embedding-3-small";
 const OPENAI_URL = "https://api.openai.com/v1/embeddings";
 const THESAURUS_URL = "https://www.openthesaurus.de/synonyme/search";
 const MAX_NEIGHBOR_RANK = 10;
+const ASSOCIATION_LIMIT = 25;
 export const puzzles = [
   ["Kartoffel", "Saturn"], ["Kaffee", "Mond"], ["Schlüssel", "Meer"],
   ["Buch", "Wald"], ["Fenster", "Wüste"], ["Geige", "Gewitter"],
@@ -27,9 +28,9 @@ async function dictionaryWord(word) { const key = `dict:${word}`; if (cache.has(
 async function allowedAssociations(current) {
   if (associationCache.has(current)) return associationCache.get(current);
   if (process.env.SUPABASE_URL && (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
-    const indexed = await findWordEmbeddings(await embedding(current), 100);
+    const indexed = await findWordEmbeddings(await embedding(current), ASSOCIATION_LIMIT);
     if (Array.isArray(indexed) && indexed.length) {
-      const result = indexed.filter((item) => normalize(item.word) !== normalize(current)).slice(0, 100).map((item) => ({ word: item.word, similarity: item.similarity }));
+      const result = indexed.filter((item) => normalize(item.word) !== normalize(current)).slice(0, ASSOCIATION_LIMIT).map((item) => ({ word: item.word, similarity: item.similarity }));
       associationCache.set(current, result); return result;
     }
   }

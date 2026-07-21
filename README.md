@@ -31,10 +31,12 @@ Der Embedding-Index wird mit der Migration
 `supabase/migrations/20260721120000_create_word_embeddings.sql` und dem
 Einmaljob `npm run build:word-index` erzeugt. Der Job benötigt nur serverseitig
 `OPENAI_API_KEY`, `SUPABASE_URL` und `SUPABASE_SECRET_KEY` und schreibt bis zu
-100 semantische Nachbarn pro Abfrage über `pgvector` zurück.
+25 semantische Nachbarn pro Abfrage über `pgvector` zurück.
 
 Für das Deployment muss `OPENAI_API_KEY` als Vercel Environment Variable
-gesetzt sein. Der Schlüssel wird nur serverseitig verwendet. Vor einer
+gesetzt sein. Der Schlüssel wird nur serverseitig verwendet. Die API lädt pro
+Begriff die 25 ähnlichsten Nachbarn aus dem Index; gültig bleiben weiterhin
+nur Begriffe bis Rang 10. Vor einer
 dauerhaften Nutzung der OpenThesaurus-API sollte der Betreiber entsprechend
 deren API-Bedingungen `feedback@openthesaurus.de` kontaktieren.
 
