@@ -7,6 +7,7 @@ const chainElement = document.querySelector("[data-chain]");
 const message = document.querySelector("[data-message]");
 const result = document.querySelector("[data-result]");
 const STORAGE = "wortpfad-letters-";
+const ACTIVE_STORAGE = `${STORAGE}active`;
 let game;
 let draft = "";
 let draftVariants = [];
@@ -17,7 +18,13 @@ const normalize = (value) => String(value || "").trim().normalize("NFC").toLocal
 const displayLetters = (word) => word.toLocaleUpperCase("de-DE").replace(/Ä/g, "A").replace(/Ö/g, "O").replace(/Ü/g, "U").replace(/ẞ/g, "SS").replace(/[^A-Z]/g, "");
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 const formatTime = (seconds) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-function save() { try { localStorage.setItem(`${STORAGE}${game.id}`, JSON.stringify(game)); } catch {} }
+function save() {
+  try {
+    localStorage.setItem(`${STORAGE}${game.id}`, JSON.stringify(game));
+    const date = game.id.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+    localStorage.setItem(ACTIVE_STORAGE, JSON.stringify({ date, round: game.round }));
+  } catch {}
+}
 function randomVariant(letter) { return Math.floor(Math.random() * letterVariantCounts[letter]) + 1; }
 function createLetterImage(letter, variant, index) {
   const image = document.createElement("img"); image.className = "letter"; image.dataset.letter = letter; image.alt = letter; image.src = `../assets/letters/${letter}/${letter}_${String(variant).padStart(2, "0")}.webp`; image.style.animationDelay = `${index * 18}ms`; return image;
@@ -60,5 +67,13 @@ keyboard.addEventListener("keydown", (event) => { if (event.key === "Enter") { e
 currentArea.addEventListener("click", focusKeyboard);
 document.addEventListener("keydown", (event) => { if (event.target === keyboard) return; if (event.key === "Enter") { event.preventDefault(); submitWord(); } else if (event.key === "Backspace" && draft) { draft = draft.slice(0, -1); renderDraft(); } else if (event.key.length === 1 && /[a-zäöüß]/iu.test(event.key)) { draft += event.key; renderDraft(); } focusKeyboard(); });
 document.querySelector("[data-new-game]").addEventListener("click", async () => { const button = document.querySelector("[data-new-game]"); button.disabled = true; try { await initialize(`${API_URL}?round=${(game.round ?? 0) + 1}`, false); button.disabled = false; } catch (error) { setMessage(error.message, "invalid"); button.disabled = false; } });
-async function initialize(url = `${API_URL}?date=${today()}`, useSaved = true) { const response = await fetch(url); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Das Rätsel konnte nicht geladen werden."); let saved; if (useSaved) { try { saved = JSON.parse(localStorage.getItem(`${STORAGE}${data.id}`)); } catch {} } game = saved?.id === data.id ? saved : { id: data.id, round: data.round, dateLabel: data.dateLabel, start: data.start, goal: data.goal, current: data.start, path: [data.start], missedWords: [], missCount: 0, elapsed: 0, finished: false }; game.missedWords ||= game.misses || []; game.missCount ??= game.misses?.length || 0; delete game.misses; draft = ""; draftVariants = []; chainElement.classList.remove("is-finished"); renderChain(); render(); startTimer(); focusKeyboard(); }
+async function initialize(url, useSaved = true) {
+  if (!url) {
+    let active;
+    try { active = JSON.parse(localStorage.getItem(ACTIVE_STORAGE)); } catch {}
+    const activeDate = active?.date;
+    const activeRound = Number.isSafeInteger(active?.round) && active.round >= 0 ? active.round : null;
+    url = activeDate === today() && activeRound !== null ? `${API_URL}?round=${activeRound}` : `${API_URL}?date=${today()}`;
+  }
+  const response = await fetch(url, { cache: "no-store" }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Das Rätsel konnte nicht geladen werden."); let saved; if (useSaved) { try { saved = JSON.parse(localStorage.getItem(`${STORAGE}${data.id}`)); } catch {} } game = saved?.id === data.id ? saved : { id: data.id, round: data.round, dateLabel: data.dateLabel, start: data.start, goal: data.goal, current: data.start, path: [data.start], missedWords: [], missCount: 0, elapsed: 0, finished: false }; game.missedWords ||= game.misses || []; game.missCount ??= game.misses?.length || 0; delete game.misses; draft = ""; draftVariants = []; chainElement.classList.remove("is-finished"); renderChain(); render(); startTimer(); focusKeyboard(); }
 initialize().catch((error) => setMessage(error.message, "invalid"));
