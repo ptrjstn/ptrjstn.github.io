@@ -4,18 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Wortpfad</title>
-    <meta name="description" content="Finde den kürzesten semantischen Pfad zwischen zwei Wörtern." />
+    <meta name="description" content="Entdecke den täglichen semantischen Wortpfad." />
     <meta name="robots" content="noindex, nofollow" />
     <script>
-      (() => {
-        const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        try { document.documentElement.dataset.theme = localStorage.getItem("theme") || (dark ? "dark" : "light"); }
-        catch { document.documentElement.dataset.theme = dark ? "dark" : "light"; }
-      })();
+      (() => { const dark = window.matchMedia("(prefers-color-scheme: dark)").matches; try { document.documentElement.dataset.theme = localStorage.getItem("theme") || (dark ? "dark" : "light"); } catch { document.documentElement.dataset.theme = dark ? "dark" : "light"; } })();
     </script>
-    <link rel="stylesheet" href="../global.css?v=20260721-1" />
-    <link rel="stylesheet" href="styles.css?v=20260721-1" />
-    <script defer src="game.js?v=20260721-1"></script>
+    <link rel="stylesheet" href="../global.css?v=20260721-2" />
+    <link rel="stylesheet" href="styles.css?v=20260721-2" />
+    <script defer src="game.js?v=20260721-2"></script>
     <script defer src="../theme.js"></script>
   </head>
   <body>
@@ -27,18 +23,23 @@
 
       <section class="game" aria-label="Wortpfad">
         <div class="game__topline"><span>Wortpfad</span><span data-date></span></div>
-        <div class="stats" aria-label="Spielstand"><span><b data-steps>0</b> Schritte</span><span><b data-time>0:00</b></span></div>
-        <div class="path" data-path aria-live="polite"></div>
-        <form class="guess-form" data-guess-form>
-          <label class="sr-only" for="guess">Nächstes Wort</label>
-          <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="40" placeholder="Nächstes Wort" required />
-          <button type="submit" aria-label="Wort prüfen" title="Wort prüfen">→</button>
-        </form>
+        <div class="game__goal"><span>Ziel</span><strong data-goal></strong></div>
+        <div class="stats" aria-label="Spielstand"><span><b data-steps>0</b> Schritte</span><span><b data-misses>0</b> Fehlversuche</span><span><b data-time>0:00</b></span></div>
+
+        <div class="stage" data-stage aria-label="Aktuelles Wort"></div>
         <p class="game__message" data-message role="status" aria-live="polite"></p>
+        <form class="guess-form" data-guess-form>
+          <label class="sr-only" for="guess">Begriff eingeben</label>
+          <input id="guess" name="guess" type="text" inputmode="text" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="40" placeholder="Welcher Begriff ist dabei?" required />
+          <button type="submit" aria-label="Begriff prüfen" title="Begriff prüfen">→</button>
+        </form>
+
+        <section class="history" aria-label="Bisheriger Pfad"><span class="history__label">Dein Pfad</span><div data-history></div></section>
         <section class="result" data-result hidden aria-live="polite">
-          <p class="result__eyebrow">Geschafft</p>
+          <p class="result__eyebrow">Pfad entdeckt</p>
           <h1><span data-final-steps></span> Schritte</h1>
-          <p><span data-final-time></span> · besser als <span data-percentile></span> der heutigen Spieler</p>
+          <p><span data-final-misses></span> Fehlversuche · <span data-final-time></span></p>
+          <button class="share-button" type="button" data-share>Ergebnis teilen</button>
         </section>
       </section>
       <div class="footer-divider" aria-hidden="true"></div>
