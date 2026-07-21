@@ -38,9 +38,13 @@ function renderDraft() {
 }
 function renderChain() { chainElement.replaceChildren(); game.path.slice(1).forEach((word) => { const item = document.createElement("div"); renderLetters(item, word); item.classList.add("chain-word"); chainElement.append(item); }); }
 function appendChainWord(word) { const item = document.createElement("div"); renderLetters(item, word); item.classList.add("chain-word"); chainElement.append(item); }
+function renderFinalPath() {
+  const finalPath = document.querySelector("[data-final-path]"); finalPath.replaceChildren();
+  game.path.forEach((word, index) => { const item = document.createElement("span"); renderLetters(item, word); item.classList.add("result-word"); finalPath.append(item); if (index < game.path.length - 1) { const arrow = document.createElement("span"); arrow.className = "path-arrow"; arrow.textContent = "→"; finalPath.append(arrow); } });
+}
 function render() {
   document.querySelector("[data-start]").textContent = game.start; document.querySelector("[data-goal]").textContent = game.goal; renderDraft(); result.hidden = !game.finished;
-  if (game.finished) { renderLetters(document.querySelector("[data-final-path]"), game.goal, "final-path"); document.querySelector("[data-final-steps]").textContent = game.path.length - 1; document.querySelector("[data-final-misses]").textContent = game.misses.length; document.querySelector("[data-final-time]").textContent = formatTime(game.elapsed); }
+  if (game.finished) { renderFinalPath(); document.querySelector("[data-final-steps]").textContent = game.path.length - 1; document.querySelector("[data-final-misses]").textContent = game.misses.length; document.querySelector("[data-final-time]").textContent = formatTime(game.elapsed); }
 }
 function setMessage(text = "", state = "") { message.textContent = text; message.dataset.state = state; }
 function startTimer() { clearInterval(timer); if (game.finished) return; game.startedAt ||= Date.now(); save(); timer = setInterval(() => { game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); }, 1000); }
@@ -50,7 +54,7 @@ async function submitWord() {
   try {
     const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ puzzleId: game.id, current: game.current, guess: raw, attemptNumber: game.path.length - 1 + game.misses.length + 1, durationSeconds: Math.floor((Date.now() - game.startedAt) / 1000) }) });
     const data = await response.json(); if (!response.ok) throw new Error(data.error || "Nicht dabei");
-    game.current = data.word; game.path.push(data.word); appendChainWord(data.word); game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); draft = ""; draftVariants = []; setMessage("Gültig", "valid"); if (data.solved) { game.finished = true; clearInterval(timer); } save(); render();
+    game.current = data.word; game.path.push(data.word); if (!data.solved) appendChainWord(data.word); game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); draft = ""; draftVariants = []; setMessage("Gültig", "valid"); if (data.solved) { game.finished = true; clearInterval(timer); } save(); render();
   } catch (error) { game.misses.push(raw); draft = ""; draftVariants = []; save(); render(); setMessage(error.message === "Nicht dabei" ? "Nicht dabei" : error.message, "invalid"); }
   finally { requestInFlight = false; focusKeyboard(); }
 }
@@ -59,6 +63,6 @@ keyboard.addEventListener("input", () => { draft = `${draft}${keyboard.value.rep
 keyboard.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); submitWord(); } if (event.key === "Backspace") { event.preventDefault(); draft = draft.slice(0, -1); renderDraft(); } });
 currentArea.addEventListener("click", focusKeyboard);
 document.addEventListener("keydown", (event) => { if (event.target === keyboard) return; if (event.key === "Enter") { event.preventDefault(); submitWord(); } else if (event.key === "Backspace" && draft) { draft = draft.slice(0, -1); renderDraft(); } else if (event.key.length === 1 && /[a-zäöüß]/iu.test(event.key)) { draft += event.key; renderDraft(); } focusKeyboard(); });
-document.querySelector("[data-share]").addEventListener("click", async () => { const text = `Wortpfad: ${game.path.length - 1} Schritte, ${game.misses.length} Fehlversuche.`; try { if (navigator.share) await navigator.share({ title: "Wortpfad", text }); else await navigator.clipboard.writeText(text); setMessage("Ergebnis kopiert", "valid"); } catch {} });
+document.querySelector("[data-new-game]").addEventListener("click", () => { try { localStorage.removeItem(`${STORAGE}${game.id}`); } catch {} window.location.reload(); });
 async function initialize() { const response = await fetch(`${API_URL}?date=${today()}`); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Das Rätsel konnte nicht geladen werden."); let saved; try { saved = JSON.parse(localStorage.getItem(`${STORAGE}${data.id}`)); } catch {} game = saved?.id === data.id ? saved : { id: data.id, dateLabel: data.dateLabel, start: data.start, goal: data.goal, current: data.start, path: [data.start], misses: [], elapsed: 0, finished: false }; renderChain(); render(); startTimer(); focusKeyboard(); }
 initialize().catch((error) => setMessage(error.message, "invalid"));
