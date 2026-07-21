@@ -14,7 +14,7 @@ test("berechnet Berliner Kalendertag und Tagesabstand", () => {
 
 test("liefert ein stabiles tägliches Start-Ziel-Paar", () => {
   const puzzle = getPuzzle(new Date("2026-07-20T12:00:00Z"));
-  assert.deepEqual(puzzle, { id: "2026-07-20-r6", start: "Kartoffel", goal: "Saturn", dateLabel: "20.07.2026" });
+  assert.deepEqual(puzzle, { id: "2026-07-20-r6-g0", round: 0, start: "Kartoffel", goal: "Saturn", dateLabel: "20.07.2026" });
   assert.equal(getPuzzleFromId(puzzle.id, new Date("2026-07-20T12:00:00Z")).goal, "Saturn");
   assert.equal(getPuzzleFromId(puzzle.id, new Date("2026-07-21T12:00:00Z")), null);
 });
@@ -34,5 +34,5 @@ function responseMock() { return { headers: {}, statusCode: null, body: null, se
 
 test("liefert nur Tagesmetadaten ohne Rankings", async () => {
   const response = responseMock(); await handler({ method: "GET", headers: {} }, response);
-  assert.equal(response.statusCode, 200); assert.deepEqual(Object.keys(response.body).sort(), ["dateLabel", "goal", "id", "start"]); assert.equal(response.body.rank, undefined);
+  assert.equal(response.statusCode, 200); assert.deepEqual(Object.keys(response.body).sort(), ["dateLabel", "goal", "id", "round", "start"]); assert.equal(response.body.rank, undefined);
 });
