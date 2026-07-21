@@ -428,7 +428,7 @@
 
 @media (max-width: 760px){
   .portfolio-hero{
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
     margin-bottom: 14px;
   }
