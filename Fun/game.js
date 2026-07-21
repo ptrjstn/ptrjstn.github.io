@@ -1,59 +1,54 @@
 const API_URL = "https://ptrjstn-github-io.vercel.app/api/game";
-const form = document.querySelector("[data-guess-form]");
-const input = form.elements.guess;
-const submit = form.querySelector("button");
-const stage = document.querySelector("[data-stage]");
+const letterVariantCounts = { A: 55, B: 26, C: 28, D: 25, E: 32, F: 25, G: 31, H: 23, I: 23, J: 21, K: 22, L: 22, M: 28, N: 32, O: 26, P: 21, Q: 19, R: 33, S: 50, T: 25, U: 22, V: 20, W: 22, X: 18, Y: 24, Z: 21 };
+const currentArea = document.querySelector("[data-current-area]");
+const keyboard = document.querySelector("[data-keyboard]");
+const currentElement = document.querySelector("[data-current]");
+const draftElement = document.querySelector("[data-draft]");
 const message = document.querySelector("[data-message]");
-const history = document.querySelector("[data-history]");
+const historyElement = document.querySelector("[data-history]");
 const result = document.querySelector("[data-result]");
-const STORAGE = "wortpfad-v2-";
+const STORAGE = "wortpfad-letters-";
 let game;
-let timer;
+let draft = "";
 let requestInFlight = false;
+let timer;
 
-const normalize = (value) => value.trim().normalize("NFC").toLocaleLowerCase("de-DE");
+const normalize = (value) => String(value || "").trim().normalize("NFC").toLocaleLowerCase("de-DE");
+const displayLetters = (word) => word.toLocaleUpperCase("de-DE").replace(/Ä/g, "A").replace(/Ö/g, "O").replace(/Ü/g, "U").replace(/ẞ/g, "SS").replace(/[^A-Z]/g, "");
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 const formatTime = (seconds) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 function save() { try { localStorage.setItem(`${STORAGE}${game.id}`, JSON.stringify(game)); } catch {} }
-function setMessage(text = "", state = "") { message.textContent = text; message.dataset.state = state; }
-function renderHistory() {
-  history.replaceChildren(); const line = document.createElement("div"); line.className = "history__path";
-  game.path.forEach((word) => { const item = document.createElement("span"); item.textContent = word; line.append(item); }); history.append(line);
+function randomVariant(letter) { return Math.floor(Math.random() * letterVariantCounts[letter]) + 1; }
+function renderLetters(container, word, extraClass = "") {
+  container.replaceChildren(); container.className = `letter-word ${extraClass}`;
+  displayLetters(word).split("").forEach((letter, index) => { const image = document.createElement("img"); image.className = "letter"; image.alt = letter; image.src = `../assets/letters/${letter}/${letter}_${String(randomVariant(letter)).padStart(2, "0")}.webp`; image.style.animationDelay = `${index * 18}ms`; container.append(image); });
 }
-function renderStage() {
-  stage.replaceChildren(); const center = document.createElement("div"); center.className = "orb orb--center"; center.textContent = game.current; stage.append(center);
-  game.neighbors.forEach((word, index) => { const orb = document.createElement("div"); orb.className = "orb orb--neighbor"; if (word) orb.dataset.word = word; orb.textContent = game.revealed && word ? word : "?"; if (game.revealed) orb.classList.add("orb--revealed"); if (word && normalize(word) === normalize(game.lastHit || "")) orb.classList.add("orb--hit"); stage.append(orb); });
+function renderHistory() {
+  historyElement.replaceChildren(); const path = document.createElement("div"); path.className = "history__path";
+  game.path.forEach((word) => { const item = document.createElement("span"); item.className = "history__item"; const letters = document.createElement("span"); renderLetters(letters, word, "letter-word"); letters.querySelectorAll(".letter").forEach((image) => image.classList.add("letter--history")); item.append(letters); path.append(item); }); historyElement.append(path);
 }
 function render() {
-  document.querySelector("[data-goal]").textContent = game.goal;
-  document.querySelector("[data-date]").textContent = game.dateLabel;
-  document.querySelector("[data-steps]").textContent = Math.max(0, game.path.length - 1);
-  document.querySelector("[data-misses]").textContent = game.misses.length;
-  document.querySelector("[data-time]").textContent = formatTime(game.elapsed || 0);
-  renderStage(); renderHistory(); form.hidden = game.finished; result.hidden = !game.finished;
-  if (game.finished) { document.querySelector("[data-final-steps]").textContent = game.path.length - 1; document.querySelector("[data-final-misses]").textContent = game.misses.length; document.querySelector("[data-final-time]").textContent = formatTime(game.elapsed); }
+  renderLetters(document.querySelector("[data-goal]"), game.goal, "letter-word--goal"); renderLetters(currentElement, game.current, "letter-word--current"); renderLetters(draftElement, draft, "letter-word--draft");
+  document.querySelector("[data-date]").textContent = game.dateLabel; document.querySelector("[data-steps]").textContent = game.path.length - 1; document.querySelector("[data-misses]").textContent = game.misses.length; document.querySelector("[data-time]").textContent = formatTime(game.elapsed || 0); renderHistory(); result.hidden = !game.finished;
+  if (game.finished) { renderLetters(document.querySelector("[data-final-path]"), game.goal, "final-path"); document.querySelector("[data-final-steps]").textContent = game.path.length - 1; document.querySelector("[data-final-misses]").textContent = game.misses.length; document.querySelector("[data-final-time]").textContent = formatTime(game.elapsed); }
 }
+function setMessage(text = "", state = "") { message.textContent = text; message.dataset.state = state; }
 function startTimer() { clearInterval(timer); if (game.finished) return; game.startedAt ||= Date.now(); save(); timer = setInterval(() => { game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); document.querySelector("[data-time]").textContent = formatTime(game.elapsed); }, 1000); }
-async function initialize() {
-  const response = await fetch(`${API_URL}?date=${today()}`); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Das Rätsel konnte nicht geladen werden.");
-  let saved; try { saved = JSON.parse(localStorage.getItem(`${STORAGE}${data.id}`)); } catch {}
-  game = saved?.id === data.id ? saved : { id: data.id, dateLabel: data.dateLabel, start: data.start, goal: data.goal, current: data.start, neighbors: data.neighbors, path: [data.start], misses: [], revealed: false, elapsed: 0, finished: false };
-  render(); startTimer(); if (!game.finished) input.focus();
-}
-form.addEventListener("submit", async (event) => {
-  event.preventDefault(); const raw = input.value.trim(); if (!raw || !game || game.finished || requestInFlight) return; const guess = normalize(raw);
-  if (game.misses.some((word) => normalize(word) === guess) || game.path.some((word) => normalize(word) === guess)) { setMessage("Schon versucht", "invalid"); input.select(); return; }
-  requestInFlight = true; submit.disabled = true; setMessage("", "");
+async function submitWord() {
+  if (!draft || !game || game.finished || requestInFlight) return; const raw = draft; const guess = normalize(raw); if (game.path.some((word) => normalize(word) === guess) || game.misses.some((word) => normalize(word) === guess)) { setMessage("Schon versucht", "invalid"); draft = ""; renderLetters(draftElement, "", "letter-word--draft"); return; }
+  requestInFlight = true; setMessage("", "");
   try {
     const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ puzzleId: game.id, current: game.current, guess: raw, attemptNumber: game.path.length - 1 + game.misses.length + 1, durationSeconds: Math.floor((Date.now() - game.startedAt) / 1000) }) });
     const data = await response.json(); if (!response.ok) throw new Error(data.error || "Nicht dabei");
-    game.revealed = true; game.lastHit = data.word; input.value = ""; setMessage("Dabei", "valid"); render();
-    await new Promise((resolve) => setTimeout(resolve, 620));
-    game.current = data.word; game.path.push(data.word); game.neighbors = data.neighbors || []; game.revealed = false; game.lastHit = "";
-    if (data.solved) { game.finished = true; game.percentile = data.percentile; clearInterval(timer); }
-    save(); render(); if (!game.finished) input.focus();
-  } catch (error) { if (error.message === "Nicht dabei" || error.message === "Ungültig") { game.misses.push(raw); save(); render(); setMessage("Nicht dabei", "invalid"); } else setMessage(error.message, "invalid"); input.select(); }
-  finally { requestInFlight = false; submit.disabled = false; }
-});
+    game.current = data.word; game.path.push(data.word); game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); draft = ""; setMessage("Gültig", "valid"); if (data.solved) { game.finished = true; clearInterval(timer); } save(); render();
+  } catch (error) { game.misses.push(raw); draft = ""; save(); render(); setMessage(error.message === "Nicht dabei" ? "Nicht dabei" : error.message, "invalid"); }
+  finally { requestInFlight = false; focusKeyboard(); }
+}
+function focusKeyboard() { if (!game?.finished) keyboard.focus({ preventScroll: true }); }
+keyboard.addEventListener("input", () => { draft = keyboard.value.replace(/[^a-zäöüß]/giu, "").slice(0, 40); keyboard.value = ""; renderLetters(draftElement, draft, "letter-word--draft"); });
+keyboard.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); submitWord(); } if (event.key === "Backspace") { event.preventDefault(); draft = draft.slice(0, -1); renderLetters(draftElement, draft, "letter-word--draft"); } });
+currentArea.addEventListener("click", focusKeyboard);
+document.addEventListener("keydown", (event) => { if (event.target === keyboard) return; if (event.key === "Enter") { event.preventDefault(); submitWord(); } else if (event.key === "Backspace" && draft) { draft = draft.slice(0, -1); renderLetters(draftElement, draft, "letter-word--draft"); } else if (event.key.length === 1 && /[a-zäöüß]/iu.test(event.key)) { draft += event.key; renderLetters(draftElement, draft, "letter-word--draft"); } focusKeyboard(); });
 document.querySelector("[data-share]").addEventListener("click", async () => { const text = `Wortpfad: ${game.path.length - 1} Schritte, ${game.misses.length} Fehlversuche.`; try { if (navigator.share) await navigator.share({ title: "Wortpfad", text }); else await navigator.clipboard.writeText(text); setMessage("Ergebnis kopiert", "valid"); } catch {} });
+async function initialize() { const response = await fetch(`${API_URL}?date=${today()}`); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Das Rätsel konnte nicht geladen werden."); let saved; try { saved = JSON.parse(localStorage.getItem(`${STORAGE}${data.id}`)); } catch {} game = saved?.id === data.id ? saved : { id: data.id, dateLabel: data.dateLabel, start: data.start, goal: data.goal, current: data.start, path: [data.start], misses: [], elapsed: 0, finished: false }; render(); startTimer(); focusKeyboard(); }
 initialize().catch((error) => setMessage(error.message, "invalid"));
