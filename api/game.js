@@ -1,4 +1,4 @@
-import { getGameStats, logGameGuess, logGameResult } from "./lib/supabase.js";
+import { findWordEmbeddings, getGameStats, logGameGuess, logGameResult } from "./lib/supabase.js";
 
 const ALLOWED_ORIGINS = new Set(["https://ptrjstn.de", "https://www.ptrjstn.de"]);
 const START_DATE = "2026-07-20";
@@ -26,6 +26,13 @@ async function fetchTimed(url, options = {}) { const controller = new AbortContr
 async function dictionaryWord(word) { const key = `dict:${word}`; if (cache.has(key)) return cache.get(key); const url = new URL(THESAURUS_URL); url.searchParams.set("q", word); url.searchParams.set("format", "application/json"); url.searchParams.set("baseform", "true"); const response = await fetchTimed(url, { headers: { "User-Agent": "ptrjstn-wortpfad/1.0" } }); if (!response.ok) throw new Error("Wörterbuch nicht verfügbar"); const data = await response.json(); const exact = data.synsets?.some((set) => set.terms?.some((entry) => normalize(entry.term) === word)); const baseform = data.baseforms?.find((item) => /^[a-zäöüß]+$/iu.test(normalize(item))); const value = exact ? word : normalize(baseform); cache.set(key, value || null); return value || null; }
 async function allowedAssociations(current) {
   if (associationCache.has(current)) return associationCache.get(current);
+  if (process.env.SUPABASE_URL && (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+    const indexed = await findWordEmbeddings(await embedding(current), 100);
+    if (Array.isArray(indexed) && indexed.length) {
+      const result = indexed.filter((item) => normalize(item.word) !== normalize(current)).slice(0, 100).map((item) => ({ word: item.word, similarity: item.similarity }));
+      associationCache.set(current, result); return result;
+    }
+  }
   const url = new URL(THESAURUS_URL); url.searchParams.set("q", current); url.searchParams.set("format", "application/json");
   const response = await fetchTimed(url, { headers: { "User-Agent": "ptrjstn-wortpfad/1.0" } }); if (!response.ok) return [];
   const data = await response.json(); const candidates = [...new Set((data.synsets || []).flatMap((set) => (set.terms || []).map((entry) => normalize(entry.term)).filter((word) => /^[a-zäöüß]+$/iu.test(word) && word !== normalize(current))))].slice(0, 20); const ranked = await Promise.all(candidates.map(async (word) => ({ word, rank: await neighborRank(current, word) }))); const result = ranked.filter((item) => item.rank <= MAX_NEIGHBOR_RANK).slice(0, 10).map((item) => item.word); associationCache.set(current, result); return result;

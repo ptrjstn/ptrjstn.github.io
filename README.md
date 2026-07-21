@@ -27,6 +27,12 @@ Substantiven, Adjektiven und Verben mit ihrer Korpus-Häufigkeit. Die Leipzig-
 Daten werden unter CC BY bereitgestellt; der Import basiert auf dem Format
 `*_words_pos_base.txt`. Quelle: https://wortschatz.uni-leipzig.de/en/download/deu
 
+Der Embedding-Index wird mit der Migration
+`supabase/migrations/20260721120000_create_word_embeddings.sql` und dem
+Einmaljob `npm run build:word-index` erzeugt. Der Job benötigt nur serverseitig
+`OPENAI_API_KEY`, `SUPABASE_URL` und `SUPABASE_SECRET_KEY` und schreibt bis zu
+100 semantische Nachbarn pro Abfrage über `pgvector` zurück.
+
 Für das Deployment muss `OPENAI_API_KEY` als Vercel Environment Variable
 gesetzt sein. Der Schlüssel wird nur serverseitig verwendet. Vor einer
 dauerhaften Nutzung der OpenThesaurus-API sollte der Betreiber entsprechend

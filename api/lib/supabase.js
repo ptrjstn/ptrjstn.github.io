@@ -56,3 +56,9 @@ export async function getGameStats(puzzleId, steps) {
   const rows = await response.json(); const better = rows.filter((row) => Number(row.steps) > steps).length;
   return { percentile: rows.length ? Math.max(1, Math.round((better / rows.length) * 100)) : 50 };
 }
+
+export async function findWordEmbeddings(queryEmbedding, count = 100) {
+  const response = await supabaseRequest("rpc/match_word_embeddings", { method: "POST", body: JSON.stringify({ query_embedding: queryEmbedding, match_count: count }) });
+  if (!response) return null;
+  return response.json();
+}
