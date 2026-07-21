@@ -2,10 +2,8 @@ const API_URL = "https://ptrjstn-github-io.vercel.app/api/game";
 const letterVariantCounts = { A: 55, B: 26, C: 28, D: 25, E: 32, F: 25, G: 31, H: 23, I: 23, J: 21, K: 22, L: 22, M: 28, N: 32, O: 26, P: 21, Q: 19, R: 33, S: 50, T: 25, U: 22, V: 20, W: 22, X: 18, Y: 24, Z: 21 };
 const currentArea = document.querySelector("[data-current-area]");
 const keyboard = document.querySelector("[data-keyboard]");
-const currentElement = document.querySelector("[data-current]");
 const draftElement = document.querySelector("[data-draft]");
 const message = document.querySelector("[data-message]");
-const historyElement = document.querySelector("[data-history]");
 const result = document.querySelector("[data-result]");
 const STORAGE = "wortpfad-letters-";
 let game;
@@ -23,17 +21,12 @@ function renderLetters(container, word, extraClass = "") {
   container.replaceChildren(); container.className = `letter-word ${extraClass}`;
   displayLetters(word).split("").forEach((letter, index) => { const image = document.createElement("img"); image.className = "letter"; image.alt = letter; image.src = `../assets/letters/${letter}/${letter}_${String(randomVariant(letter)).padStart(2, "0")}.webp`; image.style.animationDelay = `${index * 18}ms`; container.append(image); });
 }
-function renderHistory() {
-  historyElement.replaceChildren(); const path = document.createElement("div"); path.className = "history__path";
-  game.path.forEach((word) => { const item = document.createElement("span"); item.className = "history__item"; const letters = document.createElement("span"); renderLetters(letters, word, "letter-word"); letters.querySelectorAll(".letter").forEach((image) => image.classList.add("letter--history")); item.append(letters); path.append(item); }); historyElement.append(path);
-}
 function render() {
-  renderLetters(document.querySelector("[data-goal]"), game.goal, "letter-word--goal"); renderLetters(currentElement, game.current, "letter-word--current"); renderLetters(draftElement, draft, "letter-word--draft");
-  document.querySelector("[data-date]").textContent = game.dateLabel; document.querySelector("[data-steps]").textContent = game.path.length - 1; document.querySelector("[data-misses]").textContent = game.misses.length; document.querySelector("[data-time]").textContent = formatTime(game.elapsed || 0); renderHistory(); result.hidden = !game.finished;
+  document.querySelector("[data-start]").textContent = game.start; document.querySelector("[data-goal]").textContent = game.goal; renderLetters(draftElement, draft, "letter-word--draft"); result.hidden = !game.finished;
   if (game.finished) { renderLetters(document.querySelector("[data-final-path]"), game.goal, "final-path"); document.querySelector("[data-final-steps]").textContent = game.path.length - 1; document.querySelector("[data-final-misses]").textContent = game.misses.length; document.querySelector("[data-final-time]").textContent = formatTime(game.elapsed); }
 }
 function setMessage(text = "", state = "") { message.textContent = text; message.dataset.state = state; }
-function startTimer() { clearInterval(timer); if (game.finished) return; game.startedAt ||= Date.now(); save(); timer = setInterval(() => { game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); document.querySelector("[data-time]").textContent = formatTime(game.elapsed); }, 1000); }
+function startTimer() { clearInterval(timer); if (game.finished) return; game.startedAt ||= Date.now(); save(); timer = setInterval(() => { game.elapsed = Math.floor((Date.now() - game.startedAt) / 1000); }, 1000); }
 async function submitWord() {
   if (!draft || !game || game.finished || requestInFlight) return; const raw = draft; const guess = normalize(raw); if (game.path.some((word) => normalize(word) === guess) || game.misses.some((word) => normalize(word) === guess)) { setMessage("Schon versucht", "invalid"); draft = ""; renderLetters(draftElement, "", "letter-word--draft"); return; }
   requestInFlight = true; setMessage("", "");

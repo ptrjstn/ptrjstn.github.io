@@ -9,37 +9,27 @@
     <script>
       (() => { const dark = window.matchMedia("(prefers-color-scheme: dark)").matches; try { document.documentElement.dataset.theme = localStorage.getItem("theme") || (dark ? "dark" : "light"); } catch { document.documentElement.dataset.theme = dark ? "dark" : "light"; } })();
     </script>
-    <link rel="stylesheet" href="../global.css?v=20260721-3" />
-    <link rel="stylesheet" href="styles.css?v=20260721-3" />
-    <script defer src="game.js?v=20260721-3"></script>
+    <link rel="stylesheet" href="../global.css?v=20260721-4" />
+    <link rel="stylesheet" href="styles.css?v=20260721-4" />
+    <script defer src="game.js?v=20260721-4"></script>
     <script defer src="../theme.js"></script>
   </head>
   <body>
-    <main class="wrap portfolio-wrap fun-wrap" aria-label="Wortpfad">
-      <header class="portfolio-hero" aria-label="Kopfbereich">
-        <a class="site-title" href="../" aria-label="Startseite"><img src="../assets/shared/logo.png" alt="ptrjstn" width="226" height="98" /></a>
-        <nav class="portfolio-nav" aria-label="Navigation"><a href="../Portfolio/">Work</a><a href="../About/">About</a></nav>
-      </header>
+    <main class="wrap word-screen" aria-label="Wortpfad">
       <section class="game">
-        <div class="game__topline"><span>Wortpfad</span><span data-date></span></div>
-        <div class="goal"><span>Ziel</span><div data-goal class="letter-word letter-word--goal"></div></div>
-        <div class="stats"><span><b data-steps>0</b> Schritte</span><span><b data-misses>0</b> Fehlversuche</span><span><b data-time>0:00</b></span></div>
-        <div class="current-area" data-current-area tabindex="0" aria-label="Aktuelle Eingabe">
-          <div data-current class="letter-word letter-word--current"></div>
-          <div data-draft class="letter-word letter-word--draft" aria-live="polite"></div>
+        <div class="word-stage" data-current-area tabindex="0" aria-label="Wort eingeben">
+          <p class="word-label">Start: <span data-start></span></p>
+          <div class="entry-line"><span class="caret" data-caret aria-hidden="true"></span><div data-draft class="letter-word letter-word--draft"></div></div>
+          <p class="word-label">Ziel: <span data-goal></span></p>
         </div>
         <p class="message" data-message role="status" aria-live="polite"></p>
-        <section class="history" aria-label="Bisheriger Pfad"><span>Pfad</span><div data-history></div></section>
         <section class="result" data-result hidden aria-live="polite">
-          <p class="result__eyebrow">Pfad entdeckt</p>
           <div data-final-path class="final-path"></div>
           <p><b data-final-steps></b> Schritte · <b data-final-misses></b> Fehlversuche · <b data-final-time></b></p>
           <button type="button" data-share>Ergebnis teilen</button>
         </section>
         <input class="keyboard-capture" data-keyboard type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Wort eingeben" />
       </section>
-      <div class="footer-divider" aria-hidden="true"></div>
-      <footer class="foot"><span class="muted">© 2026</span></footer>
     </main>
   </body>
 </html>
