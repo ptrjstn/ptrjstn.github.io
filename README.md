@@ -19,6 +19,14 @@ Begriff wird gegen OpenThesaurus und die semantische Top-10-Nähe zum aktuellen
 Begriff geprüft. Das Frontend enthält kein sichtbares Eingabefeld: Tastatur-
 eingaben werden als zufällige Letter-Grafiken aus `assets/letters` dargestellt.
 
+## Wortbestand
+
+`data/german-words.tsv` ist aus dem deutschen 10K-News-Korpus 2021 der Leipzig
+Corpora Collection erzeugt. Enthalten sind 14.072 eindeutige Grundformen aus
+Substantiven, Adjektiven und Verben mit ihrer Korpus-Häufigkeit. Die Leipzig-
+Daten werden unter CC BY bereitgestellt; der Import basiert auf dem Format
+`*_words_pos_base.txt`. Quelle: https://wortschatz.uni-leipzig.de/en/download/deu
+
 Für das Deployment muss `OPENAI_API_KEY` als Vercel Environment Variable
 gesetzt sein. Der Schlüssel wird nur serverseitig verwendet. Vor einer
 dauerhaften Nutzung der OpenThesaurus-API sollte der Betreiber entsprechend
