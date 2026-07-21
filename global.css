@@ -316,7 +316,7 @@ a:hover {
 
 @media (max-width: 760px) {
   .portfolio-hero .portfolio-subnav {
-    justify-self: start;
+    justify-self: end;
   }
 
   .portfolio-nav a,
