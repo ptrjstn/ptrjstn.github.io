@@ -9,13 +9,13 @@
 
 `api/game.js` ist eine Vercel Serverless Function für das tägliche Wortpfad-Spiel.
 Sie prüft Eingaben gegen [OpenThesaurus](https://www.openthesaurus.de/) und
-akzeptiert einen Zwischenschritt nur innerhalb der internen Top-15-Nähe mit
+akzeptiert einen Zwischenschritt nur innerhalb der internen Top-10-Nähe mit
 OpenAIs `text-embedding-3-small`. Die verdeckten Begriffe werden beim Start
 nicht an das Frontend übertragen.
 
 Die Tagesrätsel stehen in `api/game.js` in `puzzles`. Ein tägliches Paar wird
 ausgehend vom Berliner Kalendertag deterministisch ausgewählt. Jeder neue
-Begriff wird gegen OpenThesaurus und die semantische Top-15-Nähe zum aktuellen
+Begriff wird gegen OpenThesaurus und die semantische Top-10-Nähe zum aktuellen
 Begriff geprüft. Das Frontend enthält kein sichtbares Eingabefeld: Tastatur-
 eingaben werden als zufällige Letter-Grafiken aus `assets/letters` dargestellt.
 
