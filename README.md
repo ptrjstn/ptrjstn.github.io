@@ -35,8 +35,8 @@ Einmaljob `npm run build:word-index` erzeugt. Der Job benötigt nur serverseitig
 
 Für das Deployment muss `OPENAI_API_KEY` als Vercel Environment Variable
 gesetzt sein. Der Schlüssel wird nur serverseitig verwendet. Die API lädt pro
-Begriff die 25 ähnlichsten Nachbarn aus dem Index; gültig bleiben weiterhin
-nur Begriffe bis Rang 10. Vor einer
+Begriff die 25 ähnlichsten Nachbarn aus dem Index; Begriffe bis Rang 25 sind
+gültig. Vor einer
 dauerhaften Nutzung der OpenThesaurus-API sollte der Betreiber entsprechend
 deren API-Bedingungen `feedback@openthesaurus.de` kontaktieren.
 

@@ -19,7 +19,7 @@ test("liefert ein stabiles tägliches Start-Ziel-Paar", () => {
   assert.equal(getPuzzleFromId(puzzle.id, new Date("2026-07-21T12:00:00Z")), null);
 });
 
-test("bildet Ähnlichkeit intern monoton auf die Top-10-Schwelle ab", () => {
+test("bildet Ähnlichkeit intern monoton auf eine Rangschwelle ab", () => {
   assert.equal(similarityToRank(1), 2);
   assert.ok(similarityToRank(0.8) < similarityToRank(0.6));
 });
