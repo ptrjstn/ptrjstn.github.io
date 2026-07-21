@@ -40,3 +40,19 @@ export async function logGameGuess(entry) {
     clearTimeout(timeout);
   }
 }
+
+async function supabaseRequest(path, options = {}) {
+  const config = getConfig();
+  if (!config) return null;
+  const response = await fetch(`${config.url}/rest/v1/${path}`, { ...options, headers: { apikey: config.key, Authorization: `Bearer ${config.key}`, "Content-Type": "application/json", ...(options.headers || {}) } });
+  return response.ok ? response : null;
+}
+
+export async function logGameResult(entry) { return Boolean(await supabaseRequest("game_results", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(entry) })); }
+
+export async function getGameStats(puzzleId, steps) {
+  const response = await supabaseRequest(`game_results?puzzle_id=eq.${encodeURIComponent(puzzleId)}&select=steps&order=steps.asc`);
+  if (!response) return { percentile: 50 };
+  const rows = await response.json(); const better = rows.filter((row) => Number(row.steps) > steps).length;
+  return { percentile: rows.length ? Math.max(1, Math.round((better / rows.length) * 100)) : 50 };
+}
