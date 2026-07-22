@@ -1,6 +1,6 @@
 const aboutText = document.querySelector("[data-about-text]");
 const reloadButton = document.querySelector("[data-about-reload]");
-const fallbackText = "Peter ist Copywriter und Konzeptioner aus Tübingen. Er interessiert sich für KI, Text, Sprache, Kunst und Medien. In seiner Freizeit erfindet er Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.";
+const fallbackText = "Peter lebt in Tübingen und arbeitet als Copywriter und Konzeptioner. Wenn ihm etwas einfällt, wird daraus vielleicht eine Kampagne, ein Spiel oder ein Kinderbuch. Manchmal baut er auch kleine Dinge mit KI.";
 
 function requestId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;

@@ -62,22 +62,57 @@ export default async function handler(request, response) {
         input: [
           {
             role: "system",
-            content: "Du schreibst kurze, präzise und sympathische deutsche Portfolio-Texte. Verwende ausschließlich die angegebenen Fakten. Erfinde keine Ausbildung, Arbeitgeber, Kunden, Auszeichnungen, Charaktereigenschaften oder biografischen Details. Antworte ausschließlich als gültiges JSON ohne Markdown.",
+            content: `
+              Du schreibst sehr kurze deutsche About-Texte für eine persönliche Website.
+
+              Der Stil ist einfach, trocken und leicht verspielt. Der Text darf ein bisschen
+              wie die Beschreibung einer Kinderbuchfigur klingen, aber nicht albern oder
+              künstlich niedlich.
+
+              Verwende nur die angegebenen Fakten. Erfinde keine Arbeitgeber, Kunden,
+              Ausbildungen, Erfolge, Charaktereigenschaften oder biografischen Details.
+
+              Vermeide Werbe- und Portfolio-Sprache. Verwende insbesondere keine Formulierungen
+              wie „an der Schnittstelle von“, „mit Leidenschaft“, „kreativer Kopf“,
+              „verbindet X mit Y“, „sein Herz schlägt für“, „Vision“, „innovativ“ oder
+              „maßgeschneidert“.
+
+              Antworte ausschließlich im vorgegebenen JSON-Format.
+            `.trim(),
           },
           {
             role: "user",
             content: `
-Schreibe bei jedem Aufruf eine neue Variante eines kurzen About-Texts mit zwei bis vier Sätzen und höchstens 65 Wörtern.
-Der Ton ist kreativ-professionell, unaufdringlich und sprachlich abwechslungsreich. Schreibe in der dritten Person. Jeder Satz muss unmittelbar auf einem der angegebenen Fakten beruhen. Füge keine zusammenfassende Bewertung und keine Aussagen über Peters Stimme, Persönlichkeit, Arbeitsqualität oder Wirkung hinzu.
+              Schreibe eine neue Variante eines kurzen About-Texts über Peter.
 
-Verlässliche Fakten:
-- Name: Peter
-- Wohnort: Tübingen
-- Beruflicher Schwerpunkt: Copywriter und Konzeptioner
-- Interessen: KI, Text, Sprache, Kunst und Medien
-- Freizeit: Er erfindet Spiele und Kinderbücher und arbeitet an KI-Projekten wie dieser Website.
+              Regeln:
+              - Schreibe in der dritten Person.
+              - Schreibe zwei bis vier kurze Sätze.
+              - Verwende höchstens 55 Wörter.
+              - Beginne nicht jedes Mal mit seinem Beruf.
+              - Verwende einfache, alltägliche Wörter.
+              - Der Text soll unprätentiös, freundlich und ein wenig kindlich wirken.
+              - Stelle nicht zwingend alle Fakten in jeder Variante unter.
+              - Formuliere konkret: Was macht Peter, womit beschäftigt er sich?
+              - Keine Bewertung seiner Persönlichkeit, Arbeit oder Wirkung.
+              - Keine Überschrift und kein Markdown.
 
-Gib ausschließlich JSON mit dem Feld "text" zurück.
+              Fakten:
+              - Peter lebt in Tübingen.
+              - Er arbeitet als Copywriter und Konzeptioner.
+              - Er interessiert sich für Technik, Kultur und Medien.
+              - Er denkt sich Spiele aus.
+              - Er schreibt Kinderbücher.
+              - Er baut eigene kleine Projekte mit KI.
+
+              Tonbeispiele:
+              - „Peter lebt in Tübingen und denkt sich gern Dinge aus.“
+              - „Manchmal sind es Kampagnen. Manchmal Spiele.“
+              - „Ab und zu bringt er Computern neue Tricks bei.“
+
+              Die Beispiele zeigen nur den Ton. Kopiere sie nicht vollständig.
+
+              Gib ausschließlich ein JSON-Objekt mit dem Feld "text" zurück.
             `.trim(),
           },
         ],
