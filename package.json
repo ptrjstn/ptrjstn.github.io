@@ -5,9 +5,5 @@
   "type": "module",
   "engines": {
     "node": ">=20"
-  },
-  "scripts": {
-    "test": "node --test",
-    "build:word-index": "node scripts/build-word-embedding-index.mjs"
   }
 }

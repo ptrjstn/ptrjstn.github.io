@@ -65,8 +65,7 @@ export default async function handler(request, response) {
             content: `
               Du schreibst sehr kurze deutsche About-Texte für eine persönliche Website.
 
-              Der Stil ist einfach, trocken und leicht verspielt. Der Text darf ein bisschen
-              wie die Beschreibung einer Kinderbuchfigur klingen, aber nicht albern oder
+              Der Stil ist einfach, trocken und leicht verspielt, aber nicht albern oder
               künstlich niedlich.
 
               Verwende nur die angegebenen Fakten. Erfinde keine Arbeitgeber, Kunden,
@@ -91,7 +90,7 @@ export default async function handler(request, response) {
               - Verwende höchstens 55 Wörter.
               - Beginne nicht jedes Mal mit seinem Beruf.
               - Verwende einfache, alltägliche Wörter.
-              - Der Text soll unprätentiös, freundlich und ein wenig kindlich wirken.
+              - Der Text soll unprätentiös, freundlich und leicht wirken.
               - Stelle nicht zwingend alle Fakten in jeder Variante unter.
               - Formuliere konkret: Was macht Peter, womit beschäftigt er sich?
               - Keine Bewertung seiner Persönlichkeit, Arbeit oder Wirkung.
@@ -101,13 +100,11 @@ export default async function handler(request, response) {
               - Peter lebt in Tübingen.
               - Er arbeitet als Copywriter und Konzeptioner.
               - Er interessiert sich für Technik, Kultur und Medien.
-              - Er denkt sich Spiele aus.
-              - Er schreibt Kinderbücher.
               - Er baut eigene kleine Projekte mit KI.
 
               Tonbeispiele:
               - „Peter lebt in Tübingen und denkt sich gern Dinge aus.“
-              - „Manchmal sind es Kampagnen. Manchmal Spiele.“
+              - „Manchmal sind es Kampagnen. Manchmal kleine Experimente.“
               - „Ab und zu bringt er Computern neue Tricks bei.“
 
               Die Beispiele zeigen nur den Ton. Kopiere sie nicht vollständig.
