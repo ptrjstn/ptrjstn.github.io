@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Impressum – ptrjstn</title>
+    <meta name="description" content="Impressum von Peter Justen." />
+    <link rel="canonical" href="https://ptrjstn.de/Legal/impressum.html" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+    <script>
+      (() => {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        try {
+          const storedTheme = window.localStorage.getItem("theme");
+          const theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : (prefersDark ? "dark" : "light");
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch (error) {
+          const theme = prefersDark ? "dark" : "light";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../global.css?v=20260725-1" />
+    <link rel="stylesheet" href="styles.css?v=20260725-1" />
+    <script defer src="../theme.js"></script>
+  </head>
+  <body>
+    <main class="wrap portfolio-wrap legal-wrap">
+      <header class="portfolio-hero" aria-label="Kopfbereich">
+        <a class="site-title" href="../" aria-label="Startseite"><img src="../assets/shared/logo.png" alt="ptrjstn" width="226" height="98" /></a>
+        <nav class="portfolio-nav" aria-label="Navigation">
+          <a href="../Portfolio/">Work</a>
+          <a href="../About/">About</a>
+        </nav>
+      </header>
+
+      <article class="legal-content">
+        <h1>Impressum</h1>
+
+        <h2>Angaben gemäß § 5 DDG</h2>
+        <address>
+          Peter Justen<br />
+          Schaffhausenstraße 63<br />
+          72072 Tübingen<br />
+          Deutschland
+        </address>
+
+        <h2>Kontakt</h2>
+        <p>
+          Telefon: <a href="tel:+4917641699900">0176 416 999 00</a><br />
+          E-Mail: <a href="mailto:peter.justen@icloud.com">peter.justen@icloud.com</a>
+        </p>
+
+        <h2>Verantwortlich für den Inhalt</h2>
+        <p>Peter Justen, Anschrift wie oben.</p>
+
+        <h2>Haftung für Inhalte</h2>
+        <p>Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann ich jedoch keine Gewähr übernehmen.</p>
+
+        <h2>Haftung für Links</h2>
+        <p>Diese Website enthält gegebenenfalls Links zu externen Websites Dritter. Auf deren Inhalte habe ich keinen Einfluss. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich.</p>
+
+        <h2>Urheberrecht</h2>
+        <p>Die auf dieser Website veröffentlichten Inhalte und Werke unterliegen dem deutschen Urheberrecht. Jede vom Urheberrecht nicht zugelassene Verwertung bedarf meiner vorherigen schriftlichen Zustimmung.</p>
+
+        <p class="legal-meta">Stand: 25. Juli 2026</p>
+      </article>
+
+      <div class="footer-divider" aria-hidden="true"></div>
+      <footer class="foot"><span class="muted">© 2026</span></footer>
+    </main>
+  </body>
+</html>

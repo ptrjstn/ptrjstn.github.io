@@ -252,6 +252,28 @@ a:hover {
   opacity: 1;
 }
 
+.footer-links {
+  display: flex;
+  margin-left: 14px;
+  font-size: inherit;
+}
+
+.footer-links a {
+  padding: 0 14px;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.footer-links a:last-child {
+  padding-right: 0;
+}
+
+.footer-links a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .muted {
   color: var(--muted);
 }

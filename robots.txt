@@ -1,2 +1,4 @@
 User-agent: *
 Disallow: /
+
+# The site intentionally opts out of crawling and indexing.
