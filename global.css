@@ -252,23 +252,26 @@ a:hover {
   opacity: 1;
 }
 
-.footer-links {
+footer .footer-links {
   display: flex;
   margin-left: 14px;
   font-size: inherit;
 }
 
-.footer-links a {
+footer .footer-links a {
   padding: 0 14px;
   border-left: 1px solid var(--line);
   color: var(--muted);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
-.footer-links a:last-child {
+footer .footer-links a:last-child {
   padding-right: 0;
 }
 
-.footer-links a:hover {
+footer .footer-links a:hover {
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 0.2em;
