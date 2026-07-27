@@ -20,6 +20,7 @@
   align-items: center;
   width: min(75%, var(--word-max-width, 375px));
   margin: 0;
+  z-index: 3;
   transform: translateY(calc(var(--overlap-shift, 0px) * -1));
 }
 
@@ -141,8 +142,10 @@
 }
 
 .neologism-details {
+  position: relative;
   width: min(100%, 560px);
   margin: clamp(20px, 3vw, 28px) 0 0;
+  z-index: 1;
   color: var(--ink);
   transform: translateY(var(--overlap-shift, 0px));
   font-family: "Courier New", Courier, ui-monospace, monospace;
