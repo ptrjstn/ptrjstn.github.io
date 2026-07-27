@@ -92,7 +92,7 @@
   font-style: italic;
   line-height: 1;
   cursor: help;
-  opacity: 0.9;
+  opacity: 1;
   transition: opacity 160ms ease;
 }
 
@@ -113,7 +113,7 @@
   width: min(280px, calc(100vw - 48px));
   padding: 12px 14px;
   border: 1px solid var(--line);
-  background: var(--surface-strong);
+  background: var(--bg);
   color: var(--ink);
   box-shadow: var(--toggle-shadow);
   font-family: "Courier New", Courier, ui-monospace, monospace;
