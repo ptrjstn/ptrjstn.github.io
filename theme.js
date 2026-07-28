@@ -92,4 +92,17 @@
   } else {
     mountToggle();
   }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    const link = target instanceof Element
+      ? target.closest('a[href="https://hfki.org"]')
+      : null;
+
+    if (!link || typeof window.plausible !== "function") return;
+
+    window.plausible("Aktivismus", {
+      props: { destination: "hfki.org" },
+    });
+  });
 })();
