@@ -99,10 +99,11 @@
       ? target.closest('a[href="https://hfki.org"]')
       : null;
 
-    if (!link || typeof window.plausible !== "function") return;
+    if (!link || typeof window.va !== "function") return;
 
-    window.plausible("Aktivismus", {
-      props: { destination: "hfki.org" },
+    window.va("event", {
+      name: "Aktivismus",
+      data: { destination: "hfki.org" },
     });
   });
 })();
