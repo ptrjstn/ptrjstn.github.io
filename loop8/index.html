@@ -314,6 +314,7 @@
 <script>
 (() => {
   const HOLD_MS = 550;
+  const DEL_HOLD_MS = 1400;
   const NUM_SLOTS = 8;
 
   const slots = Array.from({ length: NUM_SLOTS }, () => ({
@@ -350,8 +351,6 @@
   }
 
   async function ensureMic() {
-    await ensureAudio();
-
     if (micStream) return micStream;
 
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -368,6 +367,12 @@
 
     return micStream;
   }
+
+  // Ask as soon as the app is opened. iOS may defer this until a gesture,
+  // so the sample-key handler retries the request when necessary.
+  ensureMic().catch((error) => {
+    console.warn('Microphone permission is not available yet.', error);
+  });
 
   function playSlot(index) {
     const slot = slots[index];
@@ -470,6 +475,18 @@
       offset += chunk.length;
     }
 
+    // Phone microphones often deliver a very conservative input level.
+    // Normalize with a ceiling so recorded samples remain usable without
+    // allowing a noisy or already-loud recording to clip.
+    let peak = 0;
+    for (const sample of merged) peak = Math.max(peak, Math.abs(sample));
+    const normalizationGain = peak > 0 ? Math.min(8, 0.9 / peak) : 1;
+    if (normalizationGain !== 1) {
+      for (let i = 0; i < merged.length; i += 1) {
+        merged[i] *= normalizationGain;
+      }
+    }
+
     const buffer = audioCtx.createBuffer(
       1,
       merged.length,
@@ -548,8 +565,7 @@
     key.addEventListener('pointercancel', finishPress);
   });
 
-  // LOOP and DEL are visually interactive for now, but their audio behavior
-  // will be added only after sampling/playback is confirmed working.
+  // LOOP is still visual-only until event-timestamp recording is added.
   const loopBtn = document.getElementById('loopBtn');
   const resetBtn = document.getElementById('resetBtn');
 
@@ -572,7 +588,53 @@
   }
 
   addVisualPressOnly(loopBtn);
-  addVisualPressOnly(resetBtn);
+
+  function clearAllSamples() {
+    if (activeRecording) endRecording();
+
+    slots.forEach((slot, index) => {
+      slot.buffer = null;
+      document.querySelector(`.key[data-key="${index}"]`)?.classList.remove(
+        'loaded',
+        'recording'
+      );
+    });
+  }
+
+  if (resetBtn) {
+    let delHoldTimer = null;
+    let delIsDown = false;
+    let delDidLongHold = false;
+
+    resetBtn.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      delIsDown = true;
+      delDidLongHold = false;
+      resetBtn.classList.add('active');
+      resetBtn.setPointerCapture?.(event.pointerId);
+
+      delHoldTimer = window.setTimeout(() => {
+        if (!delIsDown) return;
+        delDidLongHold = true;
+        clearAllSamples();
+        navigator.vibrate?.(30);
+      }, DEL_HOLD_MS);
+    });
+
+    const finishDelete = (event) => {
+      event.preventDefault();
+      delIsDown = false;
+      window.clearTimeout(delHoldTimer);
+      resetBtn.classList.remove('active');
+
+      // Until loop state exists, a short DEL tap clears the sample slots too,
+      // so the control is already useful in this sampling-only prototype.
+      if (!delDidLongHold) clearAllSamples();
+    };
+
+    resetBtn.addEventListener('pointerup', finishDelete);
+    resetBtn.addEventListener('pointercancel', finishDelete);
+  }
 
   // Volume is already functional.
   vol?.addEventListener('input', () => {
