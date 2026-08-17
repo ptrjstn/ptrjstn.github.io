@@ -18,14 +18,13 @@
     --label-size:14px;
   }
 
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  html,body{margin:0;width:100%;height:100%;min-height:100%;background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;overflow:hidden;overscroll-behavior:none}
   body{
     min-height:100svh;
     margin:0;
-    overflow:auto;
-    user-select:none;
-    touch-action:manipulation;
+    overflow:hidden;
+    touch-action:none;
     display:grid;
     place-items:center;
     padding:24px;
@@ -76,7 +75,8 @@
     cursor:pointer;
     display:block;
     isolation:isolate;
-    touch-action:manipulation;
+    touch-action:none;
+    -webkit-touch-callout:none;
   }
 
   .key::before{
@@ -202,6 +202,8 @@
       inset 0 1px 0 rgba(255,255,255,.5),
       inset 0 -6px 0 rgba(0,0,0,.04);
     cursor:pointer;
+    touch-action:none;
+    -webkit-touch-callout:none;
   }
   .knob:active, .knob.dragging{
     transform:translate(-50%,-50%);
@@ -426,6 +428,7 @@
       };
 
       keyEl.classList.add('recording');
+      navigator.vibrate?.(30);
     } catch (error) {
       console.error(error);
       window.alert(
