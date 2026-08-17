@@ -89,7 +89,7 @@
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.5),
       inset 0 -6px 0 rgba(0,0,0,.04);
-    transition:transform .06s ease;
+    transition:transform .04s linear;
     z-index:0;
   }
 
@@ -104,6 +104,7 @@
     border-radius:50%;
     background:#c9c4b8;
     border:1px solid #8c887e;
+    transition:transform .04s linear, background-color .08s linear;
     z-index:2;
   }
 
@@ -123,6 +124,7 @@
     pointer-events:none;
     min-height:1em;
     white-space:nowrap;
+    transition:transform .04s linear;
   }
 
   .key.pressed::before,
@@ -142,8 +144,8 @@
   }
 
   .key.loaded::after{
-    background:#1b1b1b;
-    border-color:#1b1b1b;
+    background:#3aaf63;
+    border-color:#267843;
   }
 
   .key.recording::after{
@@ -168,7 +170,9 @@
     background:var(--loop);
   }
   .loop-key > span{ color:var(--ink); }
-  .loop-key::after{ background:#1b1b1b; border-color:#1b1b1b; }
+  .loop-key::after{ background:#a8a8a8; border-color:#777; }
+  .loop-key.recording::after{ background:var(--danger); border-color:#a52c24; }
+  .loop-key.loaded::after{ background:#3aaf63; border-color:#267843; }
   .loop-key.active::before{
     transform:translateY(4px);
   }
@@ -176,8 +180,8 @@
   .del-key::before{
     background:var(--del);
   }
+  .del-key::after{ display:none; }
   .del-key > span{ color:var(--ink); }
-  .del-key::after{ background:#1b1b1b; border-color:#1b1b1b; }
   .del-key.active::before{
     transform:translateY(4px);
   }
@@ -330,9 +334,20 @@
   let micZeroGain = null;
 
   let activeRecording = null;
+  let loopEvents = [];
+  let loopLength = 0;
+  let loopPlaying = false;
+  let loopPausedPhase = 0;
+  let loopStartedAt = 0;
+  let loopLastPhase = 0;
+  let loopTimer = null;
+  let loopIsDown = false;
+  let loopDownAt = 0;
+  let loopAddedDuringPress = false;
 
   const vol = document.getElementById('vol');
   const speed = document.getElementById('speed');
+  let loopSpeed = Number(speed?.value || 1);
 
   function ensureAudio() {
     if (!audioCtx) {
@@ -390,6 +405,88 @@
       key.classList.add('playing');
       window.setTimeout(() => key.classList.remove('playing'), 90);
     }
+  }
+
+  function setLoopLed(state) {
+    const loopBtn = document.getElementById('loopBtn');
+    if (!loopBtn) return;
+    loopBtn.classList.toggle('recording', state === 'recording');
+    loopBtn.classList.toggle('loaded', state === 'loaded');
+  }
+
+  function currentLoopPhase() {
+    if (!loopLength) return 0;
+    if (!loopPlaying) return loopPausedPhase;
+    const speedFactor = Number(speed?.value || 1);
+    return ((performance.now() - loopStartedAt) * speedFactor) % loopLength;
+  }
+
+  function triggerLoopEvents(fromPhase, toPhase) {
+    for (const event of loopEvents) {
+      if (toPhase >= fromPhase) {
+        if (event.timestamp > fromPhase && event.timestamp <= toPhase) {
+          playSlot(event.sampleIndex);
+        }
+      } else if (event.timestamp > fromPhase || event.timestamp <= toPhase) {
+        playSlot(event.sampleIndex);
+      }
+    }
+  }
+
+  function tickLoop() {
+    if (!loopPlaying || !loopLength) return;
+    const phase = currentLoopPhase();
+    triggerLoopEvents(loopLastPhase, phase);
+    loopLastPhase = phase;
+  }
+
+  function startLoop(phase = 0) {
+    if (!loopLength || !loopEvents.length) return;
+
+    loopPlaying = true;
+    loopPausedPhase = phase % loopLength;
+    loopStartedAt = performance.now() - loopPausedPhase / Number(speed?.value || 1);
+    loopLastPhase = loopPausedPhase;
+    window.clearInterval(loopTimer);
+    loopTimer = window.setInterval(tickLoop, 16);
+    setLoopLed('loaded');
+    if (loopPausedPhase === 0) {
+      loopEvents
+        .filter((event) => event.timestamp === 0)
+        .forEach((event) => playSlot(event.sampleIndex));
+    }
+    tickLoop();
+  }
+
+  function pauseLoop() {
+    if (!loopPlaying) return;
+    loopPausedPhase = currentLoopPhase();
+    loopPlaying = false;
+    window.clearInterval(loopTimer);
+    loopTimer = null;
+    setLoopLed('loaded');
+  }
+
+  function resumeLoop() {
+    if (loopPlaying || !loopLength) return;
+    startLoop(loopPausedPhase);
+  }
+
+  function clearLoop() {
+    loopPlaying = false;
+    window.clearInterval(loopTimer);
+    loopTimer = null;
+    loopEvents = [];
+    loopLength = 0;
+    loopPausedPhase = 0;
+    setLoopLed('idle');
+  }
+
+  function addLoopEvent(index, timestamp) {
+    if (!slots[index]?.buffer || !loopIsDown) return;
+
+    loopEvents.push({ sampleIndex: index, timestamp });
+    loopAddedDuringPress = true;
   }
 
   async function beginRecording(index, keyEl, stillHeld) {
@@ -557,6 +654,12 @@
       if (becameHold || heldFor >= HOLD_MS) {
         endRecording();
       } else {
+        if (loopIsDown) {
+          const timestamp = loopLength
+            ? currentLoopPhase()
+            : performance.now() - loopDownAt;
+          addLoopEvent(index, timestamp);
+        }
         playSlot(index);
       }
     };
@@ -565,32 +668,52 @@
     key.addEventListener('pointercancel', finishPress);
   });
 
-  // LOOP is still visual-only until event-timestamp recording is added.
   const loopBtn = document.getElementById('loopBtn');
   const resetBtn = document.getElementById('resetBtn');
 
-  function addVisualPressOnly(el) {
-    if (!el) return;
-
-    el.addEventListener('pointerdown', (event) => {
+  if (loopBtn) {
+    loopBtn.addEventListener('pointerdown', (event) => {
       event.preventDefault();
-      el.classList.add('active');
-      el.setPointerCapture?.(event.pointerId);
+      loopIsDown = true;
+      loopDownAt = performance.now();
+      loopAddedDuringPress = false;
+      loopBtn.classList.add('active', 'recording');
+      loopBtn.setPointerCapture?.(event.pointerId);
     });
 
-    const release = (event) => {
+    const finishLoopPress = (event) => {
       event.preventDefault();
-      el.classList.remove('active');
+      const heldFor = performance.now() - loopDownAt;
+      loopIsDown = false;
+      loopBtn.classList.remove('active', 'recording');
+
+      if (!loopLength) {
+        if (heldFor >= 100 && loopEvents.length) {
+          loopLength = Math.max(100, heldFor);
+          startLoop();
+        } else {
+          loopEvents = [];
+          setLoopLed('idle');
+        }
+        return;
+      }
+
+      if (loopAddedDuringPress) {
+        setLoopLed('loaded');
+      } else if (heldFor < HOLD_MS) {
+        loopPlaying ? pauseLoop() : resumeLoop();
+      } else {
+        setLoopLed('loaded');
+      }
     };
 
-    el.addEventListener('pointerup', release);
-    el.addEventListener('pointercancel', release);
+    loopBtn.addEventListener('pointerup', finishLoopPress);
+    loopBtn.addEventListener('pointercancel', finishLoopPress);
   }
-
-  addVisualPressOnly(loopBtn);
 
   function clearAllSamples() {
     if (activeRecording) endRecording();
+    clearLoop();
 
     slots.forEach((slot, index) => {
       slot.buffer = null;
@@ -627,9 +750,7 @@
       window.clearTimeout(delHoldTimer);
       resetBtn.classList.remove('active');
 
-      // Until loop state exists, a short DEL tap clears the sample slots too,
-      // so the control is already useful in this sampling-only prototype.
-      if (!delDidLongHold) clearAllSamples();
+      if (!delDidLongHold) clearLoop();
     };
 
     resetBtn.addEventListener('pointerup', finishDelete);
@@ -645,6 +766,17 @@
       audioCtx.currentTime,
       0.01
     );
+  });
+
+  speed?.addEventListener('input', () => {
+    const nextSpeed = Number(speed.value || 1);
+    if (loopPlaying && loopLength) {
+      const phase = ((performance.now() - loopStartedAt) * loopSpeed) % loopLength;
+      loopSpeed = nextSpeed;
+      startLoop(phase);
+    } else {
+      loopSpeed = nextSpeed;
+    }
   });
 
   function setupKnob(knobEl, inputEl, pointerEl) {
