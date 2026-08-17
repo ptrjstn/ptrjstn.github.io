@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#d9d4c9">
+<title>LOOP8 v6</title>
+<style>
+  :root{
+    --bg:#bfc3cc;
+    --panel:#ece6d8;
+    --ink:#1f1f1f;
+    --muted:#6d6b66;
+    --line:#262626;
+    --danger:#d9473b;
+    --loop:#ff6d47;
+    --del:#f1d34a;
+    --label-size:14px;
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  body{
+    min-height:100svh;
+    margin:0;
+    overflow:auto;
+    user-select:none;
+    touch-action:manipulation;
+    display:grid;
+    place-items:center;
+    padding:24px;
+    background:var(--bg);
+  }
+
+  .machine{
+    width:min(720px, calc(100vw - 48px));
+    height:auto;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    padding:18px;
+    background:var(--panel);
+    position:relative;
+    overflow:visible;
+    border-radius:28px;
+    border:2px solid var(--line);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.45),
+      inset 0 -8px 24px rgba(0,0,0,.035);
+  }
+
+
+
+    .deck{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    grid-template-rows:repeat(4, auto);
+    column-gap:10px;
+    row-gap:10px;
+    align-items:end;
+    justify-items:center;
+    align-content:start;
+    justify-content:center;
+    padding:12px;
+    position:relative;
+    z-index:1;
+  }
+
+  .key{
+    position:relative;
+    width:min(100%, 142px);
+    aspect-ratio:1 / 1;
+    border:0;
+    background:transparent;
+    padding:0;
+    cursor:pointer;
+    display:block;
+    isolation:isolate;
+    touch-action:manipulation;
+  }
+
+  .key::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    border:2px solid var(--line);
+    background:#f5f0e4;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -6px 0 rgba(0,0,0,.04);
+    transition:transform .06s ease;
+    z-index:0;
+  }
+
+  .key::after{
+    content:"";
+    position:absolute;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#c9c4b8;
+    border:1px solid #8c887e;
+    z-index:2;
+  }
+
+  .key > span{
+    position:absolute;
+    left:50%;
+    top:50%;
+    right:auto;
+    bottom:auto;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    font-weight:900;
+    font-size:var(--label-size);
+    letter-spacing:.08em;
+    color:var(--ink);
+    z-index:2;
+    pointer-events:none;
+    min-height:1em;
+    white-space:nowrap;
+  }
+
+  .key.pressed::before,
+  .key.playing::before,
+  .key.active::before{
+    transform:translateY(4px);
+  }
+
+  .key.pressed > span,
+  .key.active > span{
+    transform:translate(-50%, calc(-50% + 4px));
+  }
+
+  .key.pressed::after,
+  .key.active::after{
+    transform:translate(-50%, 4px);
+  }
+
+  .key.loaded::after{
+    background:#1b1b1b;
+    border-color:#1b1b1b;
+  }
+
+  .key.recording::after{
+    background:var(--danger);
+    border-color:var(--danger);
+    box-shadow:none;
+  }
+  .key.recording::before{
+    background:#ffd9d3;
+  }
+
+    .c1::before{ background:#f8ece8; }
+  .c2::before{ background:#f8f0e4; }
+  .c3::before{ background:#f6f3de; }
+  .c4::before{ background:#e8f3e0; }
+  .c5::before{ background:#e2f1f4; }
+  .c6::before{ background:#e5ebfb; }
+  .c7::before{ background:#eee5fb; }
+  .c8::before{ background:#f8e8f0; }
+
+  .loop-key::before{
+    background:var(--loop);
+  }
+  .loop-key > span{ color:var(--ink); }
+  .loop-key::after{ background:#1b1b1b; border-color:#1b1b1b; }
+  .loop-key.active::before{
+    transform:translateY(4px);
+  }
+
+  .del-key::before{
+    background:var(--del);
+  }
+  .del-key > span{ color:var(--ink); }
+  .del-key::after{ background:#1b1b1b; border-color:#1b1b1b; }
+  .del-key.active::before{
+    transform:translateY(4px);
+  }
+
+  .knob-unit{
+    position:relative;
+    width:min(100%, 142px);
+    aspect-ratio:1 / 1;
+    display:block;
+  }
+  .knob{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:78%;
+    aspect-ratio:1 / 1;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:2px solid var(--line);
+    background:#f5f0e4;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -6px 0 rgba(0,0,0,.04);
+    cursor:pointer;
+  }
+  .knob:active, .knob.dragging{
+    transform:translate(-50%,-50%);
+  }
+  .knob-face{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+  }
+  .knob-pointer-dot{
+    position:absolute;
+    width:10px;
+    height:10px;
+    left:50%;
+    top:8%;
+    margin-left:-5px;
+    border-radius:50%;
+    background:#fff;
+    transform-origin:50% 420%;
+    box-shadow:none;
+  }
+  .knob-caption{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    font-weight:900;
+    font-size:var(--label-size);
+    letter-spacing:.08em;
+    color:var(--ink);
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  .visually-hidden{
+    position:absolute !important;
+    opacity:0;
+    pointer-events:none;
+    width:1px; height:1px;
+  }
+
+
+
+
+  .warn{color:#8e2d22;font-weight:700}
+
+
+  @media(max-width:900px){
+    .machine{width:min(640px, calc(100vw - 32px)); padding:16px}
+    .key, .knob-unit{width:min(100%, 126px)}
+  }
+
+  @media(max-width:640px){
+    body{padding:12px}
+    .machine{width:min(100%, 420px); padding:12px; border-radius:22px}
+    .deck{padding:12px; column-gap:8px; row-gap:8px}
+    .key, .knob-unit{width:100%}
+    .key::before{border-radius:16px}
+    .knob{width:84%}
+    .brandline,
+    .key > span,
+    .knob-caption{font-size:var(--label-size)}
+    .knob-pointer-dot{width:8px; height:8px; margin-left:-4px; top:8%}
+  }
+</style>
+</head>
+<body>
+<main class="machine">
+</div>
+
+  <section class="deck" id="deck">
+    <button class="key del-key" id="resetBtn" aria-label="Delete"><span>DEL</span></button>
+
+    <div class="knob-unit speed-unit">
+      <div class="knob" id="speedKnob" aria-label="Speed knob" role="slider" tabindex="0">
+        <div class="knob-face">
+          <div class="knob-pointer-dot" id="speedPointer"></div>
+        </div>
+      </div>
+      <div class="knob-caption">SPD</div>
+      <input class="visually-hidden" id="speed" type="range" min="0.5" max="2" step="0.01" value="1">
+    </div>
+
+    <div class="knob-unit vol-unit">
+      <div class="knob" id="volKnob" aria-label="Volume knob" role="slider" tabindex="0">
+        <div class="knob-face">
+          <div class="knob-pointer-dot" id="volPointer"></div>
+        </div>
+      </div>
+      <div class="knob-caption">VOL</div>
+      <input class="visually-hidden" id="vol" type="range" min="0" max="1" step="0.01" value="0.8">
+    </div>
+
+    <button class="key c1" data-key="0" aria-label="Sample 1"><span>01</span></button>
+    <button class="key c2" data-key="1" aria-label="Sample 2"><span>02</span></button>
+    <button class="key c3" data-key="2" aria-label="Sample 3"><span>03</span></button>
+    <button class="key c4" data-key="3" aria-label="Sample 4"><span>04</span></button>
+    <button class="key c5" data-key="4" aria-label="Sample 5"><span>05</span></button>
+    <button class="key c6" data-key="5" aria-label="Sample 6"><span>06</span></button>
+    <button class="key c7" data-key="6" aria-label="Sample 7"><span>07</span></button>
+    <button class="key c8" data-key="7" aria-label="Sample 8"><span>08</span></button>
+
+    <button class="key loop-key" id="loopBtn" aria-label="Loop"><span>LOOP</span></button>
+  </section>
+</div>
+</main>
+
+
+<script>
+(() => {
+  const HOLD_MS = 550;
+  const NUM_SLOTS = 8;
+
+  const slots = Array.from({ length: NUM_SLOTS }, () => ({
+    buffer: null
+  }));
+
+  let audioCtx = null;
+  let masterGain = null;
+
+  let micStream = null;
+  let micSource = null;
+  let micProcessor = null;
+  let micZeroGain = null;
+
+  let activeRecording = null;
+
+  const vol = document.getElementById('vol');
+  const speed = document.getElementById('speed');
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = Number(vol?.value ?? 0.8);
+      masterGain.connect(audioCtx.destination);
+    }
+
+    if (audioCtx.state === 'suspended') {
+      return audioCtx.resume().then(() => audioCtx);
+    }
+
+    return Promise.resolve(audioCtx);
+  }
+
+  async function ensureMic() {
+    await ensureAudio();
+
+    if (micStream) return micStream;
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error('Microphone access is not supported in this browser.');
+    }
+
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+
+    return micStream;
+  }
+
+  function playSlot(index) {
+    const slot = slots[index];
+    if (!slot?.buffer || !audioCtx) return;
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = slot.buffer;
+
+    // SPEED deliberately does not affect sample pitch/playback yet.
+    source.connect(masterGain);
+    source.start();
+
+    const key = document.querySelector(`.key[data-key="${index}"]`);
+    if (key) {
+      key.classList.add('playing');
+      window.setTimeout(() => key.classList.remove('playing'), 90);
+    }
+  }
+
+  async function beginRecording(index, keyEl, stillHeld) {
+    if (activeRecording) return;
+
+    try {
+      const stream = await ensureMic();
+
+      if (!stillHeld()) return;
+
+      await ensureAudio();
+
+      const chunks = [];
+
+      micSource = audioCtx.createMediaStreamSource(stream);
+
+      // ScriptProcessor is deprecated for production, but intentionally used
+      // here because it is simple and broadly compatible for a prototype.
+      const bufferSize = 4096;
+      micProcessor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+
+      // Silent gain keeps the processor active without monitoring the mic
+      // through the speaker.
+      micZeroGain = audioCtx.createGain();
+      micZeroGain.gain.value = 0;
+
+      micProcessor.onaudioprocess = (event) => {
+        const input = event.inputBuffer.getChannelData(0);
+        chunks.push(new Float32Array(input));
+      };
+
+      micSource.connect(micProcessor);
+      micProcessor.connect(micZeroGain);
+      micZeroGain.connect(audioCtx.destination);
+
+      activeRecording = {
+        index,
+        keyEl,
+        chunks,
+        sampleRate: audioCtx.sampleRate
+      };
+
+      keyEl.classList.add('recording');
+    } catch (error) {
+      console.error(error);
+      window.alert(
+        'Mikrofon konnte nicht geöffnet werden. Auf dem iPhone muss die App über HTTPS laufen und Safari muss Mikrofonzugriff erlauben.'
+      );
+    }
+  }
+
+  function endRecording() {
+    if (!activeRecording) return;
+
+    const recording = activeRecording;
+    activeRecording = null;
+
+    try {
+      micSource?.disconnect();
+      micProcessor?.disconnect();
+      micZeroGain?.disconnect();
+    } catch (_) {}
+
+    if (micProcessor) micProcessor.onaudioprocess = null;
+
+    micSource = null;
+    micProcessor = null;
+    micZeroGain = null;
+
+    recording.keyEl.classList.remove('recording');
+
+    const totalSamples = recording.chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+
+    // Ignore accidental ultra-short captures.
+    if (totalSamples < recording.sampleRate * 0.05) return;
+
+    const merged = new Float32Array(totalSamples);
+    let offset = 0;
+
+    for (const chunk of recording.chunks) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    const buffer = audioCtx.createBuffer(
+      1,
+      merged.length,
+      recording.sampleRate
+    );
+
+    buffer.copyToChannel(merged, 0);
+
+    slots[recording.index].buffer = buffer;
+    recording.keyEl.classList.add('loaded');
+  }
+
+  document.querySelectorAll('.key[data-key]').forEach((key) => {
+    const index = Number(key.dataset.key);
+
+    let downAt = 0;
+    let holdTimer = null;
+    let isDown = false;
+    let becameHold = false;
+    let micWarmupPromise = null;
+
+    key.addEventListener('pointerdown', async (event) => {
+      event.preventDefault();
+
+      isDown = true;
+      becameHold = false;
+      downAt = performance.now();
+
+      key.classList.add('pressed');
+      key.setPointerCapture?.(event.pointerId);
+
+      await ensureAudio();
+
+      // Warm up microphone permission while we are still inside the user's
+      // pointer gesture. This is especially useful on iPhone/Safari.
+      if (!micStream) {
+        micWarmupPromise = ensureMic().catch((error) => {
+          console.warn(error);
+          return null;
+        });
+      }
+
+      holdTimer = window.setTimeout(async () => {
+        if (!isDown) return;
+
+        becameHold = true;
+
+        if (micWarmupPromise) {
+          await micWarmupPromise;
+        }
+
+        if (!isDown) return;
+
+        beginRecording(index, key, () => isDown);
+      }, HOLD_MS);
+    });
+
+    const finishPress = (event) => {
+      event.preventDefault();
+
+      isDown = false;
+      window.clearTimeout(holdTimer);
+
+      key.classList.remove('pressed');
+
+      const heldFor = performance.now() - downAt;
+
+      if (becameHold || heldFor >= HOLD_MS) {
+        endRecording();
+      } else {
+        playSlot(index);
+      }
+    };
+
+    key.addEventListener('pointerup', finishPress);
+    key.addEventListener('pointercancel', finishPress);
+  });
+
+  // LOOP and DEL are visually interactive for now, but their audio behavior
+  // will be added only after sampling/playback is confirmed working.
+  const loopBtn = document.getElementById('loopBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function addVisualPressOnly(el) {
+    if (!el) return;
+
+    el.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      el.classList.add('active');
+      el.setPointerCapture?.(event.pointerId);
+    });
+
+    const release = (event) => {
+      event.preventDefault();
+      el.classList.remove('active');
+    };
+
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', release);
+  }
+
+  addVisualPressOnly(loopBtn);
+  addVisualPressOnly(resetBtn);
+
+  // Volume is already functional.
+  vol?.addEventListener('input', () => {
+    if (!audioCtx || !masterGain) return;
+
+    masterGain.gain.setTargetAtTime(
+      Number(vol.value),
+      audioCtx.currentTime,
+      0.01
+    );
+  });
+
+  function setupKnob(knobEl, inputEl, pointerEl) {
+    if (!knobEl || !inputEl || !pointerEl) return;
+
+    const min = Number(inputEl.min);
+    const max = Number(inputEl.max);
+
+    let startY = 0;
+    let startValue = 0;
+    let dragging = false;
+
+    function syncPointer() {
+      const value = Number(inputEl.value);
+      const t = (value - min) / (max - min);
+      const angle = -135 + t * 270;
+
+      pointerEl.style.transform = `rotate(${angle}deg)`;
+    }
+
+    knobEl.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+
+      dragging = true;
+      startY = event.clientY;
+      startValue = Number(inputEl.value);
+
+      knobEl.setPointerCapture?.(event.pointerId);
+    });
+
+    knobEl.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+
+      const deltaY = startY - event.clientY;
+      const range = max - min;
+
+      let value = startValue + (deltaY / 160) * range;
+      value = Math.max(min, Math.min(max, value));
+
+      inputEl.value = String(value);
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+
+      syncPointer();
+    });
+
+    const release = () => {
+      dragging = false;
+    };
+
+    knobEl.addEventListener('pointerup', release);
+    knobEl.addEventListener('pointercancel', release);
+
+    syncPointer();
+  }
+
+  setupKnob(
+    document.getElementById('speedKnob'),
+    speed,
+    document.getElementById('speedPointer')
+  );
+
+  setupKnob(
+    document.getElementById('volKnob'),
+    vol,
+    document.getElementById('volPointer')
+  );
+
+  document.addEventListener('contextmenu', (event) => event.preventDefault());
+})();
+</script>
+
+</body>
+</html>
