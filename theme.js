@@ -102,7 +102,7 @@
     if (!link || typeof window.va !== "function") return;
 
     window.va("event", {
-      name: "Projekt",
+      name: "hfki",
       data: { destination: "hfki.org" },
     });
   });
