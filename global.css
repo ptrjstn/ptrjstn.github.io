@@ -85,7 +85,7 @@ a:hover {
   flex-direction: column;
   padding: clamp(20px, 3.16vw, 24px) var(--wrap-gutter) clamp(20px, 3.16vw, 24px);
   margin: 0 auto;
-  background: var(--surface);
+  background: var(--bg);
 
   overflow: hidden;
 }
