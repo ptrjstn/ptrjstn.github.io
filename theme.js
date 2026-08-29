@@ -102,7 +102,7 @@
     if (!link || typeof window.va !== "function") return;
 
     window.va("event", {
-      name: "Aktivismus",
+      name: "Projekt",
       data: { destination: "hfki.org" },
     });
   });
