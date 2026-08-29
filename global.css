@@ -342,33 +342,13 @@ footer .footer-links a:hover {
 @media (max-width: 760px) {
   body {
     padding-block: 6px;
+    background-color: var(--surface);
   }
 
   .wrap {
     min-height: calc(100dvh - 12px);
     padding: 10px var(--wrap-gutter);
-  }
-
-  .portfolio-hero {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .portfolio-hero > .portfolio-nav:not(.portfolio-subnav) {
-    flex: 0 0 auto;
-    margin-left: auto;
-  }
-
-  .portfolio-nav {
-    flex-wrap: nowrap;
-    white-space: nowrap;
-  }
-
-  .portfolio-hero .portfolio-subnav {
-    flex: 0 0 100%;
-    grid-column: auto;
-    margin-left: auto;
+    background-color: transparent;
   }
 
   .portfolio-hero .portfolio-subnav {
