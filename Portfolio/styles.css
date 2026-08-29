@@ -483,6 +483,11 @@
 
 /* Mobile */
 @media (max-width: 520px){
+  .wrap{
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
   .portfolio-list{
     gap: 28px;
   }
