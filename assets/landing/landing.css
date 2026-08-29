@@ -213,6 +213,10 @@
 }
 
 @media (max-width: 760px) {
+  body {
+    padding-block: 6px;
+  }
+
   .landing-wrap {
     height: calc(100dvh - 12px);
     min-height: 0;
