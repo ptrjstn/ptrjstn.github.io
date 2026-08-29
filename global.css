@@ -346,6 +346,7 @@ footer .footer-links a:hover {
 
   .wrap {
     min-height: calc(100dvh - 12px);
+    padding: 10px var(--wrap-gutter);
   }
 
   .portfolio-hero .portfolio-subnav {
