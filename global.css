@@ -340,6 +340,14 @@ footer .footer-links a:hover {
 }
 
 @media (max-width: 760px) {
+  body {
+    padding-block: 6px;
+  }
+
+  .wrap {
+    min-height: calc(100dvh - 12px);
+  }
+
   .portfolio-hero .portfolio-subnav {
     justify-self: end;
   }

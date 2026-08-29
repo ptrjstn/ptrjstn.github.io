@@ -146,6 +146,12 @@
   border: 0;
 }
 
+@media (max-width: 760px) {
+  .about-wrap {
+    min-height: calc(100dvh - 12px);
+  }
+}
+
 @media (max-width: 700px) {
   .about {
     grid-template-columns: 1fr;
