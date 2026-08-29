@@ -342,13 +342,11 @@ footer .footer-links a:hover {
 @media (max-width: 760px) {
   body {
     padding-block: 6px;
-    background-color: var(--surface);
   }
 
   .wrap {
     min-height: calc(100dvh - 12px);
     padding: 10px var(--wrap-gutter);
-    background-color: transparent;
   }
 
   .portfolio-hero .portfolio-subnav {
