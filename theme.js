@@ -4,6 +4,7 @@
   const supportsMatchMedia = typeof window.matchMedia === "function";
   const colorSchemeMedia = supportsMatchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
   const systemDark = colorSchemeMedia && colorSchemeMedia.matches;
+  const isWongdoody = window.location.pathname.includes("/wongdoody");
 
   const readStoredTheme = () => {
     try {
@@ -31,7 +32,16 @@
     if (!toggleButton) return;
 
     const theme = getCurrentTheme();
-    toggleButton.textContent = theme === "dark" ? "☀" : "☾";
+
+    if (isWongdoody) {
+      const glyph = document.createElement("span");
+      glyph.className = "control-emoji";
+      glyph.textContent = theme === "dark" ? "☀️" : "🌙";
+      toggleButton.replaceChildren(glyph);
+    } else {
+      toggleButton.textContent = theme === "dark" ? "☀" : "☾";
+    }
+
     toggleButton.setAttribute("aria-pressed", String(theme === "dark"));
     toggleButton.setAttribute(
       "aria-label",
@@ -62,7 +72,6 @@
     toggleButton.className = "theme-toggle";
     toggleButton.setAttribute("aria-pressed", String(initialTheme === "dark"));
 
-
     toggleButton.addEventListener("click", () => {
       const nextTheme = getCurrentTheme() === "dark" ? "light" : "dark";
       setTheme(nextTheme);
@@ -91,6 +100,189 @@
     document.addEventListener("DOMContentLoaded", mountToggle, { once: true });
   } else {
     mountToggle();
+  }
+
+  function initWongdoodyThanks() {
+    if (!isWongdoody) return;
+
+    const heading = document.querySelector(".sheet--thanks h2");
+    if (!heading || heading.dataset.letterInteraction === "ready") return;
+
+    heading.dataset.letterInteraction = "ready";
+    heading.classList.add("thanks-word");
+    heading.setAttribute("aria-label", "danke!");
+
+    const style = document.createElement("style");
+    style.id = "thanks-letter-style";
+    style.textContent = `
+      .sheet--thanks .thanks-word {
+        display: flex;
+        align-items: center;
+        gap: .005em;
+        font-weight: 700 !important;
+        letter-spacing: -.065em;
+      }
+
+      .thanks-glyph {
+        position: relative;
+        display: inline-grid;
+        place-items: center;
+        flex: 0 0 auto;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-weight: 700;
+        line-height: inherit;
+        cursor: pointer;
+        vertical-align: baseline;
+        overflow: visible;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .thanks-glyph__text {
+        display: block;
+        opacity: 1;
+        transition: opacity 80ms ease;
+      }
+
+      .thanks-glyph__image {
+        position: absolute;
+        left: 50%;
+        top: 51%;
+        display: block;
+        width: auto;
+        height: .90em;
+        max-width: none;
+        max-height: none;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.02);
+        transform-origin: center center;
+        object-fit: contain;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-drag: none;
+        transition: opacity 80ms ease, transform 120ms ease;
+      }
+
+      .thanks-glyph.is-preview .thanks-glyph__text,
+      .thanks-glyph.is-pinned .thanks-glyph__text {
+        opacity: 0;
+      }
+
+      .thanks-glyph.is-preview .thanks-glyph__image,
+      .thanks-glyph.is-pinned .thanks-glyph__image {
+        opacity: 1;
+      }
+
+      .thanks-glyph:hover .thanks-glyph__image,
+      .thanks-glyph:focus-visible .thanks-glyph__image {
+        transform: translate(-50%, -52%) scale(1.06);
+      }
+
+      .thanks-glyph:focus-visible {
+        outline: 1px dotted currentColor;
+        outline-offset: .06em;
+      }
+
+      .thanks-punctuation {
+        display: inline-block;
+        font-weight: 700;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .thanks-glyph__text,
+        .thanks-glyph__image {
+          transition: none;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const letterVariantCounts = {
+      A: 55, B: 26, C: 28, D: 25, E: 32, F: 25, G: 31, H: 23, I: 23,
+      J: 21, K: 22, L: 22, M: 28, N: 32, O: 26, P: 21, Q: 19, R: 33,
+      S: 50, T: 25, U: 22, V: 20, W: 22, X: 18, Y: 24, Z: 21,
+    };
+
+    const word = "danke!";
+    const fragment = document.createDocumentFragment();
+
+    [...word].forEach((character) => {
+      const upper = character.toUpperCase();
+      const variantCount = letterVariantCounts[upper];
+
+      if (!variantCount) {
+        const punctuation = document.createElement("span");
+        punctuation.className = "thanks-punctuation";
+        punctuation.textContent = character;
+        punctuation.setAttribute("aria-hidden", "true");
+        fragment.appendChild(punctuation);
+        return;
+      }
+
+      const button = document.createElement("button");
+      const text = document.createElement("span");
+      const image = document.createElement("img");
+      let pinned = false;
+      let variant = Math.floor(Math.random() * variantCount) + 1;
+
+      button.type = "button";
+      button.className = "thanks-glyph";
+      button.setAttribute("aria-label", `Buchstabe ${character}`);
+      text.className = "thanks-glyph__text";
+      text.textContent = character;
+      text.setAttribute("aria-hidden", "true");
+      image.className = "thanks-glyph__image";
+      image.alt = "";
+      image.draggable = false;
+
+      const setVariant = (nextVariant) => {
+        variant = nextVariant;
+        const number = String(variant).padStart(2, "0");
+        image.src = `../assets/letters/${upper}/${upper}_${number}.webp`;
+      };
+
+      const showPreview = () => {
+        if (!pinned) button.classList.add("is-preview");
+      };
+
+      const hidePreview = () => {
+        if (!pinned) button.classList.remove("is-preview");
+      };
+
+      const pinAndCycle = () => {
+        variant = (variant % variantCount) + 1;
+        setVariant(variant);
+        pinned = true;
+        button.classList.remove("is-preview");
+        button.classList.add("is-pinned");
+        button.setAttribute("aria-pressed", "true");
+      };
+
+      setVariant(variant);
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("pointerenter", showPreview);
+      button.addEventListener("pointerleave", hidePreview);
+      button.addEventListener("focus", showPreview);
+      button.addEventListener("blur", hidePreview);
+      button.addEventListener("click", pinAndCycle);
+
+      button.append(text, image);
+      fragment.appendChild(button);
+    });
+
+    heading.replaceChildren(fragment);
+  }
+
+  if (isWongdoody) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initWongdoodyThanks, { once: true });
+    } else {
+      initWongdoodyThanks();
+    }
   }
 
   document.addEventListener("click", (event) => {
