@@ -102,14 +102,14 @@ select {
 .cover-lockup {
   width: 100%;
   margin: auto 0;
-  text-align: center;
+  text-align: left;
 }
 
 .cover-title {
   width: 100%;
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: .34em;
   margin: 0;
@@ -133,7 +133,7 @@ select {
   flex: 0 1 auto;
   height: .76em;
   max-width: 4.55em;
-  translate: 0 .01em;
+  translate: 0 .11em;
 }
 
 .wd-logo img {
