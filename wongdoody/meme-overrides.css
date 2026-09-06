@@ -1,0 +1,126 @@
+/* Borderless slide sheets + meme-based workflow for Aufgabe 03. */
+
+.sheet {
+  border: 0 !important;
+}
+
+#aufgabe-03 .scribble--workflow {
+  display: flex;
+  align-items: center;
+  margin-top: clamp(14px, 2.2vw, 34px);
+  overflow: visible;
+}
+
+#aufgabe-03 .workflow {
+  width: 100%;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(10px, 1.45vw, 24px);
+}
+
+#aufgabe-03 .workflow li,
+#aufgabe-03 .workflow li:last-child {
+  min-height: 0;
+  padding: 0;
+  border: 0 !important;
+  background: transparent;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: .34em;
+  overflow: visible;
+}
+
+#aufgabe-03 .workflow li:nth-child(1) { translate: 0 -3%; }
+#aufgabe-03 .workflow li:nth-child(2) { translate: 0 7%; }
+#aufgabe-03 .workflow li:nth-child(3) { translate: 0 -1%; }
+#aufgabe-03 .workflow li:nth-child(4) { translate: 0 9%; }
+#aufgabe-03 .workflow li:nth-child(5) { translate: 0 -5%; }
+
+#aufgabe-03 .workflow li::before {
+  content: "";
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: .35em;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  box-shadow:
+    0 2px 3px rgba(23, 23, 23, .08),
+    0 14px 30px rgba(23, 23, 23, .13);
+}
+
+:root[data-theme="dark"] #aufgabe-03 .workflow li::before {
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, .24),
+    0 14px 30px rgba(0, 0, 0, .28);
+}
+
+/* Known meme templates, used as visual shorthand for each production step. */
+#aufgabe-03 .workflow li:nth-child(1)::before {
+  background-image: url("https://api.memegen.link/images/fine.jpg?width=640&height=480");
+}
+
+#aufgabe-03 .workflow li:nth-child(2)::before {
+  background-image: url("https://api.memegen.link/images/drake.jpg?width=640&height=480");
+}
+
+#aufgabe-03 .workflow li:nth-child(3)::before {
+  background-image: url("https://api.memegen.link/images/dg.jpg?width=640&height=480");
+}
+
+#aufgabe-03 .workflow li:nth-child(4)::before {
+  background-image: url("https://api.memegen.link/images/whatyear.jpg?width=640&height=480");
+}
+
+#aufgabe-03 .workflow li:nth-child(5)::before {
+  background-image: url("https://api.memegen.link/images/success.jpg?width=640&height=480");
+}
+
+#aufgabe-03 .workflow li:not(:last-child)::after {
+  display: none !important;
+  content: none !important;
+}
+
+#aufgabe-03 .workflow span {
+  color: var(--muted);
+  font-size: clamp(7px, .58vw, 10px);
+  line-height: 1;
+}
+
+#aufgabe-03 .workflow strong {
+  margin: 0;
+  font-size: clamp(11px, 1.1vw, 18px);
+  line-height: 1.05;
+  font-weight: 400;
+}
+
+#aufgabe-03 .workflow small {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  #aufgabe-03 .scribble--workflow {
+    margin-top: 10px;
+  }
+
+  #aufgabe-03 .workflow {
+    gap: 6px;
+  }
+
+  #aufgabe-03 .workflow li::before {
+    margin-bottom: .25em;
+    box-shadow: 0 5px 12px rgba(23, 23, 23, .10);
+  }
+
+  #aufgabe-03 .workflow span {
+    font-size: 5px;
+  }
+
+  #aufgabe-03 .workflow strong {
+    font-size: clamp(7px, 1.65vw, 10px);
+  }
+}
