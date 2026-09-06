@@ -105,10 +105,10 @@ body {
   mix-blend-mode: normal;
 }
 
-.theme-toggle {
+.theme-toggle,
+.home-link {
   position: fixed;
-  left: 18px;
-  bottom: 16px;
+  top: 16px;
   z-index: 20;
   display: grid;
   place-items: center;
@@ -123,8 +123,8 @@ body {
   box-shadow: var(--toggle-shadow);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
   line-height: 1;
+  text-decoration: none;
   transition:
     transform 160ms ease,
     background-color 160ms ease,
@@ -132,31 +132,66 @@ body {
     color 160ms ease;
 }
 
-.theme-toggle:hover {
-  transform: translateY(-1px);
-  background: var(--surface-strong);
+.theme-toggle {
+  right: 18px;
+  left: auto;
+  bottom: auto;
+  cursor: pointer;
 }
 
-.theme-toggle:active {
+.home-link {
+  left: 18px;
+}
+
+.home-link svg {
+  display: block;
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle:hover,
+.home-link:hover {
+  transform: translateY(-1px);
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+.theme-toggle:active,
+.home-link:active {
   transform: translateY(0) scale(0.98);
 }
 
-.theme-toggle:focus-visible {
+.theme-toggle:focus-visible,
+.home-link:focus-visible {
   outline: 2px dotted currentColor;
   outline-offset: 3px;
 }
 
 @media (max-width: 700px) {
+  .theme-toggle,
+  .home-link {
+    top: 10px;
+  }
+
   .theme-toggle {
+    right: 12px;
+  }
+
+  .home-link {
     left: 12px;
-    bottom: 10px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   body,
   .sheet,
-  .theme-toggle {
+  .theme-toggle,
+  .home-link {
     transition: none;
   }
 }
