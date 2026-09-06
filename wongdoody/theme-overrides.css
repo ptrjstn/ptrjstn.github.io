@@ -101,11 +101,6 @@ body {
   background: var(--surface-strong);
 }
 
-.community-copy {
-  background: var(--surface-strong);
-  color: var(--ink);
-}
-
 .deck-ui {
   right: 28px;
   bottom: 28px;
@@ -197,6 +192,138 @@ body {
   outline-offset: 3px;
 }
 
+/* Community slide — real photo moods + strategic thought cards */
+.sheet--community .community-stage {
+  margin-top: clamp(14px, 2vw, 30px);
+  isolation: isolate;
+}
+
+.sheet--community .community-moods {
+  inset: 0;
+  z-index: 1;
+}
+
+.sheet--community .mood-card {
+  margin: 0;
+  border: 1px solid rgba(23, 23, 23, 0.10);
+  background: #d8d3c9;
+  box-shadow:
+    0 2px 3px rgba(23, 23, 23, 0.08),
+    0 16px 38px rgba(23, 23, 23, 0.14);
+  rotate: 0deg !important;
+}
+
+:root[data-theme="dark"] .sheet--community .mood-card {
+  border-color: rgba(242, 233, 220, 0.10);
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.18),
+    0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.sheet--community .mood-card::after {
+  background: linear-gradient(180deg, transparent 68%, rgba(0, 0, 0, 0.10));
+  mix-blend-mode: normal;
+}
+
+.sheet--community .mood-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sheet--community .mood-card--a {
+  left: 0;
+  top: 0;
+  width: 46%;
+  height: 70%;
+  aspect-ratio: auto;
+}
+
+.sheet--community .mood-card--b {
+  right: 0;
+  top: 2%;
+  width: 38%;
+  height: 45%;
+  aspect-ratio: auto;
+}
+
+.sheet--community .mood-card--c {
+  right: 7%;
+  bottom: 0;
+  width: 37%;
+  height: 46%;
+  aspect-ratio: auto;
+}
+
+.sheet--community .mood-card--d {
+  left: 31%;
+  bottom: 2%;
+  width: 27%;
+  height: 39%;
+  aspect-ratio: auto;
+}
+
+.community-thought {
+  position: absolute;
+  z-index: 4;
+  margin: 0;
+  padding: clamp(9px, 1.05vw, 16px);
+  border: 1px solid var(--toggle-border);
+  background: var(--surface-strong);
+  color: var(--ink);
+  box-shadow:
+    0 2px 3px rgba(23, 23, 23, 0.07),
+    0 12px 28px rgba(23, 23, 23, 0.10);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+:root[data-theme="dark"] .community-thought {
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.22),
+    0 12px 30px rgba(0, 0, 0, 0.24);
+}
+
+.community-thought span {
+  display: block;
+  margin-bottom: .55em;
+  color: var(--muted);
+  font-size: clamp(7px, .58vw, 10px);
+  line-height: 1;
+}
+
+.community-thought p {
+  margin: 0;
+  font-size: clamp(9px, .92vw, 14px);
+  line-height: 1.36;
+  letter-spacing: -.015em;
+}
+
+.community-thought--a {
+  left: 3%;
+  bottom: 4%;
+  width: 30%;
+}
+
+.community-thought--b {
+  left: 45%;
+  top: 7%;
+  width: 26%;
+}
+
+.community-thought--c {
+  right: 2%;
+  top: 41%;
+  width: 28%;
+}
+
+.community-thought--d {
+  left: 37%;
+  bottom: 5%;
+  width: 27%;
+}
+
 @media (max-width: 700px) {
   .deck-ui {
     right: 18px;
@@ -217,6 +344,23 @@ body {
 
   .home-link {
     left: 18px;
+  }
+
+  .sheet--community .community-moods {
+    inset: 0;
+  }
+
+  .community-thought {
+    padding: 7px;
+  }
+
+  .community-thought span {
+    font-size: 6px;
+  }
+
+  .community-thought p {
+    font-size: clamp(7px, 1.65vw, 10px);
+    line-height: 1.28;
   }
 }
 
