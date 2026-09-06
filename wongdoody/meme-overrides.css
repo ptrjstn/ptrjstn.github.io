@@ -1,4 +1,4 @@
-/* Borderless slide sheets + meme-based workflow for Aufgabe 03. */
+/* Borderless slide sheets + information-rich meme workflow for Aufgabe 03. */
 
 .sheet {
   border: 0 !important;
@@ -6,9 +6,29 @@
 
 #aufgabe-03 .scribble--workflow {
   display: flex;
-  align-items: center;
-  margin-top: clamp(14px, 2.2vw, 34px);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  margin-top: clamp(12px, 1.7vw, 24px);
   overflow: visible;
+}
+
+#aufgabe-03 .workflow-thesis {
+  margin: 0 0 clamp(10px, 1.2vw, 18px);
+  max-width: 70%;
+  color: var(--wd-blue);
+  font-size: clamp(13px, 1.45vw, 23px);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+
+#aufgabe-03 .workflow-thesis small {
+  display: block;
+  margin-top: .55em;
+  color: var(--muted);
+  font-size: clamp(7px, .62vw, 10px);
+  line-height: 1.32;
+  letter-spacing: 0;
 }
 
 #aufgabe-03 .workflow {
@@ -16,8 +36,8 @@
   margin: 0;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  align-items: end;
-  gap: clamp(10px, 1.45vw, 24px);
+  align-items: start;
+  gap: clamp(9px, 1.25vw, 20px);
 }
 
 #aufgabe-03 .workflow li,
@@ -26,25 +46,24 @@
   padding: 0;
   border: 0 !important;
   background: transparent;
-  display: grid;
-  grid-template-rows: auto auto auto;
-  align-content: start;
-  gap: .34em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   overflow: visible;
 }
 
-#aufgabe-03 .workflow li:nth-child(1) { translate: 0 -3%; }
-#aufgabe-03 .workflow li:nth-child(2) { translate: 0 7%; }
+#aufgabe-03 .workflow li:nth-child(1) { translate: 0 -2%; }
+#aufgabe-03 .workflow li:nth-child(2) { translate: 0 5%; }
 #aufgabe-03 .workflow li:nth-child(3) { translate: 0 -1%; }
-#aufgabe-03 .workflow li:nth-child(4) { translate: 0 9%; }
-#aufgabe-03 .workflow li:nth-child(5) { translate: 0 -5%; }
+#aufgabe-03 .workflow li:nth-child(4) { translate: 0 6%; }
+#aufgabe-03 .workflow li:nth-child(5) { translate: 0 -3%; }
 
 #aufgabe-03 .workflow li::before {
   content: "";
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  margin-bottom: .35em;
+  margin-bottom: clamp(7px, .65vw, 10px);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -59,7 +78,7 @@
     0 14px 30px rgba(0, 0, 0, .28);
 }
 
-/* Known meme templates, used as visual shorthand for each production step. */
+/* Known meme templates, used as mnemonic shorthand for the five production steps. */
 #aufgabe-03 .workflow li:nth-child(1)::before {
   background-image: url("https://api.memegen.link/images/fine.jpg?width=640&height=480");
 }
@@ -85,42 +104,109 @@
   content: none !important;
 }
 
-#aufgabe-03 .workflow span {
+#aufgabe-03 .workflow-step {
+  margin-bottom: .42em;
   color: var(--muted);
-  font-size: clamp(7px, .58vw, 10px);
+  font-size: clamp(6px, .52vw, 9px);
   line-height: 1;
 }
 
 #aufgabe-03 .workflow strong {
   margin: 0;
-  font-size: clamp(11px, 1.1vw, 18px);
+  font-size: clamp(10px, 1vw, 16px);
   line-height: 1.05;
   font-weight: 400;
 }
 
-#aufgabe-03 .workflow small {
-  display: none;
+#aufgabe-03 .workflow-role {
+  display: inline-block;
+  margin-top: .4em;
+  color: var(--wd-blue);
+  font-size: clamp(7px, .62vw, 10px);
+  line-height: 1.1;
+  font-style: normal;
 }
+
+#aufgabe-03 .workflow-detail {
+  margin: .5em 0 0;
+  color: var(--muted);
+  font-size: clamp(6.5px, .56vw, 9px);
+  line-height: 1.34;
+  letter-spacing: -.01em;
+}
+
+#aufgabe-03 .workflow-spectrum {
+  width: 100%;
+  margin-top: clamp(14px, 1.7vw, 25px);
+  display: grid;
+  grid-template-columns: 1fr 1.05fr 1.25fr;
+  gap: clamp(10px, 1.4vw, 22px);
+  align-items: start;
+}
+
+#aufgabe-03 .workflow-spectrum > div {
+  min-width: 0;
+}
+
+#aufgabe-03 .workflow-spectrum b {
+  display: block;
+  margin-bottom: .4em;
+  color: var(--ink);
+  font-size: clamp(7px, .64vw, 10px);
+  line-height: 1;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+#aufgabe-03 .workflow-spectrum span {
+  display: block;
+  color: var(--muted);
+  font-size: clamp(6.5px, .56vw, 9px);
+  line-height: 1.32;
+}
+
+#aufgabe-03 .workflow-spectrum > div:nth-child(1) b { color: var(--wd-blue); }
+#aufgabe-03 .workflow-spectrum > div:nth-child(2) b { color: var(--wd-blue); }
 
 @media (max-width: 700px) {
   #aufgabe-03 .scribble--workflow {
-    margin-top: 10px;
+    margin-top: 8px;
   }
 
-  #aufgabe-03 .workflow {
-    gap: 6px;
+  #aufgabe-03 .workflow-thesis {
+    margin-bottom: 6px;
+    max-width: 82%;
+    font-size: clamp(8px, 2.6vw, 13px);
   }
 
-  #aufgabe-03 .workflow li::before {
-    margin-bottom: .25em;
-    box-shadow: 0 5px 12px rgba(23, 23, 23, .10);
-  }
-
-  #aufgabe-03 .workflow span {
+  #aufgabe-03 .workflow-thesis small {
     font-size: 5px;
   }
 
+  #aufgabe-03 .workflow {
+    gap: 5px;
+  }
+
+  #aufgabe-03 .workflow li::before {
+    margin-bottom: 4px;
+    box-shadow: 0 5px 12px rgba(23, 23, 23, .10);
+  }
+
+  #aufgabe-03 .workflow-step,
+  #aufgabe-03 .workflow-role,
+  #aufgabe-03 .workflow-detail,
+  #aufgabe-03 .workflow-spectrum b,
+  #aufgabe-03 .workflow-spectrum span {
+    font-size: 4.5px;
+  }
+
   #aufgabe-03 .workflow strong {
-    font-size: clamp(7px, 1.65vw, 10px);
+    font-size: clamp(6px, 1.5vw, 9px);
+  }
+
+  #aufgabe-03 .workflow-spectrum {
+    margin-top: 8px;
+    gap: 6px;
   }
 }
