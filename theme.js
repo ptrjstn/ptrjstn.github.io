@@ -93,7 +93,7 @@
   if (colorSchemeMedia && colorSchemeMedia.addEventListener) {
     colorSchemeMedia.addEventListener("change", syncWithSystemTheme);
   } else if (colorSchemeMedia && colorSchemeMedia.addListener) {
-    colorSchemeMedia.addListener(syncWithSystemTheme);
+    colorSchemeMedia.addListener("change", syncWithSystemTheme);
   }
 
   if (document.readyState === "loading") {
@@ -128,6 +128,8 @@
         display: inline-grid;
         place-items: center;
         flex: 0 0 auto;
+        min-width: 0;
+        min-height: .94em;
         margin: 0;
         padding: 0;
         border: 0;
@@ -143,7 +145,9 @@
       }
 
       .thanks-glyph__text {
+        grid-area: 1 / 1;
         display: block;
+        width: max-content;
         opacity: 1;
         transition: opacity 80ms ease;
       }
@@ -207,8 +211,18 @@
       S: 50, T: 25, U: 22, V: 20, W: 22, X: 18, Y: 24, Z: 21,
     };
 
+    const randomVariant = (count, current = 0) => {
+      if (count <= 1) return 1;
+      let next = current;
+      while (next === current) {
+        next = Math.floor(Math.random() * count) + 1;
+      }
+      return next;
+    };
+
     const word = "danke!";
     const fragment = document.createDocumentFragment();
+    const glyphStates = [];
 
     [...word].forEach((character) => {
       const upper = character.toUpperCase();
@@ -227,11 +241,14 @@
       const text = document.createElement("span");
       const image = document.createElement("img");
       let pinned = false;
-      let variant = Math.floor(Math.random() * variantCount) + 1;
+      let previewing = false;
+      let variant = 0;
+      let loadToken = 0;
 
       button.type = "button";
       button.className = "thanks-glyph";
       button.setAttribute("aria-label", `Buchstabe ${character}`);
+      button.setAttribute("aria-pressed", "false");
       text.className = "thanks-glyph__text";
       text.textContent = character;
       text.setAttribute("aria-hidden", "true");
@@ -239,42 +256,91 @@
       image.alt = "";
       image.draggable = false;
 
-      const setVariant = (nextVariant) => {
-        variant = nextVariant;
-        const number = String(variant).padStart(2, "0");
-        image.src = `../assets/letters/${upper}/${upper}_${number}.webp`;
+      const textWidth = () => text.getBoundingClientRect().width || 0;
+      const graphicWidth = () => image.getBoundingClientRect().width || textWidth();
+
+      const syncWidth = () => {
+        const showingGraphic = pinned || previewing;
+        const width = showingGraphic ? graphicWidth() : textWidth();
+        if (width > 0) button.style.width = `${width.toFixed(2)}px`;
       };
 
-      const showPreview = () => {
-        if (!pinned) button.classList.add("is-preview");
+      const setVariant = (nextVariant, callback) => {
+        variant = nextVariant;
+        const token = ++loadToken;
+        const number = String(variant).padStart(2, "0");
+        image.src = `../assets/letters/${upper}/${upper}_${number}.webp`;
+
+        const done = () => {
+          if (token !== loadToken) return;
+          syncWidth();
+          if (callback) callback();
+        };
+
+        if (image.complete && image.naturalWidth) {
+          done();
+        } else {
+          image.addEventListener("load", done, { once: true });
+          image.addEventListener("error", done, { once: true });
+        }
+      };
+
+      const showFreshPreview = () => {
+        if (pinned) return;
+        previewing = true;
+        button.classList.add("is-preview");
+        setVariant(randomVariant(variantCount, variant));
+        syncWidth();
       };
 
       const hidePreview = () => {
-        if (!pinned) button.classList.remove("is-preview");
-      };
-
-      const pinAndCycle = () => {
-        variant = (variant % variantCount) + 1;
-        setVariant(variant);
-        pinned = true;
+        if (pinned) return;
+        previewing = false;
         button.classList.remove("is-preview");
-        button.classList.add("is-pinned");
-        button.setAttribute("aria-pressed", "true");
+        syncWidth();
       };
 
-      setVariant(variant);
-      button.setAttribute("aria-pressed", "false");
-      button.addEventListener("pointerenter", showPreview);
+      const handleClick = () => {
+        if (!pinned) {
+          // The first click fixes exactly the graphic currently on screen.
+          // Touch/keyboard may arrive without a hover preview, so create one first.
+          if (!previewing || variant === 0) {
+            previewing = true;
+            button.classList.add("is-preview");
+            setVariant(randomVariant(variantCount, variant));
+          }
+
+          pinned = true;
+          previewing = false;
+          button.classList.remove("is-preview");
+          button.classList.add("is-pinned");
+          button.setAttribute("aria-pressed", "true");
+          syncWidth();
+          return;
+        }
+
+        // Only subsequent clicks cycle through the family.
+        const next = (variant % variantCount) + 1;
+        setVariant(next);
+        syncWidth();
+      };
+
+      button.addEventListener("pointerenter", showFreshPreview);
       button.addEventListener("pointerleave", hidePreview);
-      button.addEventListener("focus", showPreview);
+      button.addEventListener("focus", showFreshPreview);
       button.addEventListener("blur", hidePreview);
-      button.addEventListener("click", pinAndCycle);
+      button.addEventListener("click", handleClick);
 
       button.append(text, image);
       fragment.appendChild(button);
+      glyphStates.push({ syncWidth });
     });
 
     heading.replaceChildren(fragment);
+
+    const syncAllWidths = () => glyphStates.forEach(({ syncWidth }) => syncWidth());
+    requestAnimationFrame(syncAllWidths);
+    window.addEventListener("resize", syncAllWidths);
   }
 
   if (isWongdoody) {
