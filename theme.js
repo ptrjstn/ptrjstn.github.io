@@ -108,19 +108,38 @@
     const heading = document.querySelector(".sheet--thanks h2");
     if (!heading || heading.dataset.letterInteraction === "ready") return;
 
+    // script.js used to build its own version of the word. Normalize the heading
+    // first so there is only one layout/interaction system left on the page.
+    heading.classList.remove("thanks-heading");
+    heading.removeAttribute("style");
     heading.dataset.letterInteraction = "ready";
     heading.classList.add("thanks-word");
     heading.setAttribute("aria-label", "danke!");
 
+    document.getElementById("thanks-letter-style")?.remove();
+
     const style = document.createElement("style");
     style.id = "thanks-letter-style";
     style.textContent = `
+      @font-face {
+        font-family: "iA Writer Quattro";
+        src: url("https://raw.githubusercontent.com/iaolo/iA-Fonts/master/iA%20Writer%20Quattro/Webfonts/iAWriterQuattroS-Bold.woff2") format("woff2");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
       .sheet--thanks .thanks-word {
-        display: flex;
-        align-items: center;
-        gap: .005em;
+        display: inline-flex;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: 0;
+        font-family: "iA Writer Quattro", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
         font-weight: 700 !important;
-        letter-spacing: -.065em;
+        font-style: normal;
+        line-height: .98;
+        letter-spacing: -.045em;
+        white-space: nowrap;
       }
 
       .thanks-glyph {
@@ -135,9 +154,12 @@
         border: 0;
         background: transparent;
         color: inherit;
-        font: inherit;
+        font-family: inherit;
+        font-size: inherit;
         font-weight: 700;
-        line-height: inherit;
+        font-style: normal;
+        line-height: .98;
+        letter-spacing: inherit;
         cursor: pointer;
         vertical-align: baseline;
         overflow: visible;
@@ -149,6 +171,7 @@
         grid-area: 1 / 1;
         display: block;
         width: max-content;
+        font: inherit;
         opacity: 1;
         transition: opacity 80ms ease;
       }
@@ -156,24 +179,24 @@
       .thanks-glyph__image {
         position: absolute;
         left: 50%;
-        top: 51%;
+        top: 50%;
         display: block;
         width: auto;
-        height: .90em;
+        height: .88em;
         max-width: none;
         max-height: none;
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.02);
+        transform: translate(-50%, -50%);
         transform-origin: center center;
         object-fit: contain;
         pointer-events: none;
         user-select: none;
         -webkit-user-drag: none;
-        transition: opacity 80ms ease, transform 120ms ease;
+        transition: opacity 80ms ease;
       }
 
       .thanks-glyph--exclamation .thanks-glyph__image {
-        height: .82em;
+        height: .78em;
       }
 
       .thanks-glyph.is-preview .thanks-glyph__text,
@@ -184,11 +207,6 @@
       .thanks-glyph.is-preview .thanks-glyph__image,
       .thanks-glyph.is-pinned .thanks-glyph__image {
         opacity: 1;
-      }
-
-      .thanks-glyph:hover .thanks-glyph__image,
-      .thanks-glyph:focus-visible .thanks-glyph__image {
-        transform: translate(-50%, -52%) scale(1.06);
       }
 
       .thanks-glyph:focus-visible {
@@ -250,6 +268,8 @@
       let previewing = false;
       let variant = 0;
       let loadToken = 0;
+      let hoverSessionActive = false;
+      let hoverResetTimer = 0;
 
       button.type = "button";
       button.className = "thanks-glyph";
@@ -294,12 +314,15 @@
         }
       };
 
-      const showFreshPreview = () => {
+      const showPreview = (fresh) => {
         if (pinned) return;
         previewing = true;
         button.classList.add("is-preview");
-        setVariant(randomVariant(variantCount, variant));
-        syncWidth();
+        if (fresh || variant === 0) {
+          setVariant(randomVariant(variantCount, variant));
+        } else {
+          syncWidth();
+        }
       };
 
       const hidePreview = () => {
@@ -309,11 +332,31 @@
         syncWidth();
       };
 
+      const handlePointerEnter = () => {
+        window.clearTimeout(hoverResetTimer);
+        if (pinned) return;
+
+        // Width changes can briefly fire pointerleave/pointerenter again. Keep the
+        // same preview during that tiny layout bounce, but use a new random graphic
+        // for every real hover session.
+        const fresh = !hoverSessionActive;
+        hoverSessionActive = true;
+        showPreview(fresh);
+      };
+
+      const handlePointerLeave = () => {
+        hidePreview();
+        window.clearTimeout(hoverResetTimer);
+        hoverResetTimer = window.setTimeout(() => {
+          hoverSessionActive = false;
+        }, 140);
+      };
+
       const handleClick = () => {
         if (!pinned) {
-          // First click pins exactly the variant already visible on hover.
-          // Touch/keyboard may arrive without a preview, so create one only then.
-          if (!previewing || variant === 0) {
+          // First click pins exactly the graphic that is already visible.
+          // Only generate one when there has not been a preview at all.
+          if (variant === 0) {
             previewing = true;
             button.classList.add("is-preview");
             setVariant(randomVariant(variantCount, variant));
@@ -334,13 +377,15 @@
         syncWidth();
       };
 
-      button.addEventListener("pointerenter", showFreshPreview);
-      button.addEventListener("pointerleave", hidePreview);
+      button.addEventListener("pointerenter", handlePointerEnter);
+      button.addEventListener("pointerleave", handlePointerLeave);
       button.addEventListener("focus", () => {
-        // Pointer clicks also focus the button; don't replace the visible hover graphic.
-        if (!previewing && !pinned) showFreshPreview();
+        if (pinned || previewing) return;
+        showPreview(variant === 0);
       });
-      button.addEventListener("blur", hidePreview);
+      button.addEventListener("blur", () => {
+        if (!hoverSessionActive) hidePreview();
+      });
       button.addEventListener("click", handleClick);
 
       button.append(text, image);
