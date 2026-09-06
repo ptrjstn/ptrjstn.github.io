@@ -188,6 +188,8 @@ select {
   grid-template-columns: clamp(88px, 8vw, 132px) 1fr;
   align-items: start;
   gap: clamp(10px, 1.6vw, 24px);
+  position: relative;
+  z-index: 4;
 }
 
 .kicker {
@@ -303,6 +305,96 @@ select {
 .line-a { left: 21%; top: 34%; width: 26%; rotate: -10deg; }
 .line-b { left: 53%; top: 28%; width: 28%; rotate: 17deg; }
 .line-c { left: 51%; top: 46%; width: 19%; rotate: 86deg; }
+
+.community-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: clamp(12px, 1.8vw, 28px);
+}
+
+.community-moods {
+  position: absolute;
+  inset: -3% -2% -8% 8%;
+  z-index: 1;
+}
+
+.mood-card {
+  position: absolute;
+  overflow: hidden;
+  box-shadow: 0 18px 46px rgba(23, 23, 23, .16);
+}
+
+.mood-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,.18), transparent 34%),
+    repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.035) 29px 30px);
+  mix-blend-mode: screen;
+}
+
+.mood-card--a {
+  width: 37%;
+  aspect-ratio: 4 / 5;
+  right: 8%;
+  top: 1%;
+  rotate: 3.5deg;
+  background:
+    radial-gradient(circle at 72% 28%, #f3efdf 0 14%, transparent 15%),
+    linear-gradient(145deg, #1427ff 0 56%, #101010 56% 74%, #d7ff27 74% 100%);
+}
+
+.mood-card--b {
+  width: 30%;
+  aspect-ratio: 1 / 1.2;
+  right: 34%;
+  top: 16%;
+  rotate: -5deg;
+  background:
+    radial-gradient(circle at 36% 40%, #f5f3ea 0 14%, transparent 15%),
+    radial-gradient(circle at 65% 68%, #777 0 9%, transparent 10%),
+    linear-gradient(135deg, #0f0f10 0 48%, #a7a7a4 48% 71%, #f0ede4 71% 100%);
+}
+
+.mood-card--c {
+  width: 25%;
+  aspect-ratio: 4 / 5;
+  right: 1%;
+  bottom: 0;
+  rotate: -2.5deg;
+  background:
+    linear-gradient(160deg, #f1eee5 0 24%, #2f55ff 24% 62%, #202020 62% 100%);
+}
+
+.mood-card--d {
+  width: 24%;
+  aspect-ratio: 1 / 1.25;
+  left: 12%;
+  bottom: -2%;
+  rotate: 4deg;
+  background:
+    radial-gradient(circle at 68% 28%, #2f55ff 0 18%, transparent 19%),
+    linear-gradient(155deg, #d9d5cb 0 50%, #191919 50% 77%, #d7ff27 77% 100%);
+}
+
+.community-copy {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  bottom: 7%;
+  width: min(49%, 650px);
+  margin: 0;
+  padding: clamp(16px, 1.8vw, 28px);
+  background: rgba(248, 246, 240, .90);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 32px rgba(23, 23, 23, .08);
+  font-size: clamp(12px, 1.15vw, 18px);
+  line-height: 1.48;
+  letter-spacing: -.015em;
+}
 
 .workflow {
   list-style: none;
@@ -450,6 +542,18 @@ select {
   .film-grid {
     width: 82%;
     gap: 9px;
+  }
+
+  .community-moods {
+    inset: 0 -7% -10% 18%;
+  }
+
+  .community-copy {
+    width: 58%;
+    bottom: 4%;
+    padding: 10px;
+    font-size: clamp(8px, 2vw, 12px);
+    line-height: 1.38;
   }
 }
 
