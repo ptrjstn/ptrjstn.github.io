@@ -101,6 +101,8 @@ body {
 }
 
 .deck-ui {
+  right: 28px;
+  bottom: 28px;
   color: var(--muted);
   mix-blend-mode: normal;
 }
@@ -108,7 +110,7 @@ body {
 .theme-toggle,
 .home-link {
   position: fixed;
-  top: 16px;
+  top: 28px;
   z-index: 20;
   display: grid;
   place-items: center;
@@ -133,14 +135,14 @@ body {
 }
 
 .theme-toggle {
-  right: 18px;
+  right: 28px;
   left: auto;
   bottom: auto;
   cursor: pointer;
 }
 
 .home-link {
-  left: 18px;
+  left: 28px;
 }
 
 .home-link svg {
@@ -173,17 +175,22 @@ body {
 }
 
 @media (max-width: 700px) {
+  .deck-ui {
+    right: 18px;
+    bottom: 18px;
+  }
+
   .theme-toggle,
   .home-link {
-    top: 10px;
+    top: 18px;
   }
 
   .theme-toggle {
-    right: 12px;
+    right: 18px;
   }
 
   .home-link {
-    left: 12px;
+    left: 18px;
   }
 }
 
