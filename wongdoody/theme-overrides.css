@@ -125,6 +125,8 @@ body {
   box-shadow: var(--toggle-shadow);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 14px;
   line-height: 1;
   text-decoration: none;
   transition:
@@ -143,17 +145,6 @@ body {
 
 .home-link {
   left: 28px;
-}
-
-.home-link svg {
-  display: block;
-  width: 13px;
-  height: 13px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.55;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .theme-toggle:hover,
