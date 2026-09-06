@@ -7,7 +7,26 @@
     <meta name="description" content="Probearbeit Digital Creative Concept — WongDoody x Peter Justen." />
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <link rel="canonical" href="https://ptrjstn.de/wongdoody/" />
+    <script>
+      (() => {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        try {
+          const storedTheme = window.localStorage.getItem("theme");
+          const theme = storedTheme === "dark" || storedTheme === "light"
+            ? storedTheme
+            : (prefersDark ? "dark" : "light");
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch (error) {
+          const theme = prefersDark ? "dark" : "light";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="styles.css?v=20260906-8" />
+    <link rel="stylesheet" href="theme-overrides.css?v=20260906-1" />
     <style>
       .cover-name--graphic {
         position: relative;
@@ -96,6 +115,7 @@
       }
     </style>
     <script defer src="script.js?v=20260906-3"></script>
+    <script defer src="../theme.js"></script>
   </head>
   <body>
     <main class="deck" aria-label="WongDoody x Peter — Probearbeit">
