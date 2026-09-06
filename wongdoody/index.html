@@ -19,6 +19,16 @@
         line-height: 1;
         letter-spacing: 0;
         translate: 0 .02em;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 120ms ease;
+      }
+
+      .cover-name--graphic.is-ready {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
       }
 
       .cover-letter {
@@ -79,12 +89,13 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
+        .cover-name--graphic,
         .cover-letter {
           transition: none;
         }
       }
     </style>
-    <script defer src="script.js?v=20260906-2"></script>
+    <script defer src="script.js?v=20260906-3"></script>
   </head>
   <body>
     <main class="deck" aria-label="WongDoody x Peter — Probearbeit">
