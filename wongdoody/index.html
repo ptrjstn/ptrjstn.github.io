@@ -26,7 +26,7 @@
       })();
     </script>
     <link rel="stylesheet" href="styles.css?v=20260906-8" />
-    <link rel="stylesheet" href="theme-overrides.css?v=20260906-3" />
+    <link rel="stylesheet" href="theme-overrides.css?v=20260906-4" />
     <style>
       .cover-name--graphic {
         position: relative;
@@ -98,6 +98,23 @@
         -webkit-user-drag: none;
       }
 
+      .cover-subtitle {
+        display: inline-flex;
+        align-items: baseline;
+        gap: .42em;
+      }
+
+      .cover-version {
+        display: inline-block;
+        color: var(--ink);
+        font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+        font-size: 1.05em;
+        line-height: 1;
+        letter-spacing: -.05em;
+        transform: translateY(.08em) rotate(-8deg);
+        transform-origin: left center;
+      }
+
       @media (max-width: 700px) {
         .cover-letter:hover {
           transform:
@@ -116,18 +133,31 @@
     </style>
     <script defer src="script.js?v=20260906-3"></script>
     <script defer src="../theme.js"></script>
+    <script defer>
+      document.addEventListener("DOMContentLoaded", () => {
+        const toggle = document.querySelector(".theme-toggle");
+        if (!toggle) return;
+
+        const setToggleEmoji = () => {
+          const dark = document.documentElement.dataset.theme === "dark";
+          toggle.textContent = dark ? "☀️" : "🌙";
+        };
+
+        setToggleEmoji();
+        new MutationObserver(setToggleEmoji).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["data-theme"],
+        });
+      });
+    </script>
   </head>
   <body>
-    <a class="home-link" href="https://ptrjstn.de/" aria-label="Zur ptrjstn-Startseite" title="Startseite">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M3.5 10.5 12 3.5l8.5 7v9.5h-6v-6h-5v6h-6z" />
-      </svg>
-    </a>
+    <a class="home-link" href="https://ptrjstn.de/" aria-label="Zur ptrjstn-Startseite" title="Startseite">🏠</a>
 
     <main class="deck" aria-label="WongDoody x Peter — Probearbeit">
       <section class="deck-stop" id="cover" data-slide="1" aria-label="Deckblatt">
         <article class="sheet sheet--cover">
-          <p class="cover-subtitle">Probearbeit</p>
+          <p class="cover-subtitle">Probearbeit <span class="cover-version">v2</span></p>
           <div class="cover-lockup">
             <h1 class="cover-title">
               <span class="wd-logo" aria-label="WongDoody">
