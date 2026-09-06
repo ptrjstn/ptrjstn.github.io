@@ -142,6 +142,7 @@
         vertical-align: baseline;
         overflow: visible;
         -webkit-tap-highlight-color: transparent;
+        transition: width 110ms ease;
       }
 
       .thanks-glyph__text {
@@ -171,6 +172,10 @@
         transition: opacity 80ms ease, transform 120ms ease;
       }
 
+      .thanks-glyph--exclamation .thanks-glyph__image {
+        height: .82em;
+      }
+
       .thanks-glyph.is-preview .thanks-glyph__text,
       .thanks-glyph.is-pinned .thanks-glyph__text {
         opacity: 0;
@@ -191,12 +196,8 @@
         outline-offset: .06em;
       }
 
-      .thanks-punctuation {
-        display: inline-block;
-        font-weight: 700;
-      }
-
       @media (prefers-reduced-motion: reduce) {
+        .thanks-glyph,
         .thanks-glyph__text,
         .thanks-glyph__image {
           transition: none;
@@ -210,6 +211,7 @@
       J: 21, K: 22, L: 22, M: 28, N: 32, O: 26, P: 21, Q: 19, R: 33,
       S: 50, T: 25, U: 22, V: 20, W: 22, X: 18, Y: 24, Z: 21,
     };
+    const exclamationVariantCount = 8;
 
     const randomVariant = (count, current = 0) => {
       if (count <= 1) return 1;
@@ -220,22 +222,26 @@
       return next;
     };
 
+    const getVariantCount = (character) => (
+      character === "!" ? exclamationVariantCount : letterVariantCounts[character.toUpperCase()]
+    );
+
+    const getGraphicSrc = (character, variant) => {
+      const number = String(variant).padStart(2, "0");
+      if (character === "!") {
+        return `../assets/letters/EXCLAMATION/EXCLAMATION_${number}.webp`;
+      }
+      const upper = character.toUpperCase();
+      return `../assets/letters/${upper}/${upper}_${number}.webp`;
+    };
+
     const word = "danke!";
     const fragment = document.createDocumentFragment();
     const glyphStates = [];
 
     [...word].forEach((character) => {
-      const upper = character.toUpperCase();
-      const variantCount = letterVariantCounts[upper];
-
-      if (!variantCount) {
-        const punctuation = document.createElement("span");
-        punctuation.className = "thanks-punctuation";
-        punctuation.textContent = character;
-        punctuation.setAttribute("aria-hidden", "true");
-        fragment.appendChild(punctuation);
-        return;
-      }
+      const variantCount = getVariantCount(character);
+      if (!variantCount) return;
 
       const button = document.createElement("button");
       const text = document.createElement("span");
@@ -247,7 +253,11 @@
 
       button.type = "button";
       button.className = "thanks-glyph";
-      button.setAttribute("aria-label", `Buchstabe ${character}`);
+      if (character === "!") button.classList.add("thanks-glyph--exclamation");
+      button.setAttribute(
+        "aria-label",
+        character === "!" ? "Ausrufezeichen" : `Buchstabe ${character}`,
+      );
       button.setAttribute("aria-pressed", "false");
       text.className = "thanks-glyph__text";
       text.textContent = character;
@@ -268,8 +278,7 @@
       const setVariant = (nextVariant, callback) => {
         variant = nextVariant;
         const token = ++loadToken;
-        const number = String(variant).padStart(2, "0");
-        image.src = `../assets/letters/${upper}/${upper}_${number}.webp`;
+        image.src = getGraphicSrc(character, variant);
 
         const done = () => {
           if (token !== loadToken) return;
@@ -302,8 +311,8 @@
 
       const handleClick = () => {
         if (!pinned) {
-          // The first click fixes exactly the graphic currently on screen.
-          // Touch/keyboard may arrive without a hover preview, so create one first.
+          // First click pins exactly the variant already visible on hover.
+          // Touch/keyboard may arrive without a preview, so create one only then.
           if (!previewing || variant === 0) {
             previewing = true;
             button.classList.add("is-preview");
@@ -319,7 +328,7 @@
           return;
         }
 
-        // Only subsequent clicks cycle through the family.
+        // From the second click onward, cycle through variants.
         const next = (variant % variantCount) + 1;
         setVariant(next);
         syncWidth();
@@ -327,7 +336,10 @@
 
       button.addEventListener("pointerenter", showFreshPreview);
       button.addEventListener("pointerleave", hidePreview);
-      button.addEventListener("focus", showFreshPreview);
+      button.addEventListener("focus", () => {
+        // Pointer clicks also focus the button; don't replace the visible hover graphic.
+        if (!previewing && !pinned) showFreshPreview();
+      });
       button.addEventListener("blur", hidePreview);
       button.addEventListener("click", handleClick);
 
