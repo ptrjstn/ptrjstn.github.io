@@ -100,7 +100,7 @@
     mountToggle();
   }
 
-  async function initWongdoodyThanks() {
+  function initWongdoodyThanks() {
     if (!isWongdoody) return;
 
     const heading = document.querySelector(".sheet--thanks h2");
@@ -135,19 +135,21 @@
         font-weight: 700 !important;
         font-style: normal;
         line-height: .98;
-        letter-spacing: -.045em;
+        letter-spacing: 0;
         white-space: nowrap;
       }
 
-      .thanks-glyph {
+      .sheet--thanks .thanks-glyph {
+        appearance: none;
         position: relative;
         display: inline-grid;
+        grid-template-areas: "glyph";
         place-items: center;
         flex: 0 0 auto;
         width: auto;
         min-width: 0;
         min-height: .94em;
-        margin: 0;
+        margin: 0 -.045em 0 0;
         padding: 0;
         border: 0;
         background: transparent;
@@ -157,36 +159,41 @@
         font-weight: 700 !important;
         font-style: normal;
         line-height: .98;
-        letter-spacing: inherit;
+        letter-spacing: 0;
         cursor: pointer;
         vertical-align: baseline;
         overflow: visible;
         -webkit-tap-highlight-color: transparent;
-        transition: width 90ms ease;
       }
 
-      .thanks-glyph__text {
-        grid-area: 1 / 1;
+      .sheet--thanks .thanks-glyph:last-child {
+        margin-right: 0;
+      }
+
+      .sheet--thanks .thanks-glyph__text,
+      .sheet--thanks .thanks-glyph__image {
+        grid-area: glyph;
+        place-self: center;
+      }
+
+      .sheet--thanks .thanks-glyph__text {
         display: block;
         width: max-content;
         font: inherit;
         font-weight: 700 !important;
-        opacity: 1;
+        color: var(--muted);
+        opacity: .72;
         transition: opacity 70ms ease;
       }
 
-      .thanks-glyph__image {
-        position: absolute;
-        left: 50%;
-        top: 50%;
+      .sheet--thanks .thanks-glyph__image {
         display: block;
         width: auto;
         height: .88em;
         max-width: none;
         max-height: none;
         opacity: 0;
-        transform: translate(-50%, -50%);
-        transform-origin: center center;
+        visibility: hidden;
         object-fit: contain;
         pointer-events: none;
         user-select: none;
@@ -194,29 +201,29 @@
         transition: opacity 70ms ease;
       }
 
-      .thanks-glyph--exclamation .thanks-glyph__image {
+      .sheet--thanks .thanks-glyph--exclamation .thanks-glyph__image {
         height: .78em;
       }
 
-      .thanks-glyph.is-preview .thanks-glyph__text,
-      .thanks-glyph.is-pinned .thanks-glyph__text {
+      .sheet--thanks .thanks-glyph.is-preview .thanks-glyph__text,
+      .sheet--thanks .thanks-glyph.is-pinned .thanks-glyph__text {
         opacity: 0;
       }
 
-      .thanks-glyph.is-preview .thanks-glyph__image,
-      .thanks-glyph.is-pinned .thanks-glyph__image {
+      .sheet--thanks .thanks-glyph.is-preview .thanks-glyph__image,
+      .sheet--thanks .thanks-glyph.is-pinned .thanks-glyph__image {
         opacity: 1;
+        visibility: visible;
       }
 
-      .thanks-glyph:focus-visible {
+      .sheet--thanks .thanks-glyph:focus-visible {
         outline: 1px dotted currentColor;
         outline-offset: .06em;
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .thanks-glyph,
-        .thanks-glyph__text,
-        .thanks-glyph__image {
+        .sheet--thanks .thanks-glyph__text,
+        .sheet--thanks .thanks-glyph__image {
           transition: none;
         }
       }
@@ -252,11 +259,9 @@
       return `../assets/letters/${upper}/${upper}_${number}.webp`;
     };
 
-    const word = "danke!";
     const fragment = document.createDocumentFragment();
-    const glyphStates = [];
 
-    [...word].forEach((character) => {
+    [..."danke!"].forEach((character) => {
       const variantCount = getVariantCount(character);
       if (!variantCount) return;
 
@@ -265,6 +270,7 @@
       const image = document.createElement("img");
 
       let pinned = false;
+      let hoverActive = false;
       let previewing = false;
       let pointerInside = false;
       let hasFocus = false;
@@ -272,11 +278,7 @@
       let pendingVariant = 0;
       let requestToken = 0;
       let pinPending = false;
-      let baseWidth = 0;
-      let currentLayoutWidth = 0;
-      let metricsReady = false;
-      let hoverSessionActive = false;
-      let leaveTimer = 0;
+      let sessionMinWidth = 0;
 
       button.type = "button";
       button.className = "thanks-glyph";
@@ -295,55 +297,29 @@
       image.alt = "";
       image.draggable = false;
 
-      const fallbackTextWidth = () => {
-        const fontSize = parseFloat(window.getComputedStyle(button).fontSize) || 62;
-        return fontSize * (character === "!" ? 0.22 : 0.52);
-      };
-
-      const measureNaturalTextWidth = () => {
-        const previousWidth = button.style.width;
-        button.style.width = "auto";
-        const measured = text.getBoundingClientRect().width || text.scrollWidth || 0;
-        button.style.width = previousWidth;
-        return measured > 0 ? measured : fallbackTextWidth();
-      };
-
-      const initializeMetrics = () => {
-        baseWidth = Math.max(1, measureNaturalTextWidth());
-        currentLayoutWidth = baseWidth;
-        button.style.width = `${baseWidth.toFixed(2)}px`;
-        button.style.minWidth = `${baseWidth.toFixed(2)}px`;
-        metricsReady = true;
-      };
-
-      const setTextWidth = () => {
-        if (!metricsReady || baseWidth <= 0) return;
-        currentLayoutWidth = baseWidth;
-        button.style.width = `${baseWidth.toFixed(2)}px`;
-      };
-
-      const graphicHeightRatio = character === "!" ? 0.78 : 0.88;
-
-      const graphicWidthFrom = (loadedImage) => {
-        if (!loadedImage?.naturalWidth || !loadedImage?.naturalHeight) {
-          return baseWidth || fallbackTextWidth();
+      const lockCurrentWidth = () => {
+        const width = button.getBoundingClientRect().width;
+        if (width > 0) {
+          sessionMinWidth = Math.max(sessionMinWidth, width);
+          button.style.minWidth = `${sessionMinWidth.toFixed(2)}px`;
         }
-        const fontSize = parseFloat(window.getComputedStyle(button).fontSize) || 62;
-        const height = fontSize * graphicHeightRatio;
-        return height * (loadedImage.naturalWidth / loadedImage.naturalHeight);
       };
 
-      const setGraphicWidth = (loadedImage, allowShrink = false) => {
-        const natural = Math.max(baseWidth || fallbackTextWidth(), graphicWidthFrom(loadedImage));
-        const width = allowShrink
-          ? natural
-          : Math.max(currentLayoutWidth || baseWidth || natural, natural);
-        currentLayoutWidth = width;
-        button.style.width = `${width.toFixed(2)}px`;
+      const clearPreview = () => {
+        if (pinned) return;
+        ++requestToken;
+        pendingVariant = 0;
+        pinPending = false;
+        previewing = false;
+        hoverActive = false;
+        sessionMinWidth = 0;
+        button.classList.remove("is-preview");
+        image.removeAttribute("src");
+        button.style.minWidth = "";
       };
 
       const waitForImage = (loader) => new Promise((resolve) => {
-        if (loader.complete && loader.naturalWidth) {
+        if (loader.complete) {
           resolve();
           return;
         }
@@ -370,70 +346,65 @@
           await waitForImage(loader);
         }
 
-        if (token !== requestToken || !loader.naturalWidth) return;
+        if (token !== requestToken || !loader.naturalWidth) {
+          if (token === requestToken) pendingVariant = 0;
+          return;
+        }
 
         const shouldPin = mode === "pin" || pinPending;
-        if (!shouldPin && !pointerInside && !hasFocus && !hoverSessionActive) {
+        if (!shouldPin && !pointerInside && !hasFocus && !hoverActive) {
           pendingVariant = 0;
           return;
         }
 
+        // Hold the old hitbox before the source swap. If the new graphic is narrower,
+        // changing the intrinsic grid width cannot push the pointer out of the button.
+        lockCurrentWidth();
         image.src = src;
         variant = nextVariant;
         pendingVariant = 0;
-        setGraphicWidth(loader, shouldPin);
 
         if (shouldPin) {
           pinPending = false;
           pinned = true;
           previewing = false;
-          hoverSessionActive = false;
-          window.clearTimeout(leaveTimer);
+          hoverActive = false;
           button.classList.remove("is-preview");
           button.classList.add("is-pinned");
           button.setAttribute("aria-pressed", "true");
+          // Pinned glyphs may use their natural layout width after the image is visible.
+          requestAnimationFrame(() => {
+            button.style.minWidth = "";
+            sessionMinWidth = 0;
+          });
         } else {
           previewing = true;
           button.classList.add("is-preview");
+          requestAnimationFrame(lockCurrentWidth);
         }
       };
 
       const startFreshPreview = () => {
-        if (!metricsReady || pinned || previewing || pendingVariant || hoverSessionActive) return;
-        hoverSessionActive = true;
+        if (pinned || hoverActive || previewing || pendingVariant) return;
+        hoverActive = true;
+        sessionMinWidth = 0;
+        lockCurrentWidth();
         const next = randomVariant(variantCount, variant);
         loadVariant(next, "preview");
       };
 
-      const hidePreview = () => {
-        if (pinned) return;
-        ++requestToken;
-        pendingVariant = 0;
-        pinPending = false;
-        previewing = false;
-        button.classList.remove("is-preview");
-        setTextWidth();
-      };
-
-      const endHoverSession = () => {
-        window.clearTimeout(leaveTimer);
-        if (pointerInside || hasFocus || pinned) return;
-        hidePreview();
-        hoverSessionActive = false;
-      };
-
       const pinCurrentOrPending = () => {
-        if (pinned || !metricsReady) return;
-
-        window.clearTimeout(leaveTimer);
+        if (pinned) return;
 
         if (previewing && variant) {
           pinned = true;
           previewing = false;
-          hoverSessionActive = false;
+          hoverActive = false;
           button.classList.remove("is-preview");
           button.classList.add("is-pinned");
           button.setAttribute("aria-pressed", "true");
+          button.style.minWidth = "";
+          sessionMinWidth = 0;
           return;
         }
 
@@ -443,8 +414,7 @@
         }
 
         pinPending = true;
-        const next = randomVariant(variantCount, variant);
-        loadVariant(next, "pin");
+        loadVariant(randomVariant(variantCount, variant), "pin");
       };
 
       const cyclePinned = () => {
@@ -454,69 +424,34 @@
 
       button.addEventListener("pointerenter", () => {
         pointerInside = true;
-        window.clearTimeout(leaveTimer);
-
-        // A width change can generate a synthetic leave/enter pair while the mouse
-        // itself has not moved. During an active hover session we keep the already
-        // chosen graphic instead of treating that re-entry as a new hover.
-        if (hoverSessionActive || previewing || pendingVariant || pinned) return;
         startFreshPreview();
       });
 
       button.addEventListener("pointerleave", () => {
         pointerInside = false;
-        if (pinned) return;
-
-        // Give layout-induced leave/enter pairs time to settle. A real mouse-out
-        // remains outside and ends the session after this short guard window.
-        window.clearTimeout(leaveTimer);
-        leaveTimer = window.setTimeout(endHoverSession, 140);
+        if (!hasFocus && !pinned) clearPreview();
       });
 
       button.addEventListener("focus", () => {
         hasFocus = true;
-        window.clearTimeout(leaveTimer);
-        if (!pointerInside && !hoverSessionActive && !previewing && !pendingVariant) {
-          startFreshPreview();
-        }
+        if (!pointerInside) startFreshPreview();
       });
 
       button.addEventListener("blur", () => {
         hasFocus = false;
-        if (!pointerInside && !pinned) {
-          window.clearTimeout(leaveTimer);
-          leaveTimer = window.setTimeout(endHoverSession, 140);
-        }
+        if (!pointerInside && !pinned) clearPreview();
       });
 
       button.addEventListener("click", () => {
-        if (!pinned) {
-          pinCurrentOrPending();
-        } else {
-          cyclePinned();
-        }
+        if (!pinned) pinCurrentOrPending();
+        else cyclePinned();
       });
 
       button.append(text, image);
       fragment.appendChild(button);
-      glyphStates.push({ initializeMetrics, setTextWidth });
     });
 
     heading.replaceChildren(fragment);
-
-    try {
-      await document.fonts?.ready;
-    } catch {
-      // Use the current font metrics if the FontFaceSet cannot resolve.
-    }
-
-    await new Promise((resolve) => window.requestAnimationFrame(resolve));
-    glyphStates.forEach(({ initializeMetrics }) => initializeMetrics());
-
-    const syncAllWidths = () => {
-      glyphStates.forEach(({ initializeMetrics }) => initializeMetrics());
-    };
-    window.addEventListener("resize", syncAllWidths);
   }
 
   if (isWongdoody) {
