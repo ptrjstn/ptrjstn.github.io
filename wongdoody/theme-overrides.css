@@ -339,16 +339,20 @@ body {
   opacity: 0 !important;
 }
 
-/* Keep a stable hover envelope even while the visible glyph changes width.
-   Padding enlarges the pointer hitbox; matching negative margins keep the
-   typographic layout unchanged. */
-.sheet--thanks .thanks-word .thanks-glyph {
-  padding-inline: .42em !important;
-  margin-inline: -.42em !important;
+/* The image must not participate in layout when the hover preview is gone.
+   While previewed/pinned, the hidden text stays in the same grid cell, so a
+   narrower graphic can never shrink the hitbox below the original glyph. */
+.sheet--thanks .thanks-word .thanks-glyph__image {
+  display: none !important;
+  pointer-events: none !important;
 }
 
-.sheet--thanks .thanks-word .thanks-glyph__text,
-.sheet--thanks .thanks-word .thanks-glyph__image {
+.sheet--thanks .thanks-word .thanks-glyph.is-preview .thanks-glyph__image,
+.sheet--thanks .thanks-word .thanks-glyph.is-pinned .thanks-glyph__image {
+  display: block !important;
+}
+
+.sheet--thanks .thanks-word .thanks-glyph__text {
   pointer-events: none !important;
 }
 
