@@ -339,6 +339,19 @@ body {
   opacity: 0 !important;
 }
 
+/* Keep a stable hover envelope even while the visible glyph changes width.
+   Padding enlarges the pointer hitbox; matching negative margins keep the
+   typographic layout unchanged. */
+.sheet--thanks .thanks-word .thanks-glyph {
+  padding-inline: .42em !important;
+  margin-inline: -.42em !important;
+}
+
+.sheet--thanks .thanks-word .thanks-glyph__text,
+.sheet--thanks .thanks-word .thanks-glyph__image {
+  pointer-events: none !important;
+}
+
 @media (max-width: 700px) {
   .deck-ui {
     right: 18px;
