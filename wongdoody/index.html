@@ -8,7 +8,83 @@
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <link rel="canonical" href="https://ptrjstn.de/wongdoody/" />
     <link rel="stylesheet" href="styles.css?v=20260906-8" />
-    <script defer src="script.js?v=20260906-1"></script>
+    <style>
+      .cover-name--graphic {
+        position: relative;
+        display: grid;
+        align-items: center;
+        flex: 0 0 auto;
+        min-height: .62em;
+        width: auto;
+        line-height: 1;
+        letter-spacing: 0;
+        translate: 0 .02em;
+      }
+
+      .cover-letter {
+        display: grid;
+        place-items: center;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        z-index: var(--letter-z, 1);
+        transform:
+          translate(var(--letter-x, 0px), var(--letter-y, 0px))
+          rotate(var(--letter-tilt, 0deg))
+          scale(var(--letter-scale, 1));
+        transform-origin: center center;
+        transition: transform 180ms ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .cover-letter:hover {
+        z-index: 20;
+        transform:
+          translate(var(--letter-x, 0px), calc(var(--letter-y, 0px) - 7px))
+          rotate(calc(var(--letter-tilt, 0deg) * -1))
+          scale(calc(var(--letter-scale, 1) + 0.1));
+      }
+
+      .cover-letter:active {
+        transform: translateY(-2px) scale(.97) rotate(0deg);
+      }
+
+      .cover-letter:focus-visible {
+        outline: 1px dotted currentColor;
+        outline-offset: 5px;
+      }
+
+      .cover-letter img {
+        display: block;
+        max-width: none;
+        max-height: none;
+        object-fit: fill;
+        object-position: center center;
+        cursor: pointer;
+        pointer-events: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+
+      @media (max-width: 700px) {
+        .cover-letter:hover {
+          transform:
+            translate(var(--letter-x, 0px), calc(var(--letter-y, 0px) - 4px))
+            rotate(calc(var(--letter-tilt, 0deg) * -1))
+            scale(calc(var(--letter-scale, 1) + 0.06));
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cover-letter {
+          transition: none;
+        }
+      }
+    </style>
+    <script defer src="script.js?v=20260906-2"></script>
   </head>
   <body>
     <main class="deck" aria-label="WongDoody x Peter — Probearbeit">
@@ -24,7 +100,7 @@
                 />
               </span>
               <span class="cover-x">x</span>
-              <span class="cover-name">Peter</span>
+              <span class="cover-name cover-name--graphic" data-cover-name aria-label="Peter"></span>
             </h1>
           </div>
           <p class="sheet-note">Digital Creative Concept · Social &amp; Performance · dm</p>
