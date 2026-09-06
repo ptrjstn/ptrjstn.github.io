@@ -2,15 +2,17 @@
   const storageKey = "theme";
   const root = document.documentElement;
   const supportsMatchMedia = typeof window.matchMedia === "function";
-  const colorSchemeMedia = supportsMatchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
-  const systemDark = colorSchemeMedia && colorSchemeMedia.matches;
+  const colorSchemeMedia = supportsMatchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+  const systemDark = Boolean(colorSchemeMedia?.matches);
   const isWongdoody = window.location.pathname.includes("/wongdoody");
 
   const readStoredTheme = () => {
     try {
       const stored = window.localStorage.getItem(storageKey);
       return stored === "dark" || stored === "light" ? stored : null;
-    } catch (error) {
+    } catch {
       return null;
     }
   };
@@ -22,7 +24,6 @@
 
   const storedTheme = readStoredTheme();
   const initialTheme = storedTheme || (systemDark ? "dark" : "light");
-
   applyTheme(initialTheme);
 
   const getCurrentTheme = () => (root.dataset.theme === "dark" ? "dark" : "light");
@@ -53,8 +54,8 @@
   const persistTheme = (theme) => {
     try {
       window.localStorage.setItem(storageKey, theme);
-    } catch (error) {
-      // Ignore storage failures, the theme still applies for this session.
+    } catch {
+      // Theme still works for the current session.
     }
   };
 
@@ -71,10 +72,8 @@
     toggleButton.type = "button";
     toggleButton.className = "theme-toggle";
     toggleButton.setAttribute("aria-pressed", String(initialTheme === "dark"));
-
     toggleButton.addEventListener("click", () => {
-      const nextTheme = getCurrentTheme() === "dark" ? "light" : "dark";
-      setTheme(nextTheme);
+      setTheme(getCurrentTheme() === "dark" ? "light" : "dark");
     });
 
     const footer = document.querySelector(".foot, .site-footer");
@@ -85,15 +84,14 @@
 
   const syncWithSystemTheme = (event) => {
     if (readStoredTheme()) return;
-
     applyTheme(event.matches ? "dark" : "light");
     updateToggle();
   };
 
-  if (colorSchemeMedia && colorSchemeMedia.addEventListener) {
+  if (colorSchemeMedia?.addEventListener) {
     colorSchemeMedia.addEventListener("change", syncWithSystemTheme);
-  } else if (colorSchemeMedia && colorSchemeMedia.addListener) {
-    colorSchemeMedia.addListener("change", syncWithSystemTheme);
+  } else if (colorSchemeMedia?.addListener) {
+    colorSchemeMedia.addListener(syncWithSystemTheme);
   }
 
   if (document.readyState === "loading") {
@@ -108,8 +106,6 @@
     const heading = document.querySelector(".sheet--thanks h2");
     if (!heading || heading.dataset.letterInteraction === "ready") return;
 
-    // script.js used to build its own version of the word. Normalize the heading
-    // first so there is only one layout/interaction system left on the page.
     heading.classList.remove("thanks-heading");
     heading.removeAttribute("style");
     heading.dataset.letterInteraction = "ready";
@@ -134,6 +130,7 @@
         align-items: baseline;
         justify-content: flex-start;
         gap: 0;
+        margin: 0;
         font-family: "iA Writer Quattro", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
         font-weight: 700 !important;
         font-style: normal;
@@ -156,7 +153,7 @@
         color: inherit;
         font-family: inherit;
         font-size: inherit;
-        font-weight: 700;
+        font-weight: 700 !important;
         font-style: normal;
         line-height: .98;
         letter-spacing: inherit;
@@ -164,7 +161,6 @@
         vertical-align: baseline;
         overflow: visible;
         -webkit-tap-highlight-color: transparent;
-        transition: width 110ms ease;
       }
 
       .thanks-glyph__text {
@@ -172,8 +168,9 @@
         display: block;
         width: max-content;
         font: inherit;
+        font-weight: 700 !important;
         opacity: 1;
-        transition: opacity 80ms ease;
+        transition: opacity 70ms ease;
       }
 
       .thanks-glyph__image {
@@ -192,7 +189,7 @@
         pointer-events: none;
         user-select: none;
         -webkit-user-drag: none;
-        transition: opacity 80ms ease;
+        transition: opacity 70ms ease;
       }
 
       .thanks-glyph--exclamation .thanks-glyph__image {
@@ -215,7 +212,6 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .thanks-glyph,
         .thanks-glyph__text,
         .thanks-glyph__image {
           transition: none;
@@ -264,12 +260,15 @@
       const button = document.createElement("button");
       const text = document.createElement("span");
       const image = document.createElement("img");
+
       let pinned = false;
       let previewing = false;
+      let pointerInside = false;
+      let hasFocus = false;
       let variant = 0;
-      let loadToken = 0;
-      let hoverSessionActive = false;
-      let hoverResetTimer = 0;
+      let pendingVariant = 0;
+      let requestToken = 0;
+      let pinPending = false;
 
       button.type = "button";
       button.className = "thanks-glyph";
@@ -279,123 +278,173 @@
         character === "!" ? "Ausrufezeichen" : `Buchstabe ${character}`,
       );
       button.setAttribute("aria-pressed", "false");
+
       text.className = "thanks-glyph__text";
       text.textContent = character;
       text.setAttribute("aria-hidden", "true");
+
       image.className = "thanks-glyph__image";
       image.alt = "";
       image.draggable = false;
 
       const textWidth = () => text.getBoundingClientRect().width || 0;
-      const graphicWidth = () => image.getBoundingClientRect().width || textWidth();
+      const graphicHeightRatio = character === "!" ? 0.78 : 0.88;
 
-      const syncWidth = () => {
-        const showingGraphic = pinned || previewing;
-        const width = showingGraphic ? graphicWidth() : textWidth();
+      const graphicWidthFrom = (loadedImage) => {
+        if (!loadedImage?.naturalWidth || !loadedImage?.naturalHeight) return textWidth();
+        const fontSize = parseFloat(window.getComputedStyle(button).fontSize) || 62;
+        const height = fontSize * graphicHeightRatio;
+        return height * (loadedImage.naturalWidth / loadedImage.naturalHeight);
+      };
+
+      const setTextWidth = () => {
+        const width = textWidth();
         if (width > 0) button.style.width = `${width.toFixed(2)}px`;
       };
 
-      const setVariant = (nextVariant, callback) => {
-        variant = nextVariant;
-        const token = ++loadToken;
-        image.src = getGraphicSrc(character, variant);
+      const setGraphicWidth = (loadedImage) => {
+        // Never shrink the hover target below the original letter. This prevents a
+        // layout-induced pointerleave/pointerenter loop when a graphic is narrower.
+        const width = Math.max(textWidth(), graphicWidthFrom(loadedImage));
+        if (width > 0) button.style.width = `${width.toFixed(2)}px`;
+      };
 
-        const done = () => {
-          if (token !== loadToken) return;
-          syncWidth();
-          if (callback) callback();
-        };
-
-        if (image.complete && image.naturalWidth) {
-          done();
-        } else {
-          image.addEventListener("load", done, { once: true });
-          image.addEventListener("error", done, { once: true });
+      const waitForImage = (loader) => new Promise((resolve) => {
+        if (loader.complete && loader.naturalWidth) {
+          resolve();
+          return;
         }
-      };
+        const done = () => resolve();
+        loader.addEventListener("load", done, { once: true });
+        loader.addEventListener("error", done, { once: true });
+      });
 
-      const showPreview = (fresh) => {
-        if (pinned) return;
-        previewing = true;
-        button.classList.add("is-preview");
-        if (fresh || variant === 0) {
-          setVariant(randomVariant(variantCount, variant));
-        } else {
-          syncWidth();
-        }
-      };
+      const loadVariant = async (nextVariant, mode = "preview") => {
+        const token = ++requestToken;
+        pendingVariant = nextVariant;
+        const src = getGraphicSrc(character, nextVariant);
+        const loader = new Image();
+        loader.decoding = "async";
+        loader.src = src;
 
-      const hidePreview = () => {
-        if (pinned) return;
-        previewing = false;
-        button.classList.remove("is-preview");
-        syncWidth();
-      };
-
-      const handlePointerEnter = () => {
-        window.clearTimeout(hoverResetTimer);
-        if (pinned) return;
-
-        // Width changes can briefly fire pointerleave/pointerenter again. Keep the
-        // same preview during that tiny layout bounce, but use a new random graphic
-        // for every real hover session.
-        const fresh = !hoverSessionActive;
-        hoverSessionActive = true;
-        showPreview(fresh);
-      };
-
-      const handlePointerLeave = () => {
-        hidePreview();
-        window.clearTimeout(hoverResetTimer);
-        hoverResetTimer = window.setTimeout(() => {
-          hoverSessionActive = false;
-        }, 140);
-      };
-
-      const handleClick = () => {
-        if (!pinned) {
-          // First click pins exactly the graphic that is already visible.
-          // Only generate one when there has not been a preview at all.
-          if (variant === 0) {
-            previewing = true;
-            button.classList.add("is-preview");
-            setVariant(randomVariant(variantCount, variant));
+        try {
+          if (typeof loader.decode === "function") {
+            await loader.decode();
+          } else {
+            await waitForImage(loader);
           }
+        } catch {
+          await waitForImage(loader);
+        }
 
+        if (token !== requestToken || !loader.naturalWidth) return;
+
+        const shouldPin = mode === "pin" || pinPending;
+        if (!shouldPin && !pointerInside && !hasFocus) {
+          pendingVariant = 0;
+          return;
+        }
+
+        // Only now swap the visible image. The previous variant never flashes first.
+        image.src = src;
+        variant = nextVariant;
+        pendingVariant = 0;
+        setGraphicWidth(loader);
+
+        if (shouldPin) {
+          pinPending = false;
           pinned = true;
           previewing = false;
           button.classList.remove("is-preview");
           button.classList.add("is-pinned");
           button.setAttribute("aria-pressed", "true");
-          syncWidth();
+        } else {
+          previewing = true;
+          button.classList.add("is-preview");
+        }
+      };
+
+      const startFreshPreview = () => {
+        if (pinned || previewing || pendingVariant) return;
+        const next = randomVariant(variantCount, variant);
+        loadVariant(next, "preview");
+      };
+
+      const hidePreview = () => {
+        if (pinned) return;
+        ++requestToken;
+        pendingVariant = 0;
+        pinPending = false;
+        previewing = false;
+        button.classList.remove("is-preview");
+        setTextWidth();
+      };
+
+      const pinCurrentOrPending = () => {
+        if (pinned) return;
+
+        if (previewing && variant) {
+          pinned = true;
+          previewing = false;
+          button.classList.remove("is-preview");
+          button.classList.add("is-pinned");
+          button.setAttribute("aria-pressed", "true");
           return;
         }
 
-        // From the second click onward, cycle through variants.
-        const next = (variant % variantCount) + 1;
-        setVariant(next);
-        syncWidth();
+        if (pendingVariant) {
+          pinPending = true;
+          return;
+        }
+
+        pinPending = true;
+        const next = randomVariant(variantCount, variant);
+        loadVariant(next, "pin");
       };
 
-      button.addEventListener("pointerenter", handlePointerEnter);
-      button.addEventListener("pointerleave", handlePointerLeave);
+      const cyclePinned = () => {
+        const next = (variant % variantCount) + 1;
+        loadVariant(next, "pin");
+      };
+
+      button.addEventListener("pointerenter", () => {
+        pointerInside = true;
+        startFreshPreview();
+      });
+
+      button.addEventListener("pointerleave", () => {
+        pointerInside = false;
+        if (!hasFocus) hidePreview();
+      });
+
       button.addEventListener("focus", () => {
-        if (pinned || previewing) return;
-        showPreview(variant === 0);
+        hasFocus = true;
+        if (!pointerInside) startFreshPreview();
       });
+
       button.addEventListener("blur", () => {
-        if (!hoverSessionActive) hidePreview();
+        hasFocus = false;
+        if (!pointerInside) hidePreview();
       });
-      button.addEventListener("click", handleClick);
+
+      button.addEventListener("click", () => {
+        if (!pinned) {
+          pinCurrentOrPending();
+        } else {
+          cyclePinned();
+        }
+      });
 
       button.append(text, image);
       fragment.appendChild(button);
-      glyphStates.push({ syncWidth });
+      glyphStates.push({ setTextWidth });
     });
 
     heading.replaceChildren(fragment);
 
-    const syncAllWidths = () => glyphStates.forEach(({ syncWidth }) => syncWidth());
+    const syncAllWidths = () => {
+      glyphStates.forEach(({ setTextWidth }) => setTextWidth());
+    };
     requestAnimationFrame(syncAllWidths);
     window.addEventListener("resize", syncAllWidths);
   }
