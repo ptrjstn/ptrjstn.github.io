@@ -326,7 +326,7 @@ body {
 
 /* Danke: normal punctuation spacing + muted translucent type state. */
 .sheet--thanks .thanks-word .thanks-glyph--exclamation {
-  margin-left: -.035em;
+  margin-left: -.12em;
 }
 
 .sheet--thanks .thanks-word .thanks-glyph__text {
