@@ -6,21 +6,13 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "iA Writer Quattro";
-  src: url("https://raw.githubusercontent.com/iaolo/iA-Fonts/master/iA%20Writer%20Quattro/Webfonts/iAWriterQuattroS-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --bg: #ddd8ce;
   --paper: #f8f6f0;
   --ink: #171717;
   --muted: #77736b;
   --line: #c8c3b9;
-  --accent: #b8ef22;
+  --wd-blue: #2f55ff;
   --sheet-width: min(92.5vw, calc((100svh - 56px) * 1.7778), 1600px);
   color-scheme: light;
 }
@@ -44,8 +36,20 @@ body {
     var(--bg);
   color: var(--ink);
   font-family: "iA Writer Quattro", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-weight: 400;
   text-rendering: geometricPrecision;
   overscroll-behavior-y: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+  font-weight: 400;
 }
 
 button,
@@ -96,31 +100,40 @@ select {
 }
 
 .cover-lockup {
+  width: 100%;
   margin: auto 0;
+  text-align: center;
 }
 
 .cover-title {
+  width: 100%;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  justify-content: center;
   align-items: center;
-  gap: .26em;
+  gap: .34em;
   margin: 0;
   font-size: clamp(38px, 7vw, 112px);
   line-height: .92;
-  letter-spacing: -.055em;
-  font-weight: 700;
+  letter-spacing: -.04em;
+  font-weight: 400;
 }
 
 .cover-partner {
+  flex: 0 0 auto;
   white-space: nowrap;
+  font-size: .64em;
+  letter-spacing: -.045em;
+  font-weight: 400;
 }
 
 .wd-logo {
   display: inline-flex;
   align-items: center;
+  flex: 0 1 auto;
   height: .76em;
-  max-width: 4.4em;
-  translate: 0 .015em;
+  max-width: 4.55em;
+  translate: 0 .01em;
 }
 
 .wd-logo img {
@@ -129,6 +142,7 @@ select {
   max-width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(31%) sepia(90%) saturate(5100%) hue-rotate(229deg) brightness(103%) contrast(103%);
 }
 
 .cover-subtitle {
@@ -170,6 +184,7 @@ select {
   font-size: clamp(26px, 4vw, 62px);
   line-height: .98;
   letter-spacing: -.045em;
+  font-weight: 400;
 }
 
 .film-grid {
@@ -307,11 +322,13 @@ select {
 .workflow strong {
   margin: auto 0;
   font-size: clamp(11px, 1.25vw, 19px);
+  font-weight: 400;
 }
 
 .sheet--thanks h2 {
   max-width: none;
   font-size: clamp(48px, 9vw, 144px);
+  font-weight: 400;
 }
 
 .deck-ui {
@@ -334,7 +351,7 @@ select {
 }
 
 .counter b {
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .dots {
@@ -376,7 +393,13 @@ select {
   }
 
   .cover-title {
+    flex-wrap: wrap;
+    gap: .18em .3em;
     font-size: clamp(28px, 8vw, 54px);
+  }
+
+  .cover-partner {
+    font-size: .72em;
   }
 
   .film-grid {
