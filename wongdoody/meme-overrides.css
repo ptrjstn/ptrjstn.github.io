@@ -13,22 +13,17 @@
   overflow: visible;
 }
 
-#aufgabe-03 .workflow-thesis {
-  margin: 0 0 clamp(10px, 1.2vw, 18px);
-  max-width: 70%;
+/* Strategic thesis — keeps the meme strip anchored in the actual production model. */
+#aufgabe-03 .scribble--workflow::before {
+  content: "KI skaliert nicht die Idee. Sie skaliert, was aus ihr wird.\A Human-led in der Entscheidung. KI-beschleunigt in der Ausführung.";
+  display: block;
+  max-width: 74%;
+  margin-bottom: clamp(10px, 1.2vw, 18px);
   color: var(--wd-blue);
   font-size: clamp(13px, 1.45vw, 23px);
   line-height: 1.08;
   letter-spacing: -.035em;
-}
-
-#aufgabe-03 .workflow-thesis small {
-  display: block;
-  margin-top: .55em;
-  color: var(--muted);
-  font-size: clamp(7px, .62vw, 10px);
-  line-height: 1.32;
-  letter-spacing: 0;
+  white-space: pre-line;
 }
 
 #aufgabe-03 .workflow {
@@ -78,7 +73,7 @@
     0 14px 30px rgba(0, 0, 0, .28);
 }
 
-/* Known meme templates, used as mnemonic shorthand for the five production steps. */
+/* Known meme templates, used as mnemonic shorthand for each production step. */
 #aufgabe-03 .workflow li:nth-child(1)::before {
   background-image: url("https://api.memegen.link/images/fine.jpg?width=640&height=480");
 }
@@ -99,12 +94,7 @@
   background-image: url("https://api.memegen.link/images/success.jpg?width=640&height=480");
 }
 
-#aufgabe-03 .workflow li:not(:last-child)::after {
-  display: none !important;
-  content: none !important;
-}
-
-#aufgabe-03 .workflow-step {
+#aufgabe-03 .workflow span {
   margin-bottom: .42em;
   color: var(--muted);
   font-size: clamp(6px, .52vw, 9px);
@@ -118,70 +108,83 @@
   font-weight: 400;
 }
 
-#aufgabe-03 .workflow-role {
-  display: inline-block;
-  margin-top: .4em;
+/* Existing small label becomes the clear human/AI role. */
+#aufgabe-03 .workflow small {
+  display: block;
+  order: 4;
+  margin-top: .42em;
   color: var(--wd-blue);
-  font-size: clamp(7px, .62vw, 10px);
+  font-size: 0;
   line-height: 1.1;
-  font-style: normal;
 }
 
-#aufgabe-03 .workflow-detail {
-  margin: .5em 0 0;
+#aufgabe-03 .workflow li:nth-child(1) small::before { content: "KI strukturiert."; }
+#aufgabe-03 .workflow li:nth-child(2) small::before { content: "Mensch entscheidet."; }
+#aufgabe-03 .workflow li:nth-child(3) small::before { content: "KI produziert."; }
+#aufgabe-03 .workflow li:nth-child(4) small::before { content: "Mensch verantwortet."; }
+#aufgabe-03 .workflow li:nth-child(5) small::before { content: "KI analysiert. Mensch entscheidet."; }
+
+#aufgabe-03 .workflow small::before {
+  font-size: clamp(7px, .62vw, 10px);
+}
+
+/* Compact examples make every station operational rather than decorative. */
+#aufgabe-03 .workflow li::after {
+  display: block !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  translate: none !important;
+  padding: 0 !important;
+  margin-top: .5em;
+  background: transparent !important;
   color: var(--muted);
   font-size: clamp(6.5px, .56vw, 9px);
   line-height: 1.34;
   letter-spacing: -.01em;
 }
 
-#aufgabe-03 .workflow-spectrum {
-  width: 100%;
+#aufgabe-03 .workflow li:nth-child(1)::after {
+  content: "Ziele · Zielgruppe · Assets · Constraints";
+}
+
+#aufgabe-03 .workflow li:nth-child(2)::after {
+  content: "Problem · Insight · kreative Richtung";
+}
+
+#aufgabe-03 .workflow li:nth-child(3)::after {
+  content: "Hooks · Formate · Versionen · Adaptionen";
+}
+
+#aufgabe-03 .workflow li:nth-child(4)::after {
+  content: "Strategie · Marke & Claim · Craft · Release";
+}
+
+#aufgabe-03 .workflow li:nth-child(5)::after {
+  content: "Performance-Muster → nächster Durchlauf";
+}
+
+/* The three levels of human/AI responsibility from the original model. */
+#aufgabe-03 .scribble--workflow::after {
+  content: "AUTOMATISIEREN  Resizing · Untertitel · Versionierung     ASSISTIEREN  Recherche · Hooks · Storyboards     MENSCHLICH FÜHREN  Problem · Insight · Leitidee · Claims";
+  display: block;
   margin-top: clamp(14px, 1.7vw, 25px);
-  display: grid;
-  grid-template-columns: 1fr 1.05fr 1.25fr;
-  gap: clamp(10px, 1.4vw, 22px);
-  align-items: start;
-}
-
-#aufgabe-03 .workflow-spectrum > div {
-  min-width: 0;
-}
-
-#aufgabe-03 .workflow-spectrum b {
-  display: block;
-  margin-bottom: .4em;
-  color: var(--ink);
-  font-size: clamp(7px, .64vw, 10px);
-  line-height: 1;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
-
-#aufgabe-03 .workflow-spectrum span {
-  display: block;
   color: var(--muted);
-  font-size: clamp(6.5px, .56vw, 9px);
-  line-height: 1.32;
+  font-size: clamp(6.5px, .58vw, 9.5px);
+  line-height: 1.35;
+  letter-spacing: -.01em;
+  word-spacing: .08em;
 }
-
-#aufgabe-03 .workflow-spectrum > div:nth-child(1) b { color: var(--wd-blue); }
-#aufgabe-03 .workflow-spectrum > div:nth-child(2) b { color: var(--wd-blue); }
 
 @media (max-width: 700px) {
   #aufgabe-03 .scribble--workflow {
     margin-top: 8px;
   }
 
-  #aufgabe-03 .workflow-thesis {
-    margin-bottom: 6px;
+  #aufgabe-03 .scribble--workflow::before {
     max-width: 82%;
+    margin-bottom: 6px;
     font-size: clamp(8px, 2.6vw, 13px);
-  }
-
-  #aufgabe-03 .workflow-thesis small {
-    font-size: 5px;
   }
 
   #aufgabe-03 .workflow {
@@ -193,11 +196,10 @@
     box-shadow: 0 5px 12px rgba(23, 23, 23, .10);
   }
 
-  #aufgabe-03 .workflow-step,
-  #aufgabe-03 .workflow-role,
-  #aufgabe-03 .workflow-detail,
-  #aufgabe-03 .workflow-spectrum b,
-  #aufgabe-03 .workflow-spectrum span {
+  #aufgabe-03 .workflow span,
+  #aufgabe-03 .workflow small::before,
+  #aufgabe-03 .workflow li::after,
+  #aufgabe-03 .scribble--workflow::after {
     font-size: 4.5px;
   }
 
@@ -205,8 +207,7 @@
     font-size: clamp(6px, 1.5vw, 9px);
   }
 
-  #aufgabe-03 .workflow-spectrum {
+  #aufgabe-03 .scribble--workflow::after {
     margin-top: 8px;
-    gap: 6px;
   }
 }
