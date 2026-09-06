@@ -7,7 +7,10 @@
   --surface-strong: rgba(255, 255, 255, 0.88);
   --selection: rgba(23, 23, 23, 0.16);
   --toggle-border: rgba(23, 23, 23, 0.14);
-  --toggle-shadow: 0 10px 24px rgba(23, 23, 23, 0.08);
+  --toggle-shadow:
+    0 1px 1px rgba(23, 23, 23, 0.08),
+    0 5px 12px rgba(23, 23, 23, 0.10),
+    0 14px 28px rgba(23, 23, 23, 0.08);
   --bg-texture: url("../assets/shared/bg_texture.webp");
   --bg-texture-opacity: 0.7;
   --paper: var(--surface);
@@ -30,7 +33,10 @@
   --surface-strong: rgba(60, 53, 44, 0.92);
   --selection: rgba(242, 233, 220, 0.2);
   --toggle-border: rgba(242, 233, 220, 0.17);
-  --toggle-shadow: 0 10px 24px rgba(20, 16, 11, 0.26);
+  --toggle-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.28),
+    0 5px 13px rgba(0, 0, 0, 0.28),
+    0 15px 30px rgba(0, 0, 0, 0.18);
   --bg-texture: url("../assets/shared/bg_texture_dark.webp");
   --bg-texture-opacity: 0.42;
   --paper: var(--surface);
@@ -112,10 +118,11 @@ body {
   position: fixed;
   top: 28px;
   z-index: 20;
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   margin: 0;
   padding: 0;
   border: 1px solid var(--toggle-border);
@@ -126,25 +133,38 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
   text-decoration: none;
   transition:
     transform 160ms ease,
     background-color 160ms ease,
     border-color 160ms ease,
-    color 160ms ease;
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.control-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+  text-align: center;
+  transform: translateY(-0.5px);
+  pointer-events: none;
 }
 
 .theme-toggle {
-  right: 34px;
+  right: 28px;
   left: auto;
   bottom: auto;
   cursor: pointer;
 }
 
 .home-link {
-  left: 34px;
+  left: 28px;
 }
 
 .theme-toggle:hover,
@@ -152,6 +172,18 @@ body {
   transform: translateY(-1px);
   background: var(--surface-strong);
   color: var(--ink);
+  box-shadow:
+    0 2px 2px rgba(23, 23, 23, 0.08),
+    0 7px 16px rgba(23, 23, 23, 0.12),
+    0 18px 34px rgba(23, 23, 23, 0.09);
+}
+
+:root[data-theme="dark"] .theme-toggle:hover,
+:root[data-theme="dark"] .home-link:hover {
+  box-shadow:
+    0 2px 2px rgba(0, 0, 0, 0.30),
+    0 7px 17px rgba(0, 0, 0, 0.30),
+    0 18px 34px rgba(0, 0, 0, 0.20);
 }
 
 .theme-toggle:active,
@@ -174,15 +206,17 @@ body {
   .theme-toggle,
   .home-link {
     top: 18px;
-    font-size: 15px;
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
   }
 
   .theme-toggle {
-    right: 22px;
+    right: 18px;
   }
 
   .home-link {
-    left: 22px;
+    left: 18px;
   }
 }
 
