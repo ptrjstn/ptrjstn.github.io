@@ -171,6 +171,8 @@
   async function renderCoverName() {
     if (!coverName) return;
 
+    coverName.classList.remove('is-ready');
+
     const fragment = document.createDocumentFragment();
     const imageReadyPromises = [];
     const buttons = [...coverWord].map((letter) => {
@@ -183,6 +185,7 @@
       button.setAttribute('aria-label', `Buchstabe ${letter} austauschen`);
       image.alt = '';
       image.draggable = false;
+      image.addEventListener('load', scheduleCoverFit);
 
       imageReadyPromises.push(new Promise((resolve) => {
         let retries = 0;
@@ -220,10 +223,18 @@
       return button;
     });
 
+    await Promise.all(imageReadyPromises);
+    await Promise.all(
+      buttons.map((button) => button.querySelector('img').decode().catch(() => {}))
+    );
+
     coverName.replaceChildren(fragment);
     randomizeCoverStacking(buttons);
-    await Promise.all(imageReadyPromises);
     fitCoverName();
+
+    window.requestAnimationFrame(() => {
+      coverName.classList.add('is-ready');
+    });
   }
 
   window.addEventListener('resize', scheduleCoverFit);
