@@ -100,7 +100,7 @@
     mountToggle();
   }
 
-  function initWongdoodyThanks() {
+  async function initWongdoodyThanks() {
     if (!isWongdoody) return;
 
     const heading = document.querySelector(".sheet--thanks h2");
@@ -144,6 +144,7 @@
         display: inline-grid;
         place-items: center;
         flex: 0 0 auto;
+        width: auto;
         min-width: 0;
         min-height: .94em;
         margin: 0;
@@ -161,6 +162,7 @@
         vertical-align: baseline;
         overflow: visible;
         -webkit-tap-highlight-color: transparent;
+        transition: width 90ms ease;
       }
 
       .thanks-glyph__text {
@@ -212,6 +214,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
+        .thanks-glyph,
         .thanks-glyph__text,
         .thanks-glyph__image {
           transition: none;
@@ -269,6 +272,11 @@
       let pendingVariant = 0;
       let requestToken = 0;
       let pinPending = false;
+      let baseWidth = 0;
+      let currentLayoutWidth = 0;
+      let metricsReady = false;
+      let hoverSessionActive = false;
+      let leaveTimer = 0;
 
       button.type = "button";
       button.className = "thanks-glyph";
@@ -287,26 +295,51 @@
       image.alt = "";
       image.draggable = false;
 
-      const textWidth = () => text.getBoundingClientRect().width || 0;
+      const fallbackTextWidth = () => {
+        const fontSize = parseFloat(window.getComputedStyle(button).fontSize) || 62;
+        return fontSize * (character === "!" ? 0.22 : 0.52);
+      };
+
+      const measureNaturalTextWidth = () => {
+        const previousWidth = button.style.width;
+        button.style.width = "auto";
+        const measured = text.getBoundingClientRect().width || text.scrollWidth || 0;
+        button.style.width = previousWidth;
+        return measured > 0 ? measured : fallbackTextWidth();
+      };
+
+      const initializeMetrics = () => {
+        baseWidth = Math.max(1, measureNaturalTextWidth());
+        currentLayoutWidth = baseWidth;
+        button.style.width = `${baseWidth.toFixed(2)}px`;
+        button.style.minWidth = `${baseWidth.toFixed(2)}px`;
+        metricsReady = true;
+      };
+
+      const setTextWidth = () => {
+        if (!metricsReady || baseWidth <= 0) return;
+        currentLayoutWidth = baseWidth;
+        button.style.width = `${baseWidth.toFixed(2)}px`;
+      };
+
       const graphicHeightRatio = character === "!" ? 0.78 : 0.88;
 
       const graphicWidthFrom = (loadedImage) => {
-        if (!loadedImage?.naturalWidth || !loadedImage?.naturalHeight) return textWidth();
+        if (!loadedImage?.naturalWidth || !loadedImage?.naturalHeight) {
+          return baseWidth || fallbackTextWidth();
+        }
         const fontSize = parseFloat(window.getComputedStyle(button).fontSize) || 62;
         const height = fontSize * graphicHeightRatio;
         return height * (loadedImage.naturalWidth / loadedImage.naturalHeight);
       };
 
-      const setTextWidth = () => {
-        const width = textWidth();
-        if (width > 0) button.style.width = `${width.toFixed(2)}px`;
-      };
-
-      const setGraphicWidth = (loadedImage) => {
-        // Never shrink the hover target below the original letter. This prevents a
-        // layout-induced pointerleave/pointerenter loop when a graphic is narrower.
-        const width = Math.max(textWidth(), graphicWidthFrom(loadedImage));
-        if (width > 0) button.style.width = `${width.toFixed(2)}px`;
+      const setGraphicWidth = (loadedImage, allowShrink = false) => {
+        const natural = Math.max(baseWidth || fallbackTextWidth(), graphicWidthFrom(loadedImage));
+        const width = allowShrink
+          ? natural
+          : Math.max(currentLayoutWidth || baseWidth || natural, natural);
+        currentLayoutWidth = width;
+        button.style.width = `${width.toFixed(2)}px`;
       };
 
       const waitForImage = (loader) => new Promise((resolve) => {
@@ -340,21 +373,22 @@
         if (token !== requestToken || !loader.naturalWidth) return;
 
         const shouldPin = mode === "pin" || pinPending;
-        if (!shouldPin && !pointerInside && !hasFocus) {
+        if (!shouldPin && !pointerInside && !hasFocus && !hoverSessionActive) {
           pendingVariant = 0;
           return;
         }
 
-        // Only now swap the visible image. The previous variant never flashes first.
         image.src = src;
         variant = nextVariant;
         pendingVariant = 0;
-        setGraphicWidth(loader);
+        setGraphicWidth(loader, shouldPin);
 
         if (shouldPin) {
           pinPending = false;
           pinned = true;
           previewing = false;
+          hoverSessionActive = false;
+          window.clearTimeout(leaveTimer);
           button.classList.remove("is-preview");
           button.classList.add("is-pinned");
           button.setAttribute("aria-pressed", "true");
@@ -365,7 +399,8 @@
       };
 
       const startFreshPreview = () => {
-        if (pinned || previewing || pendingVariant) return;
+        if (!metricsReady || pinned || previewing || pendingVariant || hoverSessionActive) return;
+        hoverSessionActive = true;
         const next = randomVariant(variantCount, variant);
         loadVariant(next, "preview");
       };
@@ -380,12 +415,22 @@
         setTextWidth();
       };
 
+      const endHoverSession = () => {
+        window.clearTimeout(leaveTimer);
+        if (pointerInside || hasFocus || pinned) return;
+        hidePreview();
+        hoverSessionActive = false;
+      };
+
       const pinCurrentOrPending = () => {
-        if (pinned) return;
+        if (pinned || !metricsReady) return;
+
+        window.clearTimeout(leaveTimer);
 
         if (previewing && variant) {
           pinned = true;
           previewing = false;
+          hoverSessionActive = false;
           button.classList.remove("is-preview");
           button.classList.add("is-pinned");
           button.setAttribute("aria-pressed", "true");
@@ -409,22 +454,39 @@
 
       button.addEventListener("pointerenter", () => {
         pointerInside = true;
+        window.clearTimeout(leaveTimer);
+
+        // A width change can generate a synthetic leave/enter pair while the mouse
+        // itself has not moved. During an active hover session we keep the already
+        // chosen graphic instead of treating that re-entry as a new hover.
+        if (hoverSessionActive || previewing || pendingVariant || pinned) return;
         startFreshPreview();
       });
 
       button.addEventListener("pointerleave", () => {
         pointerInside = false;
-        if (!hasFocus) hidePreview();
+        if (pinned) return;
+
+        // Give layout-induced leave/enter pairs time to settle. A real mouse-out
+        // remains outside and ends the session after this short guard window.
+        window.clearTimeout(leaveTimer);
+        leaveTimer = window.setTimeout(endHoverSession, 140);
       });
 
       button.addEventListener("focus", () => {
         hasFocus = true;
-        if (!pointerInside) startFreshPreview();
+        window.clearTimeout(leaveTimer);
+        if (!pointerInside && !hoverSessionActive && !previewing && !pendingVariant) {
+          startFreshPreview();
+        }
       });
 
       button.addEventListener("blur", () => {
         hasFocus = false;
-        if (!pointerInside) hidePreview();
+        if (!pointerInside && !pinned) {
+          window.clearTimeout(leaveTimer);
+          leaveTimer = window.setTimeout(endHoverSession, 140);
+        }
       });
 
       button.addEventListener("click", () => {
@@ -437,15 +499,23 @@
 
       button.append(text, image);
       fragment.appendChild(button);
-      glyphStates.push({ setTextWidth });
+      glyphStates.push({ initializeMetrics, setTextWidth });
     });
 
     heading.replaceChildren(fragment);
 
+    try {
+      await document.fonts?.ready;
+    } catch {
+      // Use the current font metrics if the FontFaceSet cannot resolve.
+    }
+
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    glyphStates.forEach(({ initializeMetrics }) => initializeMetrics());
+
     const syncAllWidths = () => {
-      glyphStates.forEach(({ setTextWidth }) => setTextWidth());
+      glyphStates.forEach(({ initializeMetrics }) => initializeMetrics());
     };
-    requestAnimationFrame(syncAllWidths);
     window.addEventListener("resize", syncAllWidths);
   }
 
