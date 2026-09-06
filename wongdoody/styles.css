@@ -91,11 +91,18 @@ select {
   mix-blend-mode: multiply;
 }
 
-.sheet--cover,
-.sheet--thanks {
+.sheet--cover {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: clamp(28px, 4.5vw, 72px);
+}
+
+.sheet--thanks {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   padding: clamp(28px, 4.5vw, 72px);
 }
 
@@ -121,7 +128,7 @@ select {
 
 .cover-x {
   flex: 0 0 auto;
-  font-size: .34em;
+  font-size: .40em;
   line-height: 1;
   color: var(--ink);
   letter-spacing: 0;
@@ -133,10 +140,8 @@ select {
   white-space: nowrap;
   font-size: .64em;
   line-height: 1;
-  color: #fff;
+  color: #4a4945;
   letter-spacing: -.045em;
-  -webkit-text-stroke: 1px rgba(23, 23, 23, .10);
-  text-shadow: 0 1px 1px rgba(23, 23, 23, .08);
 }
 
 .wd-logo {
@@ -158,7 +163,10 @@ select {
 }
 
 .cover-subtitle {
-  margin: 0 0 clamp(16px, 1.8vw, 28px);
+  position: absolute;
+  top: clamp(28px, 4.5vw, 72px);
+  left: clamp(28px, 4.5vw, 72px);
+  margin: 0;
   color: var(--muted);
   font-size: clamp(15px, 1.4vw, 21px);
 }
@@ -177,7 +185,7 @@ select {
 
 .sheet-header {
   display: grid;
-  grid-template-columns: clamp(36px, 5vw, 76px) 1fr;
+  grid-template-columns: clamp(88px, 8vw, 132px) 1fr;
   align-items: start;
   gap: clamp(10px, 1.6vw, 24px);
 }
@@ -187,16 +195,21 @@ select {
   color: var(--muted);
   font-size: clamp(11px, 1vw, 16px);
   line-height: 1;
+  white-space: nowrap;
 }
 
 .sheet-header h2,
 .sheet--thanks h2 {
   margin: 0;
-  max-width: 18ch;
+  max-width: none;
   font-size: clamp(26px, 4vw, 62px);
   line-height: .98;
   letter-spacing: -.045em;
   font-weight: 400;
+}
+
+.sheet-header h2 {
+  white-space: nowrap;
 }
 
 .film-grid {
@@ -251,7 +264,7 @@ select {
   flex: 1;
   min-height: 0;
   margin-top: clamp(18px, 3vw, 48px);
-  border-top: 1px solid var(--line);
+  border-top: 0;
 }
 
 .scribble-caption {
@@ -343,6 +356,19 @@ select {
   font-weight: 400;
 }
 
+.thanks-kicker {
+  position: absolute;
+  top: clamp(28px, 4.5vw, 72px);
+  left: clamp(28px, 4.5vw, 72px);
+  margin: 0;
+}
+
+.sheet--thanks .sheet-note {
+  position: absolute;
+  left: clamp(28px, 4.5vw, 72px);
+  bottom: clamp(28px, 4.5vw, 72px);
+}
+
 .deck-ui {
   position: fixed;
   z-index: 10;
@@ -411,11 +437,20 @@ select {
   }
 
   .cover-x {
-    font-size: .40em;
+    font-size: .43em;
   }
 
   .cover-name {
     font-size: .72em;
+  }
+
+  .sheet-header {
+    grid-template-columns: 72px 1fr;
+    gap: 10px;
+  }
+
+  .sheet-header h2 {
+    font-size: clamp(20px, 4.6vw, 34px);
   }
 
   .film-grid {
