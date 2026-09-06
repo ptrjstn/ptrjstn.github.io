@@ -111,7 +111,7 @@ select {
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: center;
-  gap: .34em;
+  gap: .18em;
   margin: 0;
   font-size: clamp(38px, 7vw, 112px);
   line-height: .92;
@@ -119,12 +119,24 @@ select {
   font-weight: 400;
 }
 
-.cover-partner {
+.cover-x {
+  flex: 0 0 auto;
+  font-size: .34em;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: 0;
+  translate: 0 .02em;
+}
+
+.cover-name {
   flex: 0 0 auto;
   white-space: nowrap;
   font-size: .64em;
+  line-height: 1;
+  color: #fff;
   letter-spacing: -.045em;
-  font-weight: 400;
+  -webkit-text-stroke: 1px rgba(23, 23, 23, .10);
+  text-shadow: 0 1px 1px rgba(23, 23, 23, .08);
 }
 
 .wd-logo {
@@ -146,9 +158,9 @@ select {
 }
 
 .cover-subtitle {
-  margin: clamp(18px, 2.5vw, 36px) 0 0;
+  margin: 0 0 clamp(16px, 1.8vw, 28px);
   color: var(--muted);
-  font-size: clamp(15px, 1.6vw, 24px);
+  font-size: clamp(15px, 1.4vw, 21px);
 }
 
 .sheet-note {
@@ -394,11 +406,15 @@ select {
 
   .cover-title {
     flex-wrap: wrap;
-    gap: .18em .3em;
+    gap: .16em;
     font-size: clamp(28px, 8vw, 54px);
   }
 
-  .cover-partner {
+  .cover-x {
+    font-size: .40em;
+  }
+
+  .cover-name {
     font-size: .72em;
   }
 
