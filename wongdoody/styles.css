@@ -1,0 +1,386 @@
+@font-face {
+  font-family: "iA Writer Quattro";
+  src: url("https://raw.githubusercontent.com/iaolo/iA-Fonts/master/iA%20Writer%20Quattro/Webfonts/iAWriterQuattroS-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "iA Writer Quattro";
+  src: url("https://raw.githubusercontent.com/iaolo/iA-Fonts/master/iA%20Writer%20Quattro/Webfonts/iAWriterQuattroS-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #ddd8ce;
+  --paper: #f8f6f0;
+  --ink: #171717;
+  --muted: #77736b;
+  --line: #c8c3b9;
+  --accent: #b8ef22;
+  --sheet-width: min(86vw, calc((100svh - 92px) * 1.7778), 1440px);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.45), transparent 32%),
+    radial-gradient(circle at 80% 90%, rgba(0,0,0,.05), transparent 34%),
+    var(--bg);
+  color: var(--ink);
+  font-family: "iA Writer Quattro", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  text-rendering: geometricPrecision;
+  overscroll-behavior-y: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.deck-stop {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 34px 42px 58px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.sheet {
+  position: relative;
+  width: var(--sheet-width);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--paper);
+  border: 1px solid rgba(23, 23, 23, .09);
+  box-shadow:
+    0 2px 2px rgba(31, 28, 23, .06),
+    0 14px 34px rgba(31, 28, 23, .14),
+    0 38px 90px rgba(31, 28, 23, .10);
+}
+
+.sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .18;
+  background-image: linear-gradient(115deg, transparent 0 47%, rgba(0,0,0,.025) 50%, transparent 53% 100%);
+  mix-blend-mode: multiply;
+}
+
+.sheet--cover,
+.sheet--thanks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(28px, 4.5vw, 72px);
+}
+
+.cover-lockup {
+  margin: auto 0;
+}
+
+.cover-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .22em;
+  margin: 0;
+  font-size: clamp(38px, 7vw, 112px);
+  line-height: .92;
+  letter-spacing: -.055em;
+  font-weight: 700;
+}
+
+.wd-logo {
+  display: inline-flex;
+  align-items: center;
+  height: .82em;
+  translate: 0 .04em;
+}
+
+.wd-logo img {
+  display: block;
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cover-subtitle {
+  margin: clamp(18px, 2.5vw, 36px) 0 0;
+  color: var(--muted);
+  font-size: clamp(15px, 1.6vw, 24px);
+}
+
+.sheet-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(10px, .9vw, 14px);
+}
+
+.sheet--task {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(22px, 3.2vw, 52px);
+}
+
+.sheet-header {
+  display: grid;
+  grid-template-columns: clamp(36px, 5vw, 76px) 1fr;
+  align-items: start;
+  gap: clamp(10px, 1.6vw, 24px);
+}
+
+.kicker {
+  margin: .15em 0 0;
+  color: var(--muted);
+  font-size: clamp(11px, 1vw, 16px);
+  line-height: 1;
+}
+
+.sheet-header h2,
+.sheet--thanks h2 {
+  margin: 0;
+  max-width: 18ch;
+  font-size: clamp(26px, 4vw, 62px);
+  line-height: .98;
+  letter-spacing: -.045em;
+}
+
+.film-grid {
+  width: min(76%, 860px);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(12px, 2vw, 30px);
+  align-items: center;
+}
+
+.film-card {
+  margin: 0;
+}
+
+.film-frame {
+  aspect-ratio: 9 / 16;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink);
+  background:
+    linear-gradient(135deg, transparent 49.7%, rgba(23,23,23,.18) 50%, transparent 50.3%),
+    linear-gradient(45deg, transparent 49.7%, rgba(23,23,23,.18) 50%, transparent 50.3%);
+}
+
+.film-frame span {
+  padding: .45em .65em;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  font-size: clamp(9px, .8vw, 13px);
+}
+
+.film-card figcaption {
+  margin-top: .6em;
+  color: var(--muted);
+  font-size: clamp(9px, .72vw, 12px);
+}
+
+.speaker-cue,
+.scribble-caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(9px, .75vw, 12px);
+}
+
+.speaker-cue {
+  align-self: flex-end;
+}
+
+.scribble {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: clamp(18px, 3vw, 48px);
+  border-top: 1px solid var(--line);
+}
+
+.scribble-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.scribble-node {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 15%;
+  aspect-ratio: 1.7 / 1;
+  padding: .55em;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-size: clamp(9px, .85vw, 14px);
+  z-index: 2;
+}
+
+.node-a { left: 8%; top: 18%; rotate: -2deg; }
+.node-b { left: 40%; top: 9%; rotate: 1deg; }
+.node-c { right: 8%; top: 30%; rotate: -1deg; }
+.node-d { left: 43%; bottom: 17%; border-radius: 999px; aspect-ratio: 1 / 1; min-width: 11%; }
+
+.scribble-line {
+  position: absolute;
+  height: 1px;
+  background: var(--ink);
+  transform-origin: left center;
+  opacity: .75;
+}
+
+.line-a { left: 21%; top: 34%; width: 26%; rotate: -10deg; }
+.line-b { left: 53%; top: 28%; width: 28%; rotate: 17deg; }
+.line-c { left: 51%; top: 46%; width: 19%; rotate: 86deg; }
+
+.workflow {
+  list-style: none;
+  padding: 0;
+  margin: clamp(28px, 7vh, 84px) 0 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+}
+
+.workflow li {
+  position: relative;
+  min-height: clamp(92px, 13vw, 176px);
+  padding: clamp(10px, 1.5vw, 20px);
+  border: 1px solid var(--ink);
+  border-right: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow li:last-child {
+  border-right: 1px solid var(--ink);
+}
+
+.workflow li:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  top: 50%;
+  translate: 50% -50%;
+  padding: .15em .28em;
+  background: var(--paper);
+  font-size: clamp(12px, 1.5vw, 24px);
+}
+
+.workflow span,
+.workflow small {
+  color: var(--muted);
+  font-size: clamp(8px, .7vw, 11px);
+}
+
+.workflow strong {
+  margin: auto 0;
+  font-size: clamp(11px, 1.25vw, 19px);
+}
+
+.sheet--thanks h2 {
+  max-width: none;
+  font-size: clamp(48px, 9vw, 144px);
+}
+
+.deck-ui {
+  position: fixed;
+  z-index: 10;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: rgba(23,23,23,.72);
+  font-size: 11px;
+  mix-blend-mode: multiply;
+}
+
+.counter {
+  display: flex;
+  gap: .35em;
+  font-variant-numeric: tabular-nums;
+}
+
+.counter b {
+  font-weight: 700;
+}
+
+.dots {
+  display: flex;
+  gap: 7px;
+}
+
+.dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dots button[aria-current="true"] {
+  background: currentColor;
+}
+
+.dots button:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --sheet-width: min(91vw, calc((100svh - 80px) * 1.7778));
+  }
+
+  .deck-stop {
+    padding: 24px 18px 48px;
+  }
+
+  .deck-ui {
+    right: 12px;
+    bottom: 10px;
+  }
+
+  .cover-title {
+    font-size: clamp(28px, 8vw, 54px);
+  }
+
+  .film-grid {
+    width: 82%;
+    gap: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
