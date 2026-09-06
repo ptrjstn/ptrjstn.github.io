@@ -3,780 +3,116 @@
   const dots = [...document.querySelectorAll('[data-go]')];
   const currentLabel = document.querySelector('[data-current]');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const storage = window.localStorage;
   let current = 0;
 
   const format = (value) => String(value).padStart(2, '0');
 
   function setCurrent(index) {
     current = Math.max(0, Math.min(index, slides.length - 1));
-    currentLabel.textContent = format(current + 1);
-
-    dots.forEach((dot, dotIndex) => {
-      if (dotIndex === current) {
-        dot.setAttribute('aria-current', 'true');
-      } else {
-        dot.removeAttribute('aria-current');
-      }
-    });
+    if (currentLabel) currentLabel.textContent = format(current + 1);
+    dots.forEach((dot, dotIndex) => dotIndex === current ? dot.setAttribute('aria-current','true') : dot.removeAttribute('aria-current'));
   }
 
   function go(index) {
     const target = Math.max(0, Math.min(index, slides.length - 1));
-    slides[target].scrollIntoView({
-      behavior: reducedMotion ? 'auto' : 'smooth',
-      block: 'start'
-    });
+    slides[target]?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
     setCurrent(target);
   }
 
-  dots.forEach((dot) => {
-    dot.addEventListener('click', () => go(Number(dot.dataset.go)));
-  });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-      if (!visible) return;
-      setCurrent(slides.indexOf(visible.target));
-    },
-    { threshold: [0.5, 0.72, 0.9] }
-  );
-
+  dots.forEach((dot) => dot.addEventListener('click', () => go(Number(dot.dataset.go))));
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries.filter((entry) => entry.isIntersecting).sort((a,b) => b.intersectionRatio-a.intersectionRatio)[0];
+    if (visible) setCurrent(slides.indexOf(visible.target));
+  }, { threshold:[0.5,0.72,0.9] });
   slides.forEach((slide) => observer.observe(slide));
 
   window.addEventListener('keydown', (event) => {
     const tag = document.activeElement?.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-
-    if (['ArrowDown', 'ArrowRight', 'PageDown'].includes(event.key) || event.key === ' ') {
-      event.preventDefault();
-      go(current + 1);
-    }
-
-    if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(event.key)) {
-      event.preventDefault();
-      go(current - 1);
-    }
-
-    if (event.key === 'Home') {
-      event.preventDefault();
-      go(0);
-    }
-
-    if (event.key === 'End') {
-      event.preventDefault();
-      go(slides.length - 1);
-    }
+    if (['ArrowDown','ArrowRight','PageDown'].includes(event.key) || event.key === ' ') { event.preventDefault(); go(current+1); }
+    if (['ArrowUp','ArrowLeft','PageUp'].includes(event.key)) { event.preventDefault(); go(current-1); }
+    if (event.key === 'Home') { event.preventDefault(); go(0); }
+    if (event.key === 'End') { event.preventDefault(); go(slides.length-1); }
   });
 
-  const letterVariantCounts = {
-    A: 55, B: 26, C: 28, D: 25, E: 32, F: 25, G: 31, H: 23, I: 23,
-    J: 21, K: 22, L: 22, M: 28, N: 32, O: 26, P: 21, Q: 19, R: 33,
-    S: 50, T: 25, U: 22, V: 20, W: 22, X: 18, Y: 24, Z: 21
-  };
+  const letterVariantCounts={A:55,B:26,C:28,D:25,E:32,F:25,G:31,H:23,I:23,J:21,K:22,L:22,M:28,N:32,O:26,P:21,Q:19,R:33,S:50,T:25,U:22,V:20,W:22,X:18,Y:24,Z:21};
+  const randomVariant=(letter,currentVariant=0)=>{const count=letterVariantCounts[letter]||1;let next=currentVariant;while(count>1&&next===currentVariant)next=Math.floor(Math.random()*count)+1;return next||1;};
+  const nextVariant=(letter,currentVariant=0)=>{const count=letterVariantCounts[letter]||1;return currentVariant>=count?1:currentVariant+1;};
+  const setGraphicVariant=(image,letter,variant)=>{image.src=`../assets/letters/${letter}/${letter}_${String(variant).padStart(2,'0')}.webp`;};
 
-  const coverName = document.querySelector('[data-cover-name]');
-  const coverTitle = document.querySelector('.cover-title');
-  const coverWord = 'PETER';
+  const style=document.createElement('style');
+  style.id='wongdoody-dynamic-styles';
+  style.textContent=`
+    .community-stage--v4{position:relative;flex:1;min-height:0;margin-top:clamp(12px,1.6vw,24px);overflow:hidden;isolation:isolate}
+    .community-stage--v4::before{content:"";position:absolute;inset:0;background-image:linear-gradient(to right,rgba(23,23,23,.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(23,23,23,.055) 1px,transparent 1px);background-size:36px 36px;opacity:.45;pointer-events:none}
+    :root[data-theme="dark"] .community-stage--v4::before{background-image:linear-gradient(to right,rgba(242,233,220,.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(242,233,220,.055) 1px,transparent 1px)}
+    .community-v4-asset{position:absolute;z-index:var(--asset-z,3);transform:translate3d(var(--drag-x,0px),var(--drag-y,0px),0);touch-action:none;user-select:none;-webkit-user-select:none}
+    .community-v4-draggable{cursor:grab}.community-v4-draggable.is-dragging{cursor:grabbing}.community-v4-removable{padding-top:clamp(20px,2vw,24px)}
+    .community-v4-remove{position:absolute;top:7px;right:7px;width:19px;height:19px;display:grid;place-items:center;padding:0;border:0;border-radius:999px;background:rgba(255,255,255,.82);color:#171717;box-shadow:0 4px 12px rgba(23,23,23,.12);font:400 13px/1 Arial,sans-serif;cursor:pointer;opacity:.82;z-index:5}
+    .community-v4-remove:hover{opacity:1;transform:scale(1.05)}:root[data-theme="dark"] .community-v4-remove{background:rgba(23,23,23,.82);color:#f5efe4}
+    .community-v4-thesis{left:0;top:2%;width:42%;padding:clamp(16px,2vw,30px);background:var(--wd-blue);color:#fff;box-shadow:0 20px 46px rgba(47,85,255,.24)}
+    .community-v4-thesis>span,.community-v4-card span,.community-v4-chip b,.community-v4-number span,.community-v4-mood figcaption{display:block;font-size:clamp(6px,.52vw,9px);line-height:1;letter-spacing:.08em;text-transform:uppercase;opacity:.72}
+    .community-v4-thesis strong,.community-v4-thesis em{display:block;font-style:normal;font-weight:400}.community-v4-thesis strong{margin-top:.6em;max-width:8.6em;font-size:clamp(24px,3.55vw,56px);line-height:.93;letter-spacing:-.058em}.community-v4-thesis em{margin-top:.9em;max-width:22em;font-size:clamp(9px,.83vw,13px);line-height:1.32;opacity:.92}
+    .community-v4-number{right:2%;top:3%;width:21%;min-height:33%;padding:clamp(16px,1.8vw,24px);border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);background:color-mix(in srgb,var(--surface-strong) 92%,transparent);box-shadow:0 14px 34px rgba(23,23,23,.10);backdrop-filter:blur(8px)}
+    .community-v4-number b{display:block;margin:.14em 0 .08em;color:var(--wd-blue);font-size:clamp(54px,7.7vw,122px);line-height:.75;letter-spacing:-.08em;font-weight:400}.community-v4-number p{margin:0;max-width:12em;font-size:clamp(8px,.7vw,12px);line-height:1.24}
+    .community-v4-word{z-index:1;font-size:clamp(40px,7vw,116px);line-height:.82;letter-spacing:-.08em;opacity:.12;white-space:nowrap;pointer-events:none}.community-v4-word--wir{left:1.5%;bottom:2%}.community-v4-word--sichtbar{right:25%;bottom:6%;color:var(--wd-blue);opacity:.22;font-size:clamp(22px,3vw,44px)}
+    .community-v4-flow{right:25%;top:10%;padding:.7em .9em;background:#171717;color:#f5efe4;font-size:clamp(11px,1.12vw,18px);line-height:1;letter-spacing:-.04em;box-shadow:0 10px 24px rgba(23,23,23,.16)}.community-v4-flow small{display:block;margin-top:.55em;font-size:clamp(6px,.48vw,8px);letter-spacing:.06em;text-transform:uppercase;opacity:.62}
+    .community-v4-mood{width:18%;margin:0;overflow:hidden;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);background:var(--surface-strong);box-shadow:0 14px 30px rgba(23,23,23,.12)}.community-v4-mood img{display:block;width:100%;height:155px;object-fit:cover;filter:grayscale(.12) contrast(1.04)}.community-v4-mood figcaption{padding:8px 10px 10px}.community-v4-mood--a{left:43%;top:24%}.community-v4-mood--b{left:62%;top:30%}.community-v4-mood--c{right:2%;top:40%}
+    .community-v4-chip{width:16.2%;min-height:19%;padding:clamp(10px,1.1vw,16px);border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);background:color-mix(in srgb,var(--surface-strong) 93%,transparent);box-shadow:0 10px 28px rgba(23,23,23,.09);backdrop-filter:blur(8px)}.community-v4-chip i{display:block;margin-bottom:.28em;font-style:normal;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:clamp(22px,2.8vw,42px);line-height:1}.community-v4-chip p,.community-v4-card p{margin:.7em 0 0;font-size:clamp(8px,.78vw,12px);line-height:1.26;letter-spacing:-.02em}.community-v4-chip--a{left:43%;bottom:21%}.community-v4-chip--b{left:60.7%;bottom:19%}.community-v4-chip--c{right:2%;bottom:18%}
+    .community-v4-card{padding:clamp(12px,1.16vw,18px);border:1px solid color-mix(in srgb,var(--ink) 15%,transparent);background:color-mix(in srgb,var(--surface-strong) 93%,transparent);color:var(--ink);box-shadow:0 12px 30px rgba(23,23,23,.09);backdrop-filter:blur(8px)}.community-v4-card--dark{background:#171717;border-color:#171717;color:#f5efe4}.community-v4-card--blue{background:var(--wd-blue);border-color:var(--wd-blue);color:#fff}.community-v4-card--1{left:1%;top:43%;width:26%}.community-v4-card--2{left:19%;bottom:6%;width:26%}.community-v4-card--3{left:44%;top:4%;width:17%}.community-v4-card--4{left:29%;top:49%;width:15%}.community-v4-card--5{left:46%;bottom:2%;width:22%}
+    .community-v4-strip{right:25%;bottom:5%;padding:.72em .92em;background:#d7ff27;color:#111;box-shadow:0 10px 24px rgba(23,23,23,.10);font-size:clamp(8px,.68vw,11px);line-height:1;letter-spacing:-.02em;white-space:nowrap}.community-v4-hint{position:absolute;right:0;bottom:0;margin:0;color:var(--muted);font-size:clamp(6px,.48vw,8px);line-height:1;letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+    .thanks-heading{display:inline-flex;align-items:baseline;justify-content:center;gap:.01em;font-weight:700!important;letter-spacing:-.055em}.thanks-letter{position:relative;display:inline-grid;place-items:center;min-height:.95em;vertical-align:baseline}.thanks-letter button{all:unset;display:grid;place-items:center;cursor:pointer}.thanks-letter button:focus-visible{outline:1px dotted currentColor;outline-offset:4px}.thanks-plain,.thanks-graphic{grid-area:1/1}.thanks-graphic{opacity:0;visibility:hidden;transition:opacity 120ms ease}.thanks-letter.is-preview .thanks-plain,.thanks-letter.is-fixed .thanks-plain{opacity:0}.thanks-letter.is-preview .thanks-graphic,.thanks-letter.is-fixed .thanks-graphic{opacity:1;visibility:visible}.thanks-graphic img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+    @media(max-width:700px){.community-v4-thesis{padding:9px;width:43%}.community-v4-thesis strong{font-size:clamp(14px,4vw,24px)}.community-v4-thesis em,.community-v4-number p,.community-v4-card p,.community-v4-chip p{font-size:clamp(5.5px,1.55vw,8px)}.community-v4-number{padding:8px}.community-v4-number b{font-size:clamp(32px,8vw,58px)}.community-v4-mood img{height:90px}.community-v4-chip,.community-v4-card{padding:6px}.community-v4-chip i{font-size:clamp(15px,4vw,24px)}.community-v4-flow{font-size:clamp(7px,2vw,11px)}.community-v4-strip{font-size:5px}.community-v4-word--wir{font-size:clamp(28px,8vw,60px)}.community-v4-word--sichtbar{font-size:clamp(12px,4vw,20px)}.community-v4-remove{width:14px;height:14px;top:4px;right:4px;font-size:9px}}
+  `;
+  document.head.appendChild(style);
+
+  const coverName=document.querySelector('[data-cover-name]');
+  const coverTitle=document.querySelector('.cover-title');
+  const coverWord='PETER';
   let coverResizeFrame;
+  function fitCoverName(){if(!coverName||!coverTitle)return;const images=[...coverName.querySelectorAll('.cover-letter img')];if(!images.length||images.some((image)=>!image.naturalWidth||!image.naturalHeight))return;const titleFontSize=parseFloat(getComputedStyle(coverTitle).fontSize)||80;const gap=Math.max(1,titleFontSize*.012);const targetHeight=Math.min(70,Math.max(30,titleFontSize*.56));const widths=images.map((image)=>targetHeight*(image.naturalWidth/image.naturalHeight));images.forEach((image,index)=>{const button=image.parentElement,width=widths[index];button.style.width=`${width.toFixed(2)}px`;button.style.height=`${targetHeight.toFixed(2)}px`;image.style.width=`${width.toFixed(2)}px`;image.style.height=`${targetHeight.toFixed(2)}px`;});coverName.style.gridTemplateColumns=widths.map((width)=>`${width.toFixed(2)}px`).join(' ');coverName.style.columnGap=`${gap.toFixed(2)}px`;coverName.style.width=`${(widths.reduce((sum,width)=>sum+width,0)+gap*(widths.length-1)).toFixed(2)}px`;}
+  function scheduleCoverFit(){cancelAnimationFrame(coverResizeFrame);coverResizeFrame=requestAnimationFrame(fitCoverName);}
+  async function renderCoverName(){if(!coverName)return;coverName.classList.remove('is-ready');const fragment=document.createDocumentFragment(),buttons=[],loadPromises=[];[...coverWord].forEach((letter)=>{const button=document.createElement('button'),image=document.createElement('img');button.className='cover-letter';button.type='button';button.dataset.letter=letter;button.dataset.variant=String(randomVariant(letter));button.setAttribute('aria-label',`Buchstabe ${letter} austauschen`);image.alt='';image.draggable=false;image.addEventListener('load',scheduleCoverFit);setGraphicVariant(image,letter,Number(button.dataset.variant));loadPromises.push(image.decode?.().catch(()=>{})||Promise.resolve());const isMobile=matchMedia('(max-width:700px)').matches;button.style.setProperty('--letter-x','0px');button.style.setProperty('--letter-y',`${Math.round((Math.random()-.5)*(isMobile?4:12))}px`);button.style.setProperty('--letter-tilt',`${(Math.random()-.5)*(isMobile?1.6:2.4)}deg`);button.style.setProperty('--letter-scale',(isMobile?.97+Math.random()*.04:.96+Math.random()*.06).toFixed(3));button.appendChild(image);button.addEventListener('click',()=>{const variant=randomVariant(letter,Number(button.dataset.variant||1));button.dataset.variant=String(variant);setGraphicVariant(image,letter,variant);scheduleCoverFit();const maxZ=Math.max(...buttons.map((item)=>Number(item.style.getPropertyValue('--letter-z')||0)),0);button.style.setProperty('--letter-z',String(maxZ+1));});buttons.push(button);fragment.appendChild(button);});coverName.replaceChildren(fragment);[...buttons].sort(()=>Math.random()-.5).forEach((button,index)=>button.style.setProperty('--letter-z',String(index+1)));await Promise.all(loadPromises);fitCoverName();requestAnimationFrame(()=>coverName.classList.add('is-ready'));}
 
-  function randomVariant(letter, currentVariant = 0) {
-    const count = letterVariantCounts[letter];
-    let nextVariant = currentVariant;
-
-    while (nextVariant === currentVariant) {
-      nextVariant = Math.floor(Math.random() * count) + 1;
-    }
-
-    return nextVariant;
+  function renderCommunitySlide(){
+    const stage=document.querySelector('#aufgabe-02 .community-stage');if(!stage)return;stage.className='community-stage community-stage--v4';
+    stage.innerHTML=`
+      <div class="community-v4-thesis community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="thesis"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Strategische These</span><strong>Community ist schon da.</strong><em>Jetzt braucht sie Sichtbarkeit — und auf Social konkrete Angebote zur Identifikation: Formate, Codes, Rituale und wiedererkennbare Signale.</em></div>
+      <div class="community-v4-word community-v4-word--wir community-v4-asset" aria-hidden="true">WIR</div><div class="community-v4-word community-v4-word--sichtbar community-v4-asset" aria-hidden="true">SICHTBAR</div>
+      <div class="community-v4-number community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="number"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Orientierung</span><b>3</b><p>Signale, dass aus Aufmerksamkeit Identifikation und aus Identifikation Community werden kann.</p></div>
+      <div class="community-v4-flow community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="flow"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button>1 → n → n ↔ n<small>von der Marke zum Netzwerk</small></div>
+      <figure class="community-v4-mood community-v4-mood--a community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="mood-a"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&amp;fit=crop&amp;w=900&amp;q=80" alt="Menschen im Austausch" loading="eager" decoding="async"><figcaption>Austausch</figcaption></figure>
+      <figure class="community-v4-mood community-v4-mood--b community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="mood-b"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&amp;fit=crop&amp;w=900&amp;q=80" alt="Menschen mit Smartphone" loading="eager" decoding="async"><figcaption>Wiederkehr</figcaption></figure>
+      <figure class="community-v4-mood community-v4-mood--c community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="mood-c"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><img src="https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&amp;fit=crop&amp;w=900&amp;q=80" alt="Notizzettel und Marker" loading="eager" decoding="async"><figcaption>Codes / Rituale</figcaption></figure>
+      <div class="community-v4-chip community-v4-chip--a community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="chip-a"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><i>💬</i><b>Austausch</b><p>Menschen reagieren nicht nur auf dm, sondern sprechen auch miteinander.</p></div>
+      <div class="community-v4-chip community-v4-chip--b community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="chip-b"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><i>🔁</i><b>Wiederkehr</b><p>Dieselben Menschen, Fragen und Themen tauchen wieder auf.</p></div>
+      <div class="community-v4-chip community-v4-chip--c community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="chip-c"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><i>🧩</i><b>Identifikation</b><p>Community braucht Material: Codes, Formate, Rituale, wiedererkennbare Anlässe.</p></div>
+      <div class="community-v4-card community-v4-card--dark community-v4-card--1 community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="card-1"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Statement</span><p>Nicht Reichweite fehlt — sondern Sichtbarkeit dessen, was Menschen bereits miteinander teilen.</p></div>
+      <div class="community-v4-card community-v4-card--2 community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="card-2"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Beobachtung</span><p>Kommentare sind nicht das Ziel. Sie sind die Oberfläche eines darunterliegenden Wir-Gefühls.</p></div>
+      <div class="community-v4-card community-v4-card--blue community-v4-card--3 community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="card-3"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Merksatz</span><p>Identifikation braucht Angebote.</p></div>
+      <div class="community-v4-card community-v4-card--4 community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="card-4"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Rolle dm</span><p>dm muss nicht Mittelpunkt sein. Die Marke kann Muster sammeln, spiegeln und verstärken.</p></div>
+      <div class="community-v4-card community-v4-card--dark community-v4-card--5 community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="card-5"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button><span>Strategie</span><p>Fragen, Templates, Running Gags und wiedererkennbare Formate geben Menschen etwas, woran sie andocken können.</p></div>
+      <div class="community-v4-strip community-v4-asset community-v4-draggable community-v4-removable" data-draggable data-drag-id="strip"><button class="community-v4-remove" type="button" aria-label="Asset entfernen">×</button>finden → sichtbar machen → markieren → ritualisieren</div>
+      <p class="community-v4-hint">Assets verschiebbar · Doppelklick = Reset · × = entfernen</p>`;
+    initCommunityInteractions(stage);
   }
 
-  function setCoverLetterVariant(button, variant) {
-    const letter = button.dataset.letter;
-    const image = button.querySelector('img');
-    const number = String(variant).padStart(2, '0');
-
-    button.dataset.variant = String(variant);
-    image.src = `../assets/letters/${letter}/${letter}_${number}.webp`;
-  }
-
-  function randomizeCoverLetterPosition(button) {
-    const isMobile = window.matchMedia('(max-width: 700px)').matches;
-    const y = Math.round((Math.random() - 0.5) * (isMobile ? 4 : 12));
-    const tilt = (Math.random() - 0.5) * (isMobile ? 1.6 : 2.4);
-    const scale = isMobile
-      ? 0.97 + Math.random() * 0.04
-      : 0.96 + Math.random() * 0.06;
-
-    button.style.setProperty('--letter-x', '0px');
-    button.style.setProperty('--letter-y', `${y}px`);
-    button.style.setProperty('--letter-tilt', `${tilt}deg`);
-    button.style.setProperty('--letter-scale', scale.toFixed(3));
-  }
-
-  function randomizeCoverStacking(buttons) {
-    const shuffled = [...buttons];
-
-    for (let index = shuffled.length - 1; index > 0; index -= 1) {
-      const swapIndex = Math.floor(Math.random() * (index + 1));
-      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-    }
-
-    shuffled.forEach((button, index) => {
-      button.style.setProperty('--letter-z', String(index + 1));
+  function initCommunityInteractions(stage){
+    const assets=[...stage.querySelectorAll('[data-draggable]')],storageKey='wongdoody-community-layout-v4';let saved={},zCounter=30;try{saved=JSON.parse(storage.getItem(storageKey)||'{}')}catch{saved={}}
+    const persist=()=>{const layout={};assets.forEach((asset)=>layout[asset.dataset.dragId]={x:Number(asset.dataset.dragX||0),y:Number(asset.dataset.dragY||0),z:Number(asset.style.getPropertyValue('--asset-z')||3)});try{storage.setItem(storageKey,JSON.stringify(layout))}catch{}};
+    assets.forEach((asset)=>{const restore=saved[asset.dataset.dragId]||{},x=Number(restore.x||0),y=Number(restore.y||0),z=Number(restore.z||3);asset.dataset.dragX=String(x);asset.dataset.dragY=String(y);asset.style.setProperty('--drag-x',`${x}px`);asset.style.setProperty('--drag-y',`${y}px`);asset.style.setProperty('--asset-z',String(z));zCounter=Math.max(zCounter,z+1);
+      asset.querySelector('.community-v4-remove')?.addEventListener('click',(event)=>{event.stopPropagation();asset.style.display='none'});
+      asset.addEventListener('dblclick',(event)=>{if(event.target.closest('.community-v4-remove'))return;asset.dataset.dragX='0';asset.dataset.dragY='0';asset.style.setProperty('--drag-x','0px');asset.style.setProperty('--drag-y','0px');asset.style.display='';persist()});
+      asset.addEventListener('pointerdown',(event)=>{if(event.target.closest('.community-v4-remove'))return;if(event.button!==undefined&&event.button!==0)return;event.preventDefault();asset.setPointerCapture?.(event.pointerId);asset.classList.add('is-dragging');asset.style.setProperty('--asset-z',String(zCounter++));const stageRect=stage.getBoundingClientRect(),assetRect=asset.getBoundingClientRect(),startPointerX=event.clientX,startPointerY=event.clientY,startX=Number(asset.dataset.dragX||0),startY=Number(asset.dataset.dragY||0),minDX=stageRect.left-assetRect.left,maxDX=stageRect.right-assetRect.right,minDY=stageRect.top-assetRect.top,maxDY=stageRect.bottom-assetRect.bottom;
+        const move=(moveEvent)=>{const dx=Math.max(minDX,Math.min(maxDX,moveEvent.clientX-startPointerX)),dy=Math.max(minDY,Math.min(maxDY,moveEvent.clientY-startPointerY)),nx=startX+dx,ny=startY+dy;asset.dataset.dragX=String(nx);asset.dataset.dragY=String(ny);asset.style.setProperty('--drag-x',`${nx}px`);asset.style.setProperty('--drag-y',`${ny}px`)};
+        const end=()=>{asset.classList.remove('is-dragging');asset.removeEventListener('pointermove',move);asset.removeEventListener('pointerup',end);asset.removeEventListener('pointercancel',end);persist()};asset.addEventListener('pointermove',move);asset.addEventListener('pointerup',end);asset.addEventListener('pointercancel',end)});
     });
   }
 
-  function bringCoverLetterToFront(button, buttons) {
-    const currentMaxZ = Math.max(
-      ...buttons.map((item) => Number(item.style.getPropertyValue('--letter-z') || 0))
-    );
-    button.style.setProperty('--letter-z', String(currentMaxZ + 1));
-  }
-
-  function fitCoverName() {
-    if (!coverName || !coverTitle) return;
-
-    const images = [...coverName.querySelectorAll('.cover-letter img')];
-    if (!images.length || images.some((image) => !image.naturalWidth || !image.naturalHeight)) return;
-
-    const titleFontSize = parseFloat(getComputedStyle(coverTitle).fontSize) || 80;
-    const gap = Math.max(1, titleFontSize * 0.012);
-    const targetHeight = Math.min(70, Math.max(30, titleFontSize * 0.56));
-    const aspectRatios = images.map((image) => image.naturalWidth / image.naturalHeight);
-    const widths = aspectRatios.map((ratio) => targetHeight * ratio);
-
-    images.forEach((image, index) => {
-      const button = image.parentElement;
-      const width = widths[index];
-      button.style.width = `${width.toFixed(2)}px`;
-      button.style.height = `${targetHeight.toFixed(2)}px`;
-      image.style.width = `${width.toFixed(2)}px`;
-      image.style.height = `${targetHeight.toFixed(2)}px`;
-    });
-
-    coverName.style.gridTemplateColumns = widths.map((width) => `${width.toFixed(2)}px`).join(' ');
-    coverName.style.columnGap = `${gap.toFixed(2)}px`;
-    coverName.style.width = `${(widths.reduce((sum, width) => sum + width, 0) + gap * (widths.length - 1)).toFixed(2)}px`;
-  }
-
-  function scheduleCoverFit() {
-    window.cancelAnimationFrame(coverResizeFrame);
-    coverResizeFrame = window.requestAnimationFrame(fitCoverName);
-  }
-
-  async function renderCoverName() {
-    if (!coverName) return;
-
-    coverName.classList.remove('is-ready');
-
-    const fragment = document.createDocumentFragment();
-    const imageReadyPromises = [];
-    const buttons = [...coverWord].map((letter) => {
-      const button = document.createElement('button');
-      const image = document.createElement('img');
-
-      button.className = 'cover-letter';
-      button.type = 'button';
-      button.dataset.letter = letter;
-      button.setAttribute('aria-label', `Buchstabe ${letter} austauschen`);
-      image.alt = '';
-      image.draggable = false;
-      image.addEventListener('load', scheduleCoverFit);
-
-      imageReadyPromises.push(new Promise((resolve) => {
-        let retries = 0;
-
-        const done = () => {
-          image.removeEventListener('error', retry);
-          resolve();
-        };
-
-        const retry = () => {
-          if (retries < 2) {
-            retries += 1;
-            setCoverLetterVariant(button, randomVariant(letter, Number(button.dataset.variant)));
-          } else {
-            done();
-          }
-        };
-
-        image.addEventListener('load', done, { once: true });
-        image.addEventListener('error', retry);
-      }));
-
-      button.appendChild(image);
-      randomizeCoverLetterPosition(button);
-      setCoverLetterVariant(button, randomVariant(letter));
-
-      button.addEventListener('click', () => {
-        const currentVariant = Number(button.dataset.variant);
-        setCoverLetterVariant(button, randomVariant(letter, currentVariant));
-        randomizeCoverLetterPosition(button);
-        bringCoverLetterToFront(button, buttons);
-      });
-
-      fragment.appendChild(button);
-      return button;
-    });
-
-    await Promise.all(imageReadyPromises);
-    await Promise.all(
-      buttons.map((button) => button.querySelector('img').decode().catch(() => {}))
-    );
-
-    coverName.replaceChildren(fragment);
-    randomizeCoverStacking(buttons);
-    fitCoverName();
-
-    window.requestAnimationFrame(() => {
-      coverName.classList.add('is-ready');
-    });
-  }
-
-  function renderCommunitySlide() {
-    const stage = document.querySelector('#aufgabe-02 .community-stage');
-    if (!stage) return;
-
-    const oldStyle = document.querySelector('#community-v3-style');
-    if (oldStyle) oldStyle.remove();
-
-    const style = document.createElement('style');
-    style.id = 'community-v3-style';
-    style.textContent = `
-      .community-stage--v3 {
-        position: relative;
-        flex: 1;
-        min-height: 0;
-        margin-top: clamp(12px, 1.6vw, 24px);
-        overflow: hidden;
-        isolation: isolate;
-      }
-
-      .community-stage--v3::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image:
-          linear-gradient(to right, rgba(23,23,23,.055) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(23,23,23,.055) 1px, transparent 1px);
-        background-size: 34px 34px;
-        opacity: .55;
-        pointer-events: none;
-      }
-
-      :root[data-theme="dark"] .community-stage--v3::before {
-        background-image:
-          linear-gradient(to right, rgba(242,233,220,.055) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(242,233,220,.055) 1px, transparent 1px);
-      }
-
-      .community-v3-asset {
-        position: absolute;
-        z-index: var(--asset-z, 3);
-        transform: translate3d(var(--drag-x, 0px), var(--drag-y, 0px), 0);
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        -webkit-user-select: none;
-        transition: box-shadow 140ms ease, filter 140ms ease;
-      }
-
-      .community-v3-asset:hover {
-        filter: brightness(1.015);
-      }
-
-      .community-v3-asset.is-dragging {
-        cursor: grabbing;
-        filter: none;
-      }
-
-      .community-v3-thesis {
-        left: 0;
-        top: 3%;
-        width: 43%;
-        padding: clamp(16px, 2vw, 30px);
-        background: var(--wd-blue);
-        color: #fff;
-        box-shadow: 0 22px 48px rgba(47,85,255,.23);
-      }
-
-      .community-v3-thesis > span {
-        display: block;
-        margin-bottom: .85em;
-        font-size: clamp(7px, .58vw, 10px);
-        line-height: 1;
-        letter-spacing: .09em;
-        text-transform: uppercase;
-        opacity: .75;
-      }
-
-      .community-v3-thesis strong,
-      .community-v3-thesis em {
-        display: block;
-        font-weight: 400;
-        font-style: normal;
-      }
-
-      .community-v3-thesis strong {
-        max-width: 9.5em;
-        font-size: clamp(24px, 3.5vw, 56px);
-        line-height: .93;
-        letter-spacing: -.058em;
-      }
-
-      .community-v3-thesis em {
-        margin-top: .9em;
-        font-size: clamp(9px, .82vw, 13px);
-        line-height: 1.32;
-        opacity: .9;
-      }
-
-      .community-v3-word {
-        left: 2%;
-        bottom: -3%;
-        z-index: 1;
-        color: var(--ink);
-        font-size: clamp(78px, 12vw, 190px);
-        line-height: .76;
-        letter-spacing: -.09em;
-        opacity: .12;
-        white-space: nowrap;
-      }
-
-      .community-v3-number {
-        right: 3%;
-        top: 3%;
-        width: 22%;
-        min-height: 31%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: clamp(12px, 1.35vw, 20px);
-        border: 1px solid var(--ink);
-        background: var(--surface-strong);
-        color: var(--ink);
-        box-shadow: 0 14px 32px rgba(23,23,23,.10);
-        backdrop-filter: blur(9px);
-        -webkit-backdrop-filter: blur(9px);
-      }
-
-      .community-v3-number b {
-        margin: 0;
-        font-size: clamp(52px, 7.8vw, 122px);
-        line-height: .72;
-        letter-spacing: -.08em;
-        font-weight: 400;
-      }
-
-      .community-v3-number p {
-        margin: 0;
-        max-width: 13em;
-        font-size: clamp(8px, .72vw, 12px);
-        line-height: 1.25;
-      }
-
-      .community-v3-flow {
-        right: 27%;
-        top: 10%;
-        width: 25%;
-        padding: clamp(9px, 1vw, 15px);
-        display: grid;
-        grid-template-columns: auto auto auto;
-        align-items: center;
-        gap: .4em;
-        background: #171717;
-        color: #f5efe4;
-        box-shadow: 0 12px 30px rgba(23,23,23,.18);
-        font-size: clamp(12px, 1.2vw, 19px);
-        letter-spacing: -.04em;
-      }
-
-      .community-v3-flow strong {
-        font-weight: 400;
-        opacity: .55;
-      }
-
-      .community-v3-flow small {
-        grid-column: 1 / -1;
-        font-size: clamp(6px, .52vw, 9px);
-        line-height: 1;
-        letter-spacing: .06em;
-        text-transform: uppercase;
-        opacity: .58;
-      }
-
-      .community-v3-signal {
-        width: 16.5%;
-        min-height: 19%;
-        padding: clamp(9px, 1.1vw, 16px);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        border: 1px solid rgba(23,23,23,.16);
-        background: var(--surface-strong);
-        box-shadow: 0 12px 28px rgba(23,23,23,.09);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-
-      :root[data-theme="dark"] .community-v3-signal {
-        border-color: rgba(242,233,220,.16);
-      }
-
-      .community-v3-signal > span {
-        display: block;
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-        font-size: clamp(24px, 3.2vw, 48px);
-        line-height: 1;
-      }
-
-      .community-v3-signal p {
-        margin: 0;
-        font-size: clamp(8px, .72vw, 12px);
-        line-height: 1.22;
-        letter-spacing: -.02em;
-      }
-
-      .community-v3-signal--a { left: 43%; top: 33%; }
-      .community-v3-signal--b { left: 60.5%; top: 33%; }
-      .community-v3-signal--c { right: 3%; top: 37%; }
-
-      .community-v3-card {
-        padding: clamp(10px, 1.15vw, 17px);
-        border: 1px solid rgba(23,23,23,.15);
-        background: var(--surface-strong);
-        color: var(--ink);
-        box-shadow: 0 12px 30px rgba(23,23,23,.09);
-        backdrop-filter: blur(9px);
-        -webkit-backdrop-filter: blur(9px);
-      }
-
-      :root[data-theme="dark"] .community-v3-card {
-        border-color: rgba(242,233,220,.16);
-      }
-
-      .community-v3-card span {
-        display: block;
-        margin-bottom: .65em;
-        font-size: clamp(6px, .5vw, 8px);
-        line-height: 1;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        opacity: .58;
-      }
-
-      .community-v3-card p {
-        margin: 0;
-        font-size: clamp(9px, .82vw, 13px);
-        line-height: 1.28;
-        letter-spacing: -.024em;
-      }
-
-      .community-v3-card--dark {
-        background: #171717;
-        color: #f5efe4;
-        border-color: #171717;
-      }
-
-      .community-v3-card--blue {
-        background: var(--wd-blue);
-        color: #fff;
-        border-color: var(--wd-blue);
-      }
-
-      .community-v3-card--1 { left: 0; top: 45%; width: 27%; }
-      .community-v3-card--2 { left: 22%; top: 58%; width: 26%; }
-      .community-v3-card--3 { left: 49%; bottom: 3%; width: 24%; }
-      .community-v3-card--4 { right: 2%; bottom: 4%; width: 25%; }
-      .community-v3-card--5 { left: 2%; bottom: 4%; width: 24%; }
-
-      .community-v3-verb-strip {
-        left: 29%;
-        bottom: 3%;
-        padding: .7em .9em;
-        background: #d7ff27;
-        color: #111;
-        box-shadow: 0 10px 24px rgba(23,23,23,.10);
-        font-size: clamp(8px, .7vw, 11px);
-        line-height: 1;
-        letter-spacing: -.02em;
-        white-space: nowrap;
-      }
-
-      .community-v3-visible {
-        right: 29%;
-        bottom: 20%;
-        color: var(--wd-blue);
-        font-size: clamp(20px, 3vw, 46px);
-        line-height: 1;
-        letter-spacing: -.06em;
-        white-space: nowrap;
-      }
-
-      .community-v3-hint {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        z-index: 30;
-        margin: 0;
-        color: var(--muted);
-        font-size: clamp(6px, .48vw, 8px);
-        line-height: 1;
-        letter-spacing: .06em;
-        text-transform: uppercase;
-        pointer-events: none;
-      }
-
-      @media (max-width: 700px) {
-        .community-v3-thesis {
-          width: 43%;
-          padding: 9px;
-        }
-
-        .community-v3-thesis > span {
-          font-size: 5px;
-          margin-bottom: .5em;
-        }
-
-        .community-v3-thesis strong {
-          font-size: clamp(14px, 4vw, 24px);
-        }
-
-        .community-v3-thesis em {
-          font-size: 5.5px;
-          margin-top: .55em;
-        }
-
-        .community-v3-number {
-          padding: 7px;
-        }
-
-        .community-v3-number b {
-          font-size: clamp(31px, 8vw, 56px);
-        }
-
-        .community-v3-number p,
-        .community-v3-signal p,
-        .community-v3-card p {
-          font-size: clamp(5.5px, 1.55vw, 8px);
-        }
-
-        .community-v3-signal,
-        .community-v3-card {
-          padding: 6px;
-        }
-
-        .community-v3-signal > span {
-          font-size: clamp(15px, 3.5vw, 24px);
-        }
-
-        .community-v3-card span {
-          font-size: 4.5px;
-        }
-
-        .community-v3-flow {
-          padding: 6px;
-          font-size: clamp(7px, 2vw, 11px);
-        }
-
-        .community-v3-flow small,
-        .community-v3-hint {
-          font-size: 4px;
-        }
-
-        .community-v3-verb-strip {
-          font-size: 5px;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .community-v3-asset {
-          transition: none;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    stage.className = 'community-stage community-stage--v3';
-    stage.innerHTML = `
-      <div class="community-v3-thesis community-v3-asset" data-draggable data-drag-id="thesis">
-        <span>Arbeitshypothese</span>
-        <strong>Community ist wahrscheinlich schon da.</strong>
-        <em>Die Aufgabe ist, sie sichtbar zu machen.</em>
-      </div>
-
-      <div class="community-v3-word community-v3-asset" data-draggable data-drag-id="wir" aria-hidden="true">WIR</div>
-
-      <div class="community-v3-number community-v3-asset" data-draggable data-drag-id="three">
-        <b>3</b>
-        <p>Signale, dass aus Publikum Community wird</p>
-      </div>
-
-      <div class="community-v3-flow community-v3-asset" data-draggable data-drag-id="flow">
-        <span>1 → n</span><strong>→</strong><span>n ↔ n</span>
-        <small>vom Publikum zum Netzwerk</small>
-      </div>
-
-      <div class="community-v3-signal community-v3-signal--a community-v3-asset" data-draggable data-drag-id="signal-talk">
-        <span>💬</span>
-        <p>Menschen antworten nicht nur dm, sondern auch einander.</p>
-      </div>
-
-      <div class="community-v3-signal community-v3-signal--b community-v3-asset" data-draggable data-drag-id="signal-return">
-        <span>🔁</span>
-        <p>Dieselben Menschen und Themen tauchen wieder auf.</p>
-      </div>
-
-      <div class="community-v3-signal community-v3-signal--c community-v3-asset" data-draggable data-drag-id="signal-codes">
-        <span>🧩</span>
-        <p>Eigene Codes, Routinen und Running Gags werden erkennbar.</p>
-      </div>
-
-      <div class="community-v3-card community-v3-card--1 community-v3-card--dark community-v3-asset" data-draggable data-drag-id="statement-1">
-        <span>Statement</span>
-        <p>Follower sind Reichweite. Community ist Beziehung.</p>
-      </div>
-
-      <div class="community-v3-card community-v3-card--2 community-v3-asset" data-draggable data-drag-id="statement-2">
-        <span>Beobachtung</span>
-        <p>Kommentare sind ein Signal – besonders dann, wenn Menschen einander antworten.</p>
-      </div>
-
-      <div class="community-v3-card community-v3-card--3 community-v3-card--blue community-v3-asset" data-draggable data-drag-id="statement-3">
-        <span>Wiederkehr</span>
-        <p>Wiederkehr macht aus einzelnen Reaktionen einen sozialen Zusammenhang.</p>
-      </div>
-
-      <div class="community-v3-card community-v3-card--4 community-v3-asset" data-draggable data-drag-id="statement-4">
-        <span>Sichtbarkeit</span>
-        <p>Gemeinsame Routinen und Codes sind oft schon da – aber im Feed kaum als Ganzes sichtbar.</p>
-      </div>
-
-      <div class="community-v3-card community-v3-card--5 community-v3-asset" data-draggable data-drag-id="statement-5">
-        <span>Rolle dm</span>
-        <p>dm muss nicht Mittelpunkt sein. Die Marke kann vorhandene Dynamik sammeln, spiegeln und verstärken.</p>
-      </div>
-
-      <div class="community-v3-visible community-v3-asset" data-draggable data-drag-id="visible" aria-hidden="true">SICHTBAR</div>
-      <div class="community-v3-verb-strip community-v3-asset" data-draggable data-drag-id="verbs">finden → spiegeln → verbinden → verstärken</div>
-      <p class="community-v3-hint">Assets verschiebbar · Doppelklick = Reset</p>
-    `;
-
-    initCommunityDragging(stage);
-  }
-
-  function initCommunityDragging(stage) {
-    const assets = [...stage.querySelectorAll('[data-draggable]')];
-    const storageKey = 'wongdoody-community-layout-v1';
-    let saved = {};
-    let zCounter = 40;
-
-    try {
-      saved = JSON.parse(window.localStorage.getItem(storageKey) || '{}');
-    } catch (error) {
-      saved = {};
-    }
-
-    const persist = () => {
-      const layout = {};
-      assets.forEach((asset) => {
-        layout[asset.dataset.dragId] = {
-          x: Number(asset.dataset.dragX || 0),
-          y: Number(asset.dataset.dragY || 0),
-          z: Number(asset.style.getPropertyValue('--asset-z') || 3)
-        };
-      });
-
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(layout));
-      } catch (error) {
-        // Ignore storage failures; dragging still works for the current view.
-      }
-    };
-
-    assets.forEach((asset) => {
-      const restored = saved[asset.dataset.dragId];
-      const restoredX = Number(restored?.x || 0);
-      const restoredY = Number(restored?.y || 0);
-      const restoredZ = Number(restored?.z || 3);
-
-      asset.dataset.dragX = String(restoredX);
-      asset.dataset.dragY = String(restoredY);
-      asset.style.setProperty('--drag-x', `${restoredX}px`);
-      asset.style.setProperty('--drag-y', `${restoredY}px`);
-      asset.style.setProperty('--asset-z', String(restoredZ));
-      zCounter = Math.max(zCounter, restoredZ + 1);
-
-      asset.addEventListener('pointerdown', (event) => {
-        if (event.button !== undefined && event.button !== 0) return;
-
-        event.preventDefault();
-        asset.setPointerCapture?.(event.pointerId);
-        asset.classList.add('is-dragging');
-        asset.style.setProperty('--asset-z', String(zCounter));
-        zCounter += 1;
-
-        const stageRect = stage.getBoundingClientRect();
-        const assetRect = asset.getBoundingClientRect();
-        const startPointerX = event.clientX;
-        const startPointerY = event.clientY;
-        const startX = Number(asset.dataset.dragX || 0);
-        const startY = Number(asset.dataset.dragY || 0);
-
-        const minDeltaX = stageRect.left - assetRect.left;
-        const maxDeltaX = stageRect.right - assetRect.right;
-        const minDeltaY = stageRect.top - assetRect.top;
-        const maxDeltaY = stageRect.bottom - assetRect.bottom;
-
-        const move = (moveEvent) => {
-          const rawDeltaX = moveEvent.clientX - startPointerX;
-          const rawDeltaY = moveEvent.clientY - startPointerY;
-          const deltaX = Math.max(minDeltaX, Math.min(maxDeltaX, rawDeltaX));
-          const deltaY = Math.max(minDeltaY, Math.min(maxDeltaY, rawDeltaY));
-          const nextX = startX + deltaX;
-          const nextY = startY + deltaY;
-
-          asset.dataset.dragX = String(nextX);
-          asset.dataset.dragY = String(nextY);
-          asset.style.setProperty('--drag-x', `${nextX}px`);
-          asset.style.setProperty('--drag-y', `${nextY}px`);
-        };
-
-        const end = () => {
-          asset.classList.remove('is-dragging');
-          asset.removeEventListener('pointermove', move);
-          asset.removeEventListener('pointerup', end);
-          asset.removeEventListener('pointercancel', end);
-          persist();
-        };
-
-        asset.addEventListener('pointermove', move);
-        asset.addEventListener('pointerup', end);
-        asset.addEventListener('pointercancel', end);
-      });
-
-      asset.addEventListener('dblclick', () => {
-        asset.dataset.dragX = '0';
-        asset.dataset.dragY = '0';
-        asset.style.setProperty('--drag-x', '0px');
-        asset.style.setProperty('--drag-y', '0px');
-        persist();
-      });
-    });
-  }
-
-  window.addEventListener('resize', scheduleCoverFit);
-
-  if (typeof ResizeObserver === 'function' && coverTitle) {
-    const coverObserver = new ResizeObserver(scheduleCoverFit);
-    coverObserver.observe(coverTitle);
-  }
-
-  renderCommunitySlide();
-  renderCoverName();
-  setCurrent(0);
+  async function renderThanksHeading(){const heading=document.querySelector('#danke h2');if(!heading)return;const word='danke';heading.classList.add('thanks-heading');heading.textContent='';const targetHeight=()=>Math.max(28,(parseFloat(getComputedStyle(heading).fontSize)||80)*.95),items=[];
+    for(const rawLetter of word){const upper=rawLetter.toUpperCase(),wrapper=document.createElement('span'),button=document.createElement('button'),plain=document.createElement('span'),graphic=document.createElement('span'),image=document.createElement('img'),initialVariant=randomVariant(upper);wrapper.className='thanks-letter';wrapper.dataset.letter=upper;wrapper.dataset.variant=String(initialVariant);wrapper.dataset.fixed='false';plain.className='thanks-plain';plain.textContent=rawLetter;graphic.className='thanks-graphic';image.alt='';image.draggable=false;setGraphicVariant(image,upper,initialVariant);graphic.appendChild(image);button.append(plain,graphic);button.setAttribute('aria-label',`Buchstabe ${rawLetter} umschalten`);wrapper.appendChild(button);heading.appendChild(wrapper);items.push({wrapper,image});const applySize=()=>{if(!image.naturalWidth||!image.naturalHeight)return;const height=targetHeight(),width=height*(image.naturalWidth/image.naturalHeight);wrapper.style.width=`${Math.max(width,plain.getBoundingClientRect().width||0).toFixed(2)}px`;graphic.style.width=`${width.toFixed(2)}px`;image.style.height=`${height.toFixed(2)}px`};image.addEventListener('load',applySize);image.decode?.().then(applySize).catch(applySize);button.addEventListener('mouseenter',()=>{if(wrapper.dataset.fixed!=='true')wrapper.classList.add('is-preview')});button.addEventListener('mouseleave',()=>{if(wrapper.dataset.fixed!=='true')wrapper.classList.remove('is-preview')});button.addEventListener('click',()=>{const variant=nextVariant(upper,Number(wrapper.dataset.variant||0));wrapper.dataset.variant=String(variant);wrapper.dataset.fixed='true';wrapper.classList.remove('is-preview');wrapper.classList.add('is-fixed');setGraphicVariant(image,upper,variant);image.decode?.().then(applySize).catch(applySize)})}
+    const punctuation=document.createElement('span');punctuation.textContent='!';heading.appendChild(punctuation);const resize=()=>items.forEach(({wrapper,image})=>{if(!image.naturalWidth||!image.naturalHeight)return;const height=targetHeight(),width=height*(image.naturalWidth/image.naturalHeight),plain=wrapper.querySelector('.thanks-plain'),graphic=wrapper.querySelector('.thanks-graphic');wrapper.style.width=`${Math.max(width,plain.getBoundingClientRect().width||0).toFixed(2)}px`;graphic.style.width=`${width.toFixed(2)}px`;image.style.height=`${height.toFixed(2)}px`});window.addEventListener('resize',resize);resize()}
+
+  renderCommunitySlide();renderCoverName();renderThanksHeading();window.addEventListener('resize',scheduleCoverFit);if(typeof ResizeObserver==='function'&&coverTitle)new ResizeObserver(scheduleCoverFit).observe(coverTitle);setCurrent(0);
 })();
