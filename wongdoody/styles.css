@@ -21,7 +21,7 @@
   --muted: #77736b;
   --line: #c8c3b9;
   --accent: #b8ef22;
-  --sheet-width: min(86vw, calc((100svh - 92px) * 1.7778), 1440px);
+  --sheet-width: min(92.5vw, calc((100svh - 56px) * 1.7778), 1600px);
   color-scheme: light;
 }
 
@@ -59,7 +59,7 @@ select {
   min-height: 100svh;
   display: grid;
   place-items: center;
-  padding: 34px 42px 58px;
+  padding: 22px 28px 34px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
@@ -103,7 +103,7 @@ select {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .22em;
+  gap: .26em;
   margin: 0;
   font-size: clamp(38px, 7vw, 112px);
   line-height: .92;
@@ -111,16 +111,22 @@ select {
   font-weight: 700;
 }
 
+.cover-partner {
+  white-space: nowrap;
+}
+
 .wd-logo {
   display: inline-flex;
   align-items: center;
-  height: .82em;
-  translate: 0 .04em;
+  height: .76em;
+  max-width: 4.4em;
+  translate: 0 .015em;
 }
 
 .wd-logo img {
   display: block;
   width: auto;
+  max-width: 100%;
   height: 100%;
   object-fit: contain;
 }
@@ -357,11 +363,11 @@ select {
 
 @media (max-width: 700px) {
   :root {
-    --sheet-width: min(91vw, calc((100svh - 80px) * 1.7778));
+    --sheet-width: min(94vw, calc((100svh - 58px) * 1.7778));
   }
 
   .deck-stop {
-    padding: 24px 18px 48px;
+    padding: 18px 12px 40px;
   }
 
   .deck-ui {
