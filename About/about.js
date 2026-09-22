@@ -1,6 +1,6 @@
 const aboutText = document.querySelector("[data-about-text]");
 const reloadButton = document.querySelector("[data-about-reload]");
-const fallbackText = "Peter lebt in Tübingen und arbeitet als Copywriter und Konzeptioner. Manchmal baut er kleine Dinge mit KI.";
+const fallbackText = "Peter ist Creative Technologist, Konzeptioner und Copywriter. Er lebt in Tübingen und baut manchmal kleine Dinge mit KI.";
 
 function requestId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;

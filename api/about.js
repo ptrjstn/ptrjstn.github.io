@@ -3,6 +3,8 @@ const ALLOWED_ORIGINS = new Set([
   "https://www.ptrjstn.de",
 ]);
 
+const FIXED_INTRO = "Peter ist Creative Technologist, Konzeptioner und Copywriter.";
+
 export default async function handler(request, response) {
   const origin = request.headers.origin;
 
@@ -82,13 +84,17 @@ export default async function handler(request, response) {
           {
             role: "user",
             content: `
-              Schreibe eine neue Variante eines kurzen About-Texts über Peter.
+              Schreibe den dynamischen Teil eines kurzen About-Texts über Peter.
+
+              Der vollständige Text beginnt bereits mit diesem festen Satz:
+              „Peter ist Creative Technologist, Konzeptioner und Copywriter.“
 
               Regeln:
+              - Schreibe nur den Text, der nach dem festen Satz folgt.
               - Schreibe in der dritten Person.
-              - Schreibe zwei bis vier kurze Sätze.
-              - Verwende höchstens 55 Wörter.
-              - Beginne nicht jedes Mal mit seinem Beruf.
+              - Schreibe ein bis drei kurze Sätze.
+              - Verwende höchstens 40 Wörter.
+              - Wiederhole den festen Satz und die Berufsbezeichnungen nicht.
               - Verwende einfache, alltägliche Wörter.
               - Der Text soll unprätentiös, freundlich und leicht wirken.
               - Stelle nicht zwingend alle Fakten in jeder Variante unter.
@@ -98,7 +104,6 @@ export default async function handler(request, response) {
 
               Fakten:
               - Peter lebt in Tübingen.
-              - Er arbeitet als Copywriter und Konzeptioner.
               - Er interessiert sich für Technik, Kultur und Medien.
               - Er baut eigene kleine Projekte mit KI.
 
@@ -147,7 +152,13 @@ export default async function handler(request, response) {
       throw new Error("Die Antwort hat nicht das erwartete Format.");
     }
 
-    return response.status(200).json({ text: aboutData.text.trim() });
+    const dynamicText = aboutData.text.trim();
+    const normalizedDynamicText = dynamicText.startsWith(FIXED_INTRO)
+      ? dynamicText.slice(FIXED_INTRO.length).trim()
+      : dynamicText;
+    const text = [FIXED_INTRO, normalizedDynamicText].filter(Boolean).join(" ");
+
+    return response.status(200).json({ text });
   } catch (error) {
     console.error("Fehler beim Erzeugen des About-Texts:", error);
     return response.status(500).json({ error: "Beim Verarbeiten des About-Texts ist ein Fehler aufgetreten." });
