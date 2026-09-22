@@ -279,6 +279,7 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 0;
   font-size: 13px;
   line-height: 1;
   opacity: 1;
@@ -286,17 +287,20 @@ a:hover {
 
 footer .footer-links {
   display: flex;
-  margin-left: 14px;
+  gap: 0.25em;
+  margin-left: 0.25em;
   font-size: inherit;
 }
 
 footer .footer-links a {
-  padding: 0 14px;
+  padding: 0;
   border-left: 0;
   color: var(--muted);
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 footer .footer-links a:last-child {
@@ -305,8 +309,6 @@ footer .footer-links a:last-child {
 
 footer .footer-links a:hover {
   color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
 }
 
 .muted {
