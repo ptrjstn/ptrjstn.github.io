@@ -1,3 +1,35 @@
+@font-face {
+  font-family: "iA Writer Quattro";
+  src: url("assets/fonts/iAWriterQuattroS-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "iA Writer Quattro";
+  src: url("assets/fonts/iAWriterQuattroS-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "iA Writer Quattro";
+  src: url("assets/fonts/iAWriterQuattroS-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "iA Writer Quattro";
+  src: url("assets/fonts/iAWriterQuattroS-BoldItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --bg: #f5efe4;
@@ -15,7 +47,7 @@
   --bg-texture-opacity: 0.7;
   --page-gutter: clamp(12px, 2.37vw, 18px);
   --wrap-gutter: clamp(16px, 5.79vw, 44px);
-  --sans: inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "segoe ui", sans-serif;
+  --sans: "iA Writer Quattro", sans-serif;
 }
 
 :root[data-theme="dark"] {
