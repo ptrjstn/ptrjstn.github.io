@@ -38,6 +38,10 @@
   filter: saturate(0.9) contrast(1.02);
 }
 
+:root:not([data-theme="dark"]) .about__portrait-original {
+  filter: brightness(1.12) saturate(0.9) contrast(1.02);
+}
+
 
 
 .about__copy {
