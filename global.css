@@ -292,7 +292,7 @@ footer .footer-links {
 
 footer .footer-links a {
   padding: 0 14px;
-  border-left: 1px solid var(--line);
+  border-left: 0;
   color: var(--muted);
   font-family: inherit;
   font-size: inherit;
