@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var endpoint = "https://hfki.org/api/analytics/visit";
+  var endpoint = "https://hfki.org/api/analytics/visit/";
   var storageKey = "ptrjstn-analytics-session";
 
   function sessionId() {
